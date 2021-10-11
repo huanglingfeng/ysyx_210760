@@ -98,7 +98,22 @@ class Decode extends Module {
       LHU     -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  , NEXTPC_ADD4 ,  OPTYPE_LSU ,  ALU_ADD ,  BRU_X    ,  LSU_LHU  ,  RV64_X     ),
       SB      -> List(Y, OUT1_RS1 , OUT2_RS2, IMM_X  , NEXTPC_ADD4 ,  OPTYPE_LSU ,  ALU_ADD ,  BRU_X    ,  LSU_SB   ,  RV64_X     ),
       SH      -> List(Y, OUT1_RS1 , OUT2_RS2, IMM_X  , NEXTPC_ADD4 ,  OPTYPE_LSU ,  ALU_ADD ,  BRU_X    ,  LSU_SH   ,  RV64_X     ),
-      SW      -> List(Y, OUT1_RS1 , OUT2_RS2, IMM_X  , NEXTPC_ADD4 ,  OPTYPE_LSU ,  ALU_ADD ,  BRU_X    ,  LSU_SW   ,  RV64_X     )
+      SW      -> List(Y, OUT1_RS1 , OUT2_RS2, IMM_X  , NEXTPC_ADD4 ,  OPTYPE_LSU ,  ALU_ADD ,  BRU_X    ,  LSU_SW   ,  RV64_X     ),
+      //-------------------RV64IInstr----------------------------------//
+      /*e.x.: -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  , NEXTPC_ADD4 ,  OPTYPE_X   ,  ALU_ADD ,  BRU_X    ,  LSU_LB   ,  RV64_X     ),  */
+      ADDIW   -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  , NEXTPC_ADD4 ,  OPTYPE_RV64,  ALU_ADD ,  BRU_X    ,  LSU_LB   ,  RV64_ADDIW ),
+      SLLIW   -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  , NEXTPC_ADD4 ,  OPTYPE_RV64,  ALU_SLL ,  BRU_X    ,  LSU_LB   ,  RV64_SLLIW ),
+      SRLIW   -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  , NEXTPC_ADD4 ,  OPTYPE_RV64,  ALU_SRL ,  BRU_X    ,  LSU_LB   ,  RV64_SRLIW ),
+      SRAIW   -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  , NEXTPC_ADD4 ,  OPTYPE_RV64,  ALU_SRA ,  BRU_X    ,  LSU_LB   ,  RV64_SRAIW ),
+      SLLW    -> List(Y, OUT1_RS1 , OUT2_RS2, IMM_X  , NEXTPC_ADD4 ,  OPTYPE_RV64,  ALU_SLL ,  BRU_X    ,  LSU_LB   ,  RV64_SLLW  ),
+      SRLW    -> List(Y, OUT1_RS1 , OUT2_RS2, IMM_X  , NEXTPC_ADD4 ,  OPTYPE_RV64,  ALU_SRL ,  BRU_X    ,  LSU_LB   ,  RV64_SRLW  ),
+      SRAW    -> List(Y, OUT1_RS1 , OUT2_RS2, IMM_X  , NEXTPC_ADD4 ,  OPTYPE_RV64,  ALU_SRA ,  BRU_X    ,  LSU_LB   ,  RV64_SRAW  ),
+      ADDW    -> List(Y, OUT1_RS1 , OUT2_RS2, IMM_X  , NEXTPC_ADD4 ,  OPTYPE_RV64,  ALU_ADD ,  BRU_X    ,  LSU_LB   ,  RV64_ADDW  ),
+      SUBW    -> List(Y, OUT1_RS1 , OUT2_RS2, IMM_X  , NEXTPC_ADD4 ,  OPTYPE_RV64,  ALU_SUB ,  BRU_X    ,  LSU_LB   ,  RV64_SUBW  ),
+
+      LWU     -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  , NEXTPC_ADD4 ,  OPTYPE_RV64,  ALU_ADD ,  BRU_X    ,  LSU_LB   ,  RV64_LWU   ),
+      LD      -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  , NEXTPC_ADD4 ,  OPTYPE_RV64,  ALU_ADD ,  BRU_X    ,  LSU_LB   ,  RV64_LD    ),
+      SD      -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  , NEXTPC_ADD4 ,  OPTYPE_RV64,  ALU_ADD ,  BRU_X    ,  LSU_LB   ,  RV64_SD    )
 
     ))
     val (inst_valid: Bool) :: id_out1 :: id_out2 :: id_imm :: if_nextpc :: optype :: aluop :: bruop :: lsuop :: rv64op :: Nil = ctr_signals
@@ -109,6 +124,8 @@ class Decode extends Module {
     rs2_en := id_out2(0)
 
     val imm = Mux1H(Seq(
+      (id_imm === 0.U) -> 0.U,
+
       id_imm(0) -> imm_i,
       id_imm(1) -> imm_s,
       id_imm(2) -> imm_b,
@@ -118,10 +135,14 @@ class Decode extends Module {
 
     
     io.id_to_ex_bus.out1 := Mux1H(Seq(
+      (id_out1 === 0.U) -> 0.U,
+
       id_out1(0) -> io.rs1_data,
       id_out1(1) -> io.if_to_id.pc
     ))
     io.id_to_ex_bus.out2 := Mux1H(Seq(
+      (id_out2 === 0.U) -> 0.U,
+
       id_out2(0) -> io.rs2_data,
       id_out2(1) ->imm
     ))
