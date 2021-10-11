@@ -1,7 +1,7 @@
 import chisel3._
 import chisel3.util._
 class IF_TO_ID_BUS extends Bundle{
-  val pc=Output(UInt(32.W))
+  val pc=Output(UInt(64.W))
   val inst=Output(UInt(32.W))
 }
 class InstFetch extends Module {
@@ -14,7 +14,7 @@ class InstFetch extends Module {
   val pc_en = RegInit(false.B)
   pc_en := true.B
 
-  val pc = RegInit("h80000000".U(32.W))
+  val pc = RegInit("h00000000_80000000".U(64.W))
   pc := Mux(id_to_if.jump,id_to_if.next_pc,pc+4.U)
 
   io.imem.en := true.B
