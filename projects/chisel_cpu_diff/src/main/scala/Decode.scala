@@ -14,6 +14,7 @@ class ID_TO_EX_BUS extends Bundle{
   
   val out1  = Output(UInt(64.W))
   val out2  = Output(UInt(64.W))
+  
   val dest  = Output(UInt(5.W))
   val rf_w  = Output(Bool)
   val load = Output(Bool)
