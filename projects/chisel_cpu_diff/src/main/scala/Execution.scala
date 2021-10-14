@@ -19,10 +19,10 @@ class EX_TO_ISU_BUS extends Bundle{
 
 class Execution extends Module {
   val io = IO(new Bundle {
+
     val id_to_ex = Flipped(new ID_TO_EX_BUS)
     val ex_to_isu = new EX_TO_ISU_BUS
 
-    // val dmem = new RamIO
   })
   val aluop = id_to_ex.aluop
   val rv64op = id_to_ex.rv64op
@@ -111,11 +111,5 @@ class Execution extends Module {
   val alu_res = Mux(is_w,Cat(Fill(32,alu_res_64(31)),alu_res_64(31,0)),alu_res_64)
 
   ex_to_isu.alu_res := alu_res
-
-  // io.dmem.en := false.B
-  // io.dmem.addr := 0.U
-  // io.dmem.wen := false.B
-  // io.dmem.wdata := 0.U
-  // io.dmem.wmask := 0.U
 
 }

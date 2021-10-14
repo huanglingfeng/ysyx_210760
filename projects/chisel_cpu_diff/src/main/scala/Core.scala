@@ -9,24 +9,35 @@ class Core extends Module {
   })
 
   val fetch = Module(new InstFetch)
-  fetch.io.imem <> io.imem
 
   val decode = Module(new Decode)
-  decode.io.inst := fetch.io.inst
+  decode.io.imem <> io.imem
+  fetch.io.if_to_id <> decode.io.if_to_id
+  decode.io.id_to_if <> fetch.io.id_to_if
+ 
+  val exu = Module(new Execution)
+  decode.io.id_to_ex <> exu.io.id_to_ex
+
+  val isu = Module(new ISU)
+  exu.io.ex_to_isu <> isu.io.ex_to_isu
+  isu.io.dmem <> io.dmem
+
+  val wb = Module(new WB)
+  isu.io.isu_to_wb <> wb.io.isu_to_wb
 
   val rf = Module(new RegFile)
+  /*------------idu <> rf---------------------*/
   rf.io.rs1_addr := decode.io.rs1_addr
   rf.io.rs2_addr := decode.io.rs2_addr
-  rf.io.rd_addr := decode.io.rd_addr
-  rf.io.rd_en := decode.io.rd_en
-
-  val execution = Module(new Execution)
-  execution.io.opcode := decode.io.opcode
-  execution.io.in1 := Mux(decode.io.rs1_en, rf.io.rs1_data, 0.U)
-  execution.io.in2 := Mux(decode.io.rs2_en, rf.io.rs2_data, decode.io.imm)
-  execution.io.dmem <> io.dmem
-  rf.io.rd_data := execution.io.out
-
+  rf.io.rs1_en := decode.io.rs1_en
+  rf.io.rs2_en := decode.io.rs2_en
+  decode.io.rs1_data := rf.io.rs1_data
+  decode.io.rs2_data := rf.io.rs2_data
+  /*-----------wb <> rf-----------------------*/
+  rf.io.rd_addr := wb.io.rd_addr
+  rf.io.rd_data := wb.io.rd_data
+  rf.io.rd_en := wb.io.rd_en
+  
   /* ----- Difftest ------------------------------ */
 
   val dt_ic = Module(new DifftestInstrCommit)
@@ -34,14 +45,14 @@ class Core extends Module {
   dt_ic.io.coreid   := 0.U
   dt_ic.io.index    := 0.U
   dt_ic.io.valid    := true.B
-  dt_ic.io.pc       := RegNext(fetch.io.pc)
-  dt_ic.io.instr    := RegNext(fetch.io.inst)
+  dt_ic.io.pc       := RegNext(fetch.io.if_to_id.pc)
+  dt_ic.io.instr    := RegNext(fetch.io.if_to_id.inst)
   dt_ic.io.skip     := false.B
   dt_ic.io.isRVC    := false.B
   dt_ic.io.scFailed := false.B
-  dt_ic.io.wen      := RegNext(decode.io.rd_en)
-  dt_ic.io.wdata    := RegNext(execution.io.out)
-  dt_ic.io.wdest    := RegNext(decode.io.rd_addr)
+  dt_ic.io.wen      := RegNext(wb.io.rd_en)
+  dt_ic.io.wdata    := RegNext(wb.io.rd_data)
+  dt_ic.io.wdest    := RegNext(wb.io.rd_addr)
 
   val dt_ae = Module(new DifftestArchEvent)
   dt_ae.io.clock        := clock

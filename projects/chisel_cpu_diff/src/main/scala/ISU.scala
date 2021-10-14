@@ -49,7 +49,6 @@ class ISU extends Module {
         i_sb -> "h0000_0000_0000_00FF".U(64.W)
     ))
 
-
     io.dmem.en := load || save
     io.dmem.addr := addr
     io.dmem.wen := save
