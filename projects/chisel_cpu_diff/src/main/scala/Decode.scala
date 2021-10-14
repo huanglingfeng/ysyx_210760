@@ -14,6 +14,8 @@ class ID_TO_EX_BUS extends Bundle{
   
   val out1  = Output(UInt(64.W))
   val out2  = Output(UInt(64.W))
+
+  val imm = Output(UInt(64.W))
   
   val dest  = Output(UInt(5.W))
   val rf_w  = Output(Bool)
@@ -100,24 +102,24 @@ class Decode extends Module {
       LW      -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_LSU ,  ALU_ADD ,  BRU_X    ,  LSU_LW   ,  RV64_X     ),
       LBU     -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_LSU ,  ALU_ADD ,  BRU_X    ,  LSU_LBU  ,  RV64_X     ),
       LHU     -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_LSU ,  ALU_ADD ,  BRU_X    ,  LSU_LHU  ,  RV64_X     ),
-      SB      -> List(Y, OUT1_RS1 , OUT2_RS2, IMM_X  ,  OPTYPE_LSU ,  ALU_ADD ,  BRU_X    ,  LSU_SB   ,  RV64_X     ),
-      SH      -> List(Y, OUT1_RS1 , OUT2_RS2, IMM_X  ,  OPTYPE_LSU ,  ALU_ADD ,  BRU_X    ,  LSU_SH   ,  RV64_X     ),
-      SW      -> List(Y, OUT1_RS1 , OUT2_RS2, IMM_X  ,  OPTYPE_LSU ,  ALU_ADD ,  BRU_X    ,  LSU_SW   ,  RV64_X     ),
+      SB      -> List(Y, OUT1_RS1 , OUT2_RS2, IMM_S  ,  OPTYPE_LSU ,  ALU_ADD ,  BRU_X    ,  LSU_SB   ,  RV64_X     ),
+      SH      -> List(Y, OUT1_RS1 , OUT2_RS2, IMM_S  ,  OPTYPE_LSU ,  ALU_ADD ,  BRU_X    ,  LSU_SH   ,  RV64_X     ),
+      SW      -> List(Y, OUT1_RS1 , OUT2_RS2, IMM_S  ,  OPTYPE_LSU ,  ALU_ADD ,  BRU_X    ,  LSU_SW   ,  RV64_X     ),
       //-------------------RV64IInstr----------------------------------//
-      /*e.x.: -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_X   ,  ALU_ADD ,  BRU_X    ,  LSU_LB   ,  RV64_X     ),  */
-      ADDIW   -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_RV64,  ALU_ADD ,  BRU_X    ,  LSU_LB   ,  RV64_ADDIW ),
-      SLLIW   -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_RV64,  ALU_SLL ,  BRU_X    ,  LSU_LB   ,  RV64_SLLIW ),
-      SRLIW   -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_RV64,  ALU_SRL ,  BRU_X    ,  LSU_LB   ,  RV64_SRLIW ),
-      SRAIW   -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_RV64,  ALU_SRA ,  BRU_X    ,  LSU_LB   ,  RV64_SRAIW ),
-      SLLW    -> List(Y, OUT1_RS1 , OUT2_RS2, IMM_X  ,  OPTYPE_RV64,  ALU_SLL ,  BRU_X    ,  LSU_LB   ,  RV64_SLLW  ),
-      SRLW    -> List(Y, OUT1_RS1 , OUT2_RS2, IMM_X  ,  OPTYPE_RV64,  ALU_SRL ,  BRU_X    ,  LSU_LB   ,  RV64_SRLW  ),
-      SRAW    -> List(Y, OUT1_RS1 , OUT2_RS2, IMM_X  ,  OPTYPE_RV64,  ALU_SRA ,  BRU_X    ,  LSU_LB   ,  RV64_SRAW  ),
-      ADDW    -> List(Y, OUT1_RS1 , OUT2_RS2, IMM_X  ,  OPTYPE_RV64,  ALU_ADD ,  BRU_X    ,  LSU_LB   ,  RV64_ADDW  ),
-      SUBW    -> List(Y, OUT1_RS1 , OUT2_RS2, IMM_X  ,  OPTYPE_RV64,  ALU_SUB ,  BRU_X    ,  LSU_LB   ,  RV64_SUBW  ),
+      /*e.x.: -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_X   ,  ALU_ADD ,  BRU_X    ,  LSU_X    ,  RV64_X     ),  */
+      ADDIW   -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_RV64,  ALU_ADD ,  BRU_X    ,  LSU_X    ,  RV64_ADDIW ),
+      SLLIW   -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_RV64,  ALU_SLL ,  BRU_X    ,  LSU_X    ,  RV64_SLLIW ),
+      SRLIW   -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_RV64,  ALU_SRL ,  BRU_X    ,  LSU_X    ,  RV64_SRLIW ),
+      SRAIW   -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_RV64,  ALU_SRA ,  BRU_X    ,  LSU_X    ,  RV64_SRAIW ),
+      SLLW    -> List(Y, OUT1_RS1 , OUT2_RS2, IMM_X  ,  OPTYPE_RV64,  ALU_SLL ,  BRU_X    ,  LSU_X    ,  RV64_SLLW  ),
+      SRLW    -> List(Y, OUT1_RS1 , OUT2_RS2, IMM_X  ,  OPTYPE_RV64,  ALU_SRL ,  BRU_X    ,  LSU_X    ,  RV64_SRLW  ),
+      SRAW    -> List(Y, OUT1_RS1 , OUT2_RS2, IMM_X  ,  OPTYPE_RV64,  ALU_SRA ,  BRU_X    ,  LSU_X    ,  RV64_SRAW  ),
+      ADDW    -> List(Y, OUT1_RS1 , OUT2_RS2, IMM_X  ,  OPTYPE_RV64,  ALU_ADD ,  BRU_X    ,  LSU_X    ,  RV64_ADDW  ),
+      SUBW    -> List(Y, OUT1_RS1 , OUT2_RS2, IMM_X  ,  OPTYPE_RV64,  ALU_SUB ,  BRU_X    ,  LSU_X    ,  RV64_SUBW  ),
 
-      LWU     -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_RV64,  ALU_ADD ,  BRU_X    ,  LSU_LB   ,  RV64_LWU   ),
-      LD      -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_RV64,  ALU_ADD ,  BRU_X    ,  LSU_LB   ,  RV64_LD    ),
-      SD      -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_RV64,  ALU_ADD ,  BRU_X    ,  LSU_LB   ,  RV64_SD    )
+      LWU     -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_RV64,  ALU_ADD ,  BRU_X    ,  LSU_X    ,  RV64_LWU   ),
+      LD      -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_RV64,  ALU_ADD ,  BRU_X    ,  LSU_X    ,  RV64_LD    ),
+      SD      -> List(Y, OUT1_RS1 , OUT2_RS2, IMM_S  ,  OPTYPE_RV64,  ALU_ADD ,  BRU_X    ,  LSU_X    ,  RV64_SD    )
 
     ))
     val (inst_valid: Bool) :: id_out1 :: id_out2 :: id_imm :: optype :: aluop :: bruop :: lsuop :: rv64op :: Nil = ctr_signals
@@ -137,22 +139,24 @@ class Decode extends Module {
       id_imm(4) -> imm_j
     ))
 
+    
+
     val rs1_data = Mux(rs1_en,io.rs1_data,0.U)
     val rs2_data = Mux(rs2_en,io.rs2_data,0.U)
     
-    io.id_to_ex_bus.out1 := Mux1H(Seq(
+    io.id_to_ex.out1 := Mux1H(Seq(
       (id_out1 === 0.U) -> 0.U,
 
       id_out1(0) -> rs1_data,
       id_out1(1) -> io.if_to_id.pc
     ))
-    io.id_to_ex_bus.out2 := Mux1H(Seq(
+    io.id_to_ex.out2 := Mux1H(Seq(
       (id_out2 === 0.U) -> 0.U,
 
       id_out2(0) -> rs2_data,
       id_out2(1) ->imm
     ))
-    io.id_to_ex_bus.dest := rd
+    io.id_to_ex.dest := rd
 
     val load = Mux1H(Seq(
       (lsuop === 0.U && rv64op === 0.U) -> N,
@@ -227,17 +231,18 @@ class Decode extends Module {
       (is_br && !jump) -> "h8000_0000".U(64.W) 
     ))
 
-    io.id_to_ex_bus.rf_w := !save && !is_br
-    io.id_to_ex_bus.load := load
-    io.id_to_ex_bus.save := save
+    io.id_to_ex.imm := imm
+    io.id_to_ex.rf_w := !save && !is_br
+    io.id_to_ex.load := load
+    io.id_to_ex.save := save
     
     
     io.id_to_if.jump := jump
     io.id_to_if.pc_target := pc_target
     
-    io.id_to_ex_bus.aluop := aluop
-    io.id_to_ex_bus.lsuop := lsuop
-    io.id_to_ex_bus.rv64op := rv64op
+    io.id_to_ex.aluop := aluop
+    io.id_to_ex.lsuop := lsuop
+    io.id_to_ex.rv64op := rv64op
 
   
 }
