@@ -1,7 +1,7 @@
 import chisel3._
 import chisel3.util._
 
-trait ID_Consts{
+object Consts{
     val Y = true.B
     val N = false.B
 

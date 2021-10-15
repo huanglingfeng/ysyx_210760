@@ -12,9 +12,9 @@ class EX_TO_ISU_BUS extends Bundle{
     val lsuop = Output(UInt(8.W))
     val rv64op = Output(UInt(12.W))
     val dest = Output(UInt(5.W))
-    val rf_w = Output(Bool)
-    val load = Output(Bool)
-    val save = Output(Bool)
+    val rf_w = Output(Bool())
+    val load = Output(Bool())
+    val save = Output(Bool())
 }
 
 class Execution extends Module {
@@ -24,24 +24,24 @@ class Execution extends Module {
     val ex_to_isu = new EX_TO_ISU_BUS
 
   })
-  val aluop = id_to_ex.aluop
-  val rv64op = id_to_ex.rv64op
-  val src1_64 = id_to_ex.out1
-  val src2_64 = id_to_ex.out2
-  val imm = id_to_ex.imm      
+  val aluop = io.id_to_ex.aluop
+  val rv64op = io.id_to_ex.rv64op
+  val src1_64 = io.id_to_ex.out1
+  val src2_64 = io.id_to_ex.out2
+  val imm = io.id_to_ex.imm      
 
-  ex_to_isu.lsuop := id_to_ex.lsuop
-  ex_to_isu.rv64op := id_to_ex.rv64op
-  ex_to_isu.dest := id_to_ex.dest
-  ex_to_isu.rf_w := id_to_ex.rf_w
-  ex_to_isu.load := id_to_ex.load
-  ex_to_isu.save := id_to_ex.save
-  ex_to_isu.src1 := src1_64
-  ex_to_isu.src2 := src2_64
-  ex_to_isu.imm := imm
+  io.ex_to_isu.lsuop := io.id_to_ex.lsuop
+  io.ex_to_isu.rv64op := io.id_to_ex.rv64op
+  io.ex_to_isu.dest := io.id_to_ex.dest
+  io.ex_to_isu.rf_w := io.id_to_ex.rf_w
+  io.ex_to_isu.load := io.id_to_ex.load
+  io.ex_to_isu.save := io.id_to_ex.save
+  io.ex_to_isu.src1 := src1_64
+  io.ex_to_isu.src2 := src2_64
+  io.ex_to_isu.imm := imm
 
   val is_w = Mux1H(Seq(
-      (rv64op === 0) -> N,
+      (rv64op === 0.U) -> N,
 
       rv64op(0) -> Y,
       rv64op(1) -> Y,
@@ -74,7 +74,7 @@ class Execution extends Module {
 
   val add_res = src1 + src2
 
-  val slt_res = Mux(src1.asSInt()<src2.asSInt(),1.U(64.W),0.U(64.W))
+  val slt_res = (Mux(src1.asSInt()<src2.asSInt(),1.U(64.W),0.U(64.W))).asUInt()
 
   val sltu_res = Mux(src1.asUInt()<src2.asUInt(),1.U(64.W),0.U(64.W))
 
@@ -88,14 +88,14 @@ class Execution extends Module {
 
   val srl_res = src1.asUInt() >> src2(4,0)
   
-  val sra_res = src1.asSInt() >> src2(4,0)
+  val sra_res = (src1.asSInt() >> src2(4,0)).asUInt()
   
   val lui_res = src2
 
   val sub_res = src1 - src2
 
   val alu_res_64 = Mux1H(Seq(
-    (aluop === 0) -> 0.U,
+    (aluop === 0.U) -> 0.U,
     i_add -> add_res,
     i_slt -> slt_res,
     i_sltu -> sltu_res,
@@ -110,6 +110,6 @@ class Execution extends Module {
   ))
   val alu_res = Mux(is_w,Cat(Fill(32,alu_res_64(31)),alu_res_64(31,0)),alu_res_64)
 
-  ex_to_isu.alu_res := alu_res
+  io.ex_to_isu.alu_res := alu_res
 
 }

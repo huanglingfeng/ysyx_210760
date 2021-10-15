@@ -5,7 +5,7 @@ import Consts._
 
 class ID_TO_IF_BUS extends Bundle{
   val pc_target=Output(UInt(64.W))
-  val jump = Output(Bool)
+  val jump = Output(Bool())
 }
 class ID_TO_EX_BUS extends Bundle{
   val aluop = Output(UInt(11.W))
@@ -18,22 +18,20 @@ class ID_TO_EX_BUS extends Bundle{
   val imm = Output(UInt(64.W))
   
   val dest  = Output(UInt(5.W))
-  val rf_w  = Output(Bool)
-  val load = Output(Bool)
-  val save = Output(Bool)
+  val rf_w  = Output(Bool())
+  val load = Output(Bool())
+  val save = Output(Bool())
 
 }
 class Decode extends Module {
   val io = IO(new Bundle {
     val if_to_id=Flipped(new IF_TO_ID_BUS)
     val id_to_ex=new ID_TO_EX_BUS
+    val id_to_if= new ID_TO_IF_BUS
 
     val rs1_addr = Output(UInt(5.W))
-    val rs1_en = Output(Bool())
     val rs1_data = Input(UInt(64.W))
-
     val rs2_addr = Output(UInt(5.W))
-    val rs2_en = Output(Bool())
     val rs2_data = Input(UInt(64.W))
 
   })
@@ -49,14 +47,14 @@ class Decode extends Module {
 
   
   val imm_i = Cat(Fill(53, inst(31)), inst(30, 20))
-  val imm_s = Cat(Fill(53,inst(31))inst(30,25),inst(11,7))
+  val imm_s = Cat(Fill(53,inst(31)),inst(30,25),inst(11,7))
   val imm_b = Cat(Fill(52,inst(31)),inst(7),inst(30,25),inst(11,8),0.U)
   val imm_u = Cat(Fill(33,inst(31)),inst(30,12),0.U(12.W))
   val imm_j = Cat(Fill(44,inst(31)),inst(19,12),inst(20),inst(30,25),inst(24,21),0.U)
   val imm_4 = 4.U(64.W)
 
   val ctr_signals = ListLookup(inst,
-    List(N,OUT1_X,OUT2_X,IMM_X,OPTYPE,ALU_X,BRU_X,LSU_X,RV64_X),Array(
+    List(N,OUT1_X,OUT2_X,IMM_X,OPTYPE_X,ALU_X,BRU_X,LSU_X,RV64_X),Array(
       /*inst_valid    | id_out1   | id_out2 | id_imm |   optype     |  aluop   |  bruop    |  lsuop    |  rv64op     |   */
       //-------------------RV32I_ALUInstr------------------------------//
       /*e.x.: -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_X   ,  ALU_ADD ,  BRU_X    ,  LSU_X    ,  RV64_X     ),  */
@@ -126,8 +124,8 @@ class Decode extends Module {
 
     io.rs1_addr := rs1
     io.rs2_addr := rs2
-    rs1_en := id_out1(0)
-    rs2_en := id_out2(0)
+    val rs1_en = id_out1(0)
+    val rs2_en = id_out2(0)
 
     val imm = Mux1H(Seq(
       (id_imm === 0.U) -> 0.U,
@@ -171,9 +169,8 @@ class Decode extends Module {
 
       rv64op(10) -> Y,
       rv64op(11) -> Y,
-      (rv64op =/= 0.U && !rv64op(10) && !(rv64op(11)) -> N
+      (rv64op =/= 0.U && !rv64op(10) && !(rv64op(11))) -> N
     ))
-    )
     val save = Mux1H(Seq(
       (lsuop === 0.U && rv64op === 0.U) -> N,
       lsuop(0) -> N,
@@ -185,8 +182,8 @@ class Decode extends Module {
       lsuop(6) -> Y,
       lsuop(7) -> Y,
 
-      rv64op(12) -> Y,
-      (rv64op =/= 0.U && !rv64op(12)) -> N
+      rv64op(11) -> Y,
+      (rv64op =/= 0.U && !rv64op(11)) -> N
 
     ))
   //------------------------跳转部分----------------------------//
@@ -219,9 +216,9 @@ class Decode extends Module {
     val jump = (is_jal || is_jalr) || (
         (bne &&  (rs1_data =/= rs2_data)) ||
         (beq &&  (rs1_data === rs2_data)) ||
-        (blt &&  (rsl_data.asSInt() < rs2_data.asSInt())) ||
+        (blt &&  (rs1_data.asSInt() < rs2_data.asSInt())) ||
         (bltu && (rs1_data.asUInt() < rs2_data.asUInt())) ||
-        (bge &&  (rsl_data.asSInt() > rs2_data.asSInt())) ||
+        (bge &&  (rs1_data.asSInt() > rs2_data.asSInt())) ||
         (bgeu && (rs1_data.asUInt() < rs2_data.asUInt()))
     )
     val pc_target = Mux1H(Seq(

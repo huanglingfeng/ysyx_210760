@@ -15,7 +15,7 @@ class InstFetch extends Module {
   pc_en := true.B
 
   val pc = RegInit("h00000000_80000000".U(64.W))
-  pc := Mux(id_to_if.jump,id_to_if.pc_target,pc+4.U)
+  pc := Mux(io.id_to_if.jump,io.id_to_if.pc_target,pc+4.U)
 
   io.imem.en := true.B
   io.imem.addr := pc.asUInt()

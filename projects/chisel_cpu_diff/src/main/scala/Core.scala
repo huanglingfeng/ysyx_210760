@@ -9,9 +9,9 @@ class Core extends Module {
   })
 
   val fetch = Module(new InstFetch)
-
+  fetch.io.imem <> io.imem
   val decode = Module(new Decode)
-  decode.io.imem <> io.imem
+
   fetch.io.if_to_id <> decode.io.if_to_id
   decode.io.id_to_if <> fetch.io.id_to_if
  
@@ -29,8 +29,7 @@ class Core extends Module {
   /*------------idu <> rf---------------------*/
   rf.io.rs1_addr := decode.io.rs1_addr
   rf.io.rs2_addr := decode.io.rs2_addr
-  rf.io.rs1_en := decode.io.rs1_en
-  rf.io.rs2_en := decode.io.rs2_en
+
   decode.io.rs1_data := rf.io.rs1_data
   decode.io.rs2_data := rf.io.rs2_data
   /*-----------wb <> rf-----------------------*/
@@ -73,9 +72,9 @@ class Core extends Module {
   val dt_te = Module(new DifftestTrapEvent)
   dt_te.io.clock    := clock
   dt_te.io.coreid   := 0.U
-  dt_te.io.valid    := (fetch.io.inst === "h0000006b".U)
+  dt_te.io.valid    := (fetch.io.if_to_id.inst === "h0000006b".U)
   dt_te.io.code     := rf_a0(2, 0)
-  dt_te.io.pc       := fetch.io.pc
+  dt_te.io.pc       := fetch.io.if_to_id.pc
   dt_te.io.cycleCnt := cycle_cnt
   dt_te.io.instrCnt := instr_cnt
 

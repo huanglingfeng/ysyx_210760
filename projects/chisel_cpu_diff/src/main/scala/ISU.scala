@@ -6,7 +6,7 @@ class ISU_TO_WB_BUS extends Bundle{
     val isu_res = Output(UInt(64.W))
 
     val dest = Output(UInt(5.W))
-    val rf_w = Output(Bool)
+    val rf_w = Output(Bool())
 }
 
 class ISU extends Module {
@@ -17,14 +17,14 @@ class ISU extends Module {
         val dmem = new RamIO
     })
 
-    val alu_res = ex_to_isu.alu_res
-    val src1 = ex_to_isu.src1
-    val src2 = ex_to_isu.src2
-    val imm = ex_to_isu.imm
-    val lsuop = ex_to_isu.lsuop
-    val rv64op = ex_to_isu.rv64op
-    val load = ex_to_isu.load
-    val save = ex_to_isu.save
+    val alu_res = io.ex_to_isu.alu_res
+    val src1 = io.ex_to_isu.src1
+    val src2 = io.ex_to_isu.src2
+    val imm = io.ex_to_isu.imm
+    val lsuop = io.ex_to_isu.lsuop
+    val rv64op = io.ex_to_isu.rv64op
+    val load = io.ex_to_isu.load
+    val save = io.ex_to_isu.save
 
     val i_lb = lsuop(0)
     val i_lh = lsuop(1)
@@ -54,17 +54,17 @@ class ISU extends Module {
     io.dmem.wen := save
     io.dmem.wdata := src2
     io.dmem.wmask := wmask
-    val rdata := io.dmem.rdata
+    val rdata = io.dmem.rdata
 
-    val ld_res := rdata
-    val lw_res := Cat(Fill(32,rdata(31)),rdata(31,0))
-    val lwu_res := Cat(0.U(32.W),rdata(31,0))
-    val lh_res := Cat(Fill(48,rdata(19)),rdata(19,0))
-    val lhu_res := Cat(0.U(48),rdata(19,0))
-    val lb_res := Cat(Fill(56,rdata(7)),rdata(7,0))
-    val lbu_res := Cat(0.U(56.W),rdata(7,0))
+    val ld_res = rdata
+    val lw_res = Cat(Fill(32,rdata(31)),rdata(31,0))
+    val lwu_res = Cat(0.U(32.W),rdata(31,0))
+    val lh_res = Cat(Fill(48,rdata(19)),rdata(19,0))
+    val lhu_res = Cat(0.U(48),rdata(19,0))
+    val lb_res = Cat(Fill(56,rdata(7)),rdata(7,0))
+    val lbu_res = Cat(0.U(56.W),rdata(7,0))
 
-    val load_res := Mux1H(Seq(
+    val load_res = Mux1H(Seq(
         !load -> 0.U(64.W),
         i_ld -> ld_res,
         i_lw -> lw_res,
@@ -82,6 +82,6 @@ class ISU extends Module {
     ))
 
     io.isu_to_wb.isu_res := isu_res
-    io.isu_to_wb.dest := Mux(save,0.U,ex_to_isu.dest)
-    io.isu_to_wb.rf_w :=  Mux(save,false.B,ex_to_isu.rf_w)
+    io.isu_to_wb.dest := Mux(save,0.U,io.ex_to_isu.dest)
+    io.isu_to_wb.rf_w :=  Mux(save,false.B,io.ex_to_isu.rf_w)
 }
