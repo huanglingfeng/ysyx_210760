@@ -39,7 +39,7 @@ class ISU extends Module {
     val i_ld = rv64op(10)
     val i_sd = rv64op(11)
 
-    val addr = src1 + imm //这个加法器应该能转移到exu
+    val addr = Mux((load || save),src1 + imm ,"h0000_0000_8000_0000".U(64.W)) //这个加法器应该能转移到exu
 
     val wmask =  Mux1H(Seq(
         (save === false.B) -> 0.U(64.W),
