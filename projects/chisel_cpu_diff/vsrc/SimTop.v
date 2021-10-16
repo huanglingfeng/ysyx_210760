@@ -706,7 +706,7 @@ module ISU(
   assign io_isu_to_wb_dest = io_ex_to_isu_save ? 5'h0 : io_ex_to_isu_dest; // @[ISU.scala 85:29]
   assign io_isu_to_wb_rf_w = io_ex_to_isu_save ? 1'h0 : io_ex_to_isu_rf_w; // @[ISU.scala 86:30]
   assign io_dmem_en = io_ex_to_isu_load | io_ex_to_isu_save; // @[ISU.scala 52:24]
-  assign io_dmem_addr = io_ex_to_isu_load | io_ex_to_isu_save ? _addr_T_2 : 64'h80000000; // @[ISU.scala 42:19]
+  assign io_dmem_addr = io_ex_to_isu_load | io_ex_to_isu_save ? _addr_T_2 : 64'h80400000; // @[ISU.scala 42:19]
   assign io_dmem_wdata = io_ex_to_isu_src2; // @[ISU.scala 55:19]
   assign io_dmem_wmask = _wmask_T_8 | _wmask_T_5; // @[Mux.scala 27:72]
   assign io_dmem_wen = io_ex_to_isu_save; // @[ISU.scala 54:17]
