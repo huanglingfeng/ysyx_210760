@@ -124,8 +124,8 @@ class Decode extends Module {
 
     io.rs1_addr := rs1
     io.rs2_addr := rs2
-    val rs1_en = id_out1(0)
-    val rs2_en = id_out2(0)
+    val rs1_en = true.B
+    val rs2_en = true.B
 
     val imm = Mux1H(Seq(
       (id_imm === 0.U) -> 0.U,
