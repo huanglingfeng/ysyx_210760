@@ -51,7 +51,7 @@ class Decode extends Module {
   val imm_b = Cat(Fill(52,inst(31)),inst(7),inst(30,25),inst(11,8),0.U)
   val imm_u = Cat(Fill(33,inst(31)),inst(30,12),0.U(12.W))
   val imm_j = Cat(Fill(44,inst(31)),inst(19,12),inst(20),inst(30,25),inst(24,21),0.U)
-  val imm_4 = RegInit("h4".U(64.W))
+  val imm_4 = 4.U(64.W)
 
   val ctr_signals = ListLookup(inst,
     List(N,OUT1_X,OUT2_X,IMM_X,OPTYPE_X,ALU_X,BRU_X,LSU_X,RV64_X),Array(
@@ -134,7 +134,8 @@ class Decode extends Module {
       id_imm(1) -> imm_s,
       id_imm(2) -> imm_b,
       id_imm(3) -> imm_u,
-      id_imm(4) -> imm_j
+      id_imm(4) -> imm_j,
+      id_imm(5) -> imm_4
     ))
 
     
