@@ -39,24 +39,45 @@ class ISU extends Module {
   val i_ld = rv64op(10)
   val i_sd = rv64op(11)
 
-  val addr = Mux(
+  val addr_real = Mux(
     (load || save),
     src1 + imm,
     "h0000_0000_8000_0000".U(64.W)
   ) //这个加法器应该能转移到exu
 
-  val wmask = Mux1H(
+  val sel_b=addr_real(0)
+  val sel_h=addr_real(1)
+  val sel_w=addr_real(2)
+
+  val mask = Mux1H(
     Seq(
       (save === false.B) -> 0.U(64.W),
-      i_sd -> "hFFFF_FFFF_FFFF_FFFF".U(64.W),
-      i_sw -> "h0000_0000_FFFF_FFFF".U(64.W),
-      i_sh -> "h0000_0000_0000_FFFF".U(64.W),
-      i_sb -> "h0000_0000_0000_00FF".U(64.W)
+      (i_sd || i_ld) -> "hFFFF_FFFF_FFFF_FFFF".U(64.W),
+      
+      (i_sw || i_lw) && !sel_w -> "h0000_0000_FFFF_FFFF".U(64.W),
+      (i_sw || i_lw) &&  sel_w -> "hFFFF_FFFF_0000_0000".U(64.W),
+
+      (i_sh || i_lh) && (!sel_w && !sel_h) -> "h0000_0000_0000_FFFF".U(64.W),
+      (i_sh || i_lh) && (!sel_w &&  sel_h) -> "h0000_0000_FFFF_0000".U(64.W),
+      (i_sh || i_lh) && ( sel_w && !sel_h) -> "h0000_FFFF_0000_0000".U(64.W),
+      (i_sh || i_lh) && ( sel_w &&  sel_h) -> "hFFFF_0000_0000_0000".U(64.W),
+
+      (i_sb || i_lb) && (!sel_w && !sel_h && !sel_b) -> "h0000_0000_0000_00FF".U(64.W),
+      (i_sb || i_lb) && (!sel_w && !sel_h &&  sel_b) -> "h0000_0000_0000_FF00".U(64.W),
+      (i_sb || i_lb) && (!sel_w &&  sel_h && !sel_b) -> "h0000_0000_00FF_0000".U(64.W),
+      (i_sb || i_lb) && (!sel_w &&  sel_h &&  sel_b) -> "h0000_0000_FF00_0000".U(64.W),
+      (i_sb || i_lb) && ( sel_w && !sel_h && !sel_b) -> "h0000_00FF_0000_0000".U(64.W),
+      (i_sb || i_lb) && ( sel_w && !sel_h &&  sel_b) -> "h0000_FF00_0000_0000".U(64.W),
+      (i_sb || i_lb) && ( sel_w &&  sel_h && !sel_b) -> "h00FF_0000_0000_0000".U(64.W),
+      (i_sb || i_lb) && ( sel_w &&  sel_h &&  sel_b) -> "hFF00_0000_0000_0000".U(64.W)
+
     )
   )
+  
+  val wmask=Mux(save,mask,"hFFFF_FFFF_FFFF_FFFF".U(64.W))
 
   io.dmem.en := load || save
-  io.dmem.addr := addr
+  io.dmem.addr := Cat(addr_real(63,3),0.U(3.W))
   io.dmem.wen := save
   io.dmem.wdata := src2
   io.dmem.wmask := wmask
