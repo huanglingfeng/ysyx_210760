@@ -107,8 +107,8 @@ class ISU extends Module {
   val ld_res = rdata
   val lw_res = Cat(Fill(32, rdata(31)), rdata(31, 0))
   val lwu_res = Cat(0.U(32.W), rdata(31, 0))
-  val lh_res = Cat(Fill(48, rdata(19)), rdata(19, 0))
-  val lhu_res = Cat(0.U(48), rdata(19, 0))
+  val lh_res = Cat(Fill(48, rdata(15)), rdata(15, 0))
+  val lhu_res = Cat(0.U(48), rdata(15, 0))
   val lb_res = Cat(Fill(56, rdata(7)), rdata(7, 0))
   val lbu_res = Cat(0.U(56.W), rdata(7, 0))
 
