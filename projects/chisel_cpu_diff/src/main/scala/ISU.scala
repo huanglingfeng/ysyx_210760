@@ -73,11 +73,20 @@ class ISU extends Module {
 
     )
   )
+  val sdata = Mux1H(
+    Seq(
+      (save === false.B) -> 0.U(64.W),
+      i_sd -> src2,
+      i_sw -> Cat(Fill(2,src2(31,0))),
+      i_sh -> Cat(Fill(4,src2(15,0))),
+      i_sb -> Cat(Fill(8,src2( 7,0)))
+    )
+  )
 
   io.dmem.en := load || save
   io.dmem.addr := Cat(addr_real(63,3),0.U(3.W))
   io.dmem.wen := save
-  io.dmem.wdata := src2
+  io.dmem.wdata := sdata
   io.dmem.wmask := wmask
   val mdata = io.dmem.rdata
   val rdata = Mux1H(
