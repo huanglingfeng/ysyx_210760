@@ -54,22 +54,22 @@ class ISU extends Module {
       (save === false.B) -> 0.U(64.W),
       i_sd -> "hFFFF_FFFF_FFFF_FFFF".U(64.W),
       
-      i_sw && !sel_w -> "h0000_0000_FFFF_FFFF".U(64.W),
-      i_sw &&  sel_w -> "hFFFF_FFFF_0000_0000".U(64.W),
+      (i_sw && !sel_w) -> "h0000_0000_FFFF_FFFF".U(64.W),
+      (i_sw &&  sel_w) -> "hFFFF_FFFF_0000_0000".U(64.W),
 
-      i_sh && (!sel_w && !sel_h) -> "h0000_0000_0000_FFFF".U(64.W),
-      i_sh && (!sel_w &&  sel_h) -> "h0000_0000_FFFF_0000".U(64.W),
-      i_sh && ( sel_w && !sel_h) -> "h0000_FFFF_0000_0000".U(64.W),
-      i_sh && ( sel_w &&  sel_h) -> "hFFFF_0000_0000_0000".U(64.W),
+      (i_sh && (!sel_w && !sel_h)) -> "h0000_0000_0000_FFFF".U(64.W),
+      (i_sh && (!sel_w &&  sel_h)) -> "h0000_0000_FFFF_0000".U(64.W),
+      (i_sh && ( sel_w && !sel_h)) -> "h0000_FFFF_0000_0000".U(64.W),
+      (i_sh && ( sel_w &&  sel_h)) -> "hFFFF_0000_0000_0000".U(64.W),
 
-      i_sb && (!sel_w && !sel_h && !sel_b) -> "h0000_0000_0000_00FF".U(64.W),
-      i_sb && (!sel_w && !sel_h &&  sel_b) -> "h0000_0000_0000_FF00".U(64.W),
-      i_sb && (!sel_w &&  sel_h && !sel_b) -> "h0000_0000_00FF_0000".U(64.W),
-      i_sb && (!sel_w &&  sel_h &&  sel_b) -> "h0000_0000_FF00_0000".U(64.W),
-      i_sb && ( sel_w && !sel_h && !sel_b) -> "h0000_00FF_0000_0000".U(64.W),
-      i_sb && ( sel_w && !sel_h &&  sel_b) -> "h0000_FF00_0000_0000".U(64.W),
-      i_sb && ( sel_w &&  sel_h && !sel_b) -> "h00FF_0000_0000_0000".U(64.W),
-      i_sb && ( sel_w &&  sel_h &&  sel_b) -> "hFF00_0000_0000_0000".U(64.W)
+      (i_sb && (!sel_w && !sel_h && !sel_b)) -> "h0000_0000_0000_00FF".U(64.W),
+      (i_sb && (!sel_w && !sel_h &&  sel_b)) -> "h0000_0000_0000_FF00".U(64.W),
+      (i_sb && (!sel_w &&  sel_h && !sel_b)) -> "h0000_0000_00FF_0000".U(64.W),
+      (i_sb && (!sel_w &&  sel_h &&  sel_b)) -> "h0000_0000_FF00_0000".U(64.W),
+      (i_sb && ( sel_w && !sel_h && !sel_b)) -> "h0000_00FF_0000_0000".U(64.W),
+      (i_sb && ( sel_w && !sel_h &&  sel_b)) -> "h0000_FF00_0000_0000".U(64.W),
+      (i_sb && ( sel_w &&  sel_h && !sel_b)) -> "h00FF_0000_0000_0000".U(64.W),
+      (i_sb && ( sel_w &&  sel_h &&  sel_b)) -> "hFF00_0000_0000_0000".U(64.W)
 
     )
   )
@@ -85,22 +85,22 @@ class ISU extends Module {
       (load === false.B) -> 0.U(64.W),
       i_ld -> mdata,
       
-      (i_lw || i_lwu) && !sel_w -> Cat(0.U(32.W),mdata(31, 0)),
-      (i_lw || i_lwu) &&  sel_w -> Cat(0.U(32.W),mdata(63,32)),
+      ((i_lw || i_lwu) && !sel_w) -> Cat(0.U(32.W),mdata(31, 0)),
+      ((i_lw || i_lwu) &&  sel_w) -> Cat(0.U(32.W),mdata(63,32)),
 
-      (i_lh || i_lhu) && (!sel_w && !sel_h) -> Cat(0.U(48.W),mdata(15, 0)),
-      (i_lh || i_lhu) && (!sel_w &&  sel_h) -> Cat(0.U(48.W),mdata(31,16)),
-      (i_lh || i_lhu) && ( sel_w && !sel_h) -> Cat(0.U(48.W),mdata(47,32)),
-      (i_lh || i_lhu) && ( sel_w &&  sel_h) -> Cat(0.U(48.W),mdata(63,48)),
+      ((i_lh || i_lhu) && (!sel_w && !sel_h)) -> Cat(0.U(48.W),mdata(15, 0)),
+      ((i_lh || i_lhu) && (!sel_w &&  sel_h)) -> Cat(0.U(48.W),mdata(31,16)),
+      ((i_lh || i_lhu) && ( sel_w && !sel_h)) -> Cat(0.U(48.W),mdata(47,32)),
+      ((i_lh || i_lhu) && ( sel_w &&  sel_h)) -> Cat(0.U(48.W),mdata(63,48)),
 
-      (i_lb|| i_lbu) && (!sel_w && !sel_h && !sel_b) -> Cat(0.U(56.W),mdata( 7, 0)),
-      (i_lb|| i_lbu) && (!sel_w && !sel_h &&  sel_b) -> Cat(0.U(56.W),mdata(15, 8)),
-      (i_lb|| i_lbu) && (!sel_w &&  sel_h && !sel_b) -> Cat(0.U(56.W),mdata(23,16)),
-      (i_lb|| i_lbu) && (!sel_w &&  sel_h &&  sel_b) -> Cat(0.U(56.W),mdata(31,24)),
-      (i_lb|| i_lbu) && ( sel_w && !sel_h && !sel_b) -> Cat(0.U(56.W),mdata(39,32)),
-      (i_lb|| i_lbu) && ( sel_w && !sel_h &&  sel_b) -> Cat(0.U(56.W),mdata(47,40)),
-      (i_lb|| i_lbu) && ( sel_w &&  sel_h && !sel_b) -> Cat(0.U(56.W),mdata(55,48)),
-      (i_lb|| i_lbu) && ( sel_w &&  sel_h &&  sel_b) -> Cat(0.U(56.W),mdata(63,56))
+      ((i_lb|| i_lbu) && (!sel_w && !sel_h && !sel_b)) -> Cat(0.U(56.W),mdata( 7, 0)),
+      ((i_lb|| i_lbu) && (!sel_w && !sel_h &&  sel_b)) -> Cat(0.U(56.W),mdata(15, 8)),
+      ((i_lb|| i_lbu) && (!sel_w &&  sel_h && !sel_b)) -> Cat(0.U(56.W),mdata(23,16)),
+      ((i_lb|| i_lbu) && (!sel_w &&  sel_h &&  sel_b)) -> Cat(0.U(56.W),mdata(31,24)),
+      ((i_lb|| i_lbu) && ( sel_w && !sel_h && !sel_b)) -> Cat(0.U(56.W),mdata(39,32)),
+      ((i_lb|| i_lbu) && ( sel_w && !sel_h &&  sel_b)) -> Cat(0.U(56.W),mdata(47,40)),
+      ((i_lb|| i_lbu) && ( sel_w &&  sel_h && !sel_b)) -> Cat(0.U(56.W),mdata(55,48)),
+      ((i_lb|| i_lbu) && ( sel_w &&  sel_h &&  sel_b)) -> Cat(0.U(56.W),mdata(63,56))
     )
   )
 
