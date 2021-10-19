@@ -61,7 +61,7 @@ class Decode extends Module {
       ADDI    -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_ALU ,  ALU_ADD ,  BRU_X    ,  LSU_X    ,  RV64_X     ),
       SLLI    -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_ALU ,  ALU_SLL ,  BRU_X    ,  LSU_X    ,  RV64_X     ),
       SLTI    -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_ALU ,  ALU_SLT ,  BRU_X    ,  LSU_X    ,  RV64_X     ),
-      SLTIU   -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_ALU ,  ALU_SLT ,  BRU_X    ,  LSU_X    ,  RV64_X     ),
+      SLTIU   -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_ALU ,  ALU_SLTU ,  BRU_X    ,  LSU_X    ,  RV64_X     ),
       XORI    -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_ALU ,  ALU_XOR ,  BRU_X    ,  LSU_X    ,  RV64_X     ),
       SRLI    -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_ALU ,  ALU_SRL ,  BRU_X    ,  LSU_X    ,  RV64_X     ),
       ORI     -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_ALU ,  ALU_OR  ,  BRU_X    ,  LSU_X    ,  RV64_X     ),
@@ -70,7 +70,8 @@ class Decode extends Module {
 
       ADD     -> List(Y, OUT1_RS1 , OUT2_RS2, IMM_X  ,  OPTYPE_ALU ,  ALU_ADD ,  BRU_X    ,  LSU_X    ,  RV64_X     ),
       SLL     -> List(Y, OUT1_RS1 , OUT2_RS2, IMM_X  ,  OPTYPE_ALU ,  ALU_SLL ,  BRU_X    ,  LSU_X    ,  RV64_X     ),
-      SLTU    -> List(Y, OUT1_RS1 , OUT2_RS2, IMM_X  ,  OPTYPE_ALU ,  ALU_SLT ,  BRU_X    ,  LSU_X    ,  RV64_X     ),
+      SLT     -> List(Y, OUT1_RS1 , OUT2_RS2, IMM_X  ,  OPTYPE_ALU ,  ALU_SLT ,  BRU_X    ,  LSU_X    ,  RV64_X     ),
+      SLTU    -> List(Y, OUT1_RS1 , OUT2_RS2, IMM_X  ,  OPTYPE_ALU ,  ALU_SLTU ,  BRU_X    ,  LSU_X    ,  RV64_X     ),
       XOR     -> List(Y, OUT1_RS1 , OUT2_RS2, IMM_X  ,  OPTYPE_ALU ,  ALU_XOR ,  BRU_X    ,  LSU_X    ,  RV64_X     ),
       SRL     -> List(Y, OUT1_RS1 , OUT2_RS2, IMM_X  ,  OPTYPE_ALU ,  ALU_SRL ,  BRU_X    ,  LSU_X    ,  RV64_X     ),
       OR      -> List(Y, OUT1_RS1 , OUT2_RS2, IMM_X  ,  OPTYPE_ALU ,  ALU_OR  ,  BRU_X    ,  LSU_X    ,  RV64_X     ),
