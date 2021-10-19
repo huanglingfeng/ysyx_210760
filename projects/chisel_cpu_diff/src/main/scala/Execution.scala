@@ -86,11 +86,17 @@ class Execution extends Module {
 
   val xor_res = src1 ^ src2
 
-  val sll_res = src1 << src2(4, 0)
+  val sll_res_64 = src1 << src2(5, 0)
+  val sll_res_32 = src1 << src2(4, 0)
+  val sll_res = Mux(is_w,sll_res_32,sll_res_64)
 
-  val srl_res = src1.asUInt() >> src2(4, 0)
+  val srl_res_64 = src1.asUInt() >> src2(5, 0)
+  val srl_res_32 = src1.asUInt() >> src2(4, 0)
+  val srl_res = Mux(is_w,srl_res_32,srl_res_64)
 
-  val sra_res = (src1.asSInt() >> src2(4, 0)).asUInt()
+  val sra_res_64 = (src1.asSInt() >> src2(5, 0)).asUInt()
+  val sra_res_32 = (src1.asSInt() >> src2(4, 0)).asUInt()
+  val sra_res = Mux(is_w,sra_res_32,sra_res_64)
 
   val lui_res = src2
 
