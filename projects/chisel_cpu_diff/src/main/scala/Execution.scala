@@ -58,8 +58,8 @@ class Execution extends Module {
     )
   )
 
-  val src1 = Mux(is_w, Cat(Fill(32, src1_64(31)), src1_64(31, 0)), src1_64)
-  val src2 = Mux(is_w, Cat(Fill(32, src2_64(31)), src2_64(31, 0)), src2_64)
+  val src1_32 = src1_64(31, 0)
+  val src2_32 = src2_64(31, 0)
 
   val i_add = aluop(0)
   val i_slt = aluop(1)
@@ -73,54 +73,92 @@ class Execution extends Module {
   val i_lui = aluop(9)
   val i_sub = aluop(10)
 
-  val add_res = src1 + src2
+  val add_res_64 = src1_64 + src2_64
+  
+  val slt_res_64 =
+    (Mux(src1_64.asSInt() < src2_64.asSInt(), 1.U(64.W), 0.U(64.W))).asUInt()
 
-  val slt_res =
-    (Mux(src1.asSInt() < src2.asSInt(), 1.U(64.W), 0.U(64.W))).asUInt()
+  val sltu_res_64 = Mux(src1_64.asUInt() < src2_64.asUInt(), 1.U(64.W), 0.U(64.W))
 
-  val sltu_res = Mux(src1.asUInt() < src2.asUInt(), 1.U(64.W), 0.U(64.W))
+  val and_res_64 = src1_64 & src2_64
 
-  val and_res = src1 & src2
+  val or_res_64 = src1_64 | src2_64
 
-  val or_res = src1 | src2
+  val xor_res_64 = src1_64 ^ src2_64
 
-  val xor_res = src1 ^ src2
+  val lui_res_64 = src2_64
 
-  val sll_res_64 = src1 << src2(5, 0)
-  val sll_res_32 = src1 << src2(4, 0)
-  val sll_res = Mux(is_w,sll_res_32,sll_res_64)
+  val sub_res_64 = src1_64 - src2_64
 
-  val srl_res_64 = src1 >> src2(5, 0)
-  val srl_res_32 = src1 >> src2(4, 0)
-  val srl_res = Mux(is_w,srl_res_32,srl_res_64)
 
-  val sra_res_64 = (src1.asSInt() >> src2(5, 0)).asUInt()
-  val sra_res_32 = (src1.asSInt() >> src2(4, 0)).asUInt()
-  val sra_res = Mux(is_w,sra_res_32,sra_res_64)
+  val sll_res_64 = src1_64.asUInt() << src2_64(5, 0)
+  val sll_res_32 = src1_32.asUInt() << src2_32(4, 0)
+ 
 
-  val lui_res = src2
+  val srl_res_64 = src1_64.asUInt() >> src2_64(5, 0)
+  val srl_res_32 = src1_32.asUInt() >> src2_32(4, 0)
 
-  val sub_res = src1 - src2
 
+  val sra_res_64 = (src1_64.asSInt() >> src2_64(5, 0)).asUInt()
+  val sra_res_32 = (src1_32.asSInt() >> src2_32(4, 0)).asUInt()
+  
+  
   val alu_res_64 = Mux1H(
     Seq(
       (aluop === 0.U) -> 0.U,
-      i_add -> add_res,
-      i_slt -> slt_res,
-      i_sltu -> sltu_res,
-      i_and -> and_res,
-      i_or -> or_res,
-      i_xor -> xor_res,
-      i_sll -> sll_res,
-      i_srl -> srl_res,
-      i_sra -> sra_res,
-      i_lui -> lui_res,
-      i_sub -> sub_res
+      i_add -> add_res_64,
+      i_slt -> slt_res_64,
+      i_sltu -> sltu_res_64,
+      i_and -> and_res_64,
+      i_or -> or_res_64,
+      i_xor -> xor_res_64,
+      i_sll -> sll_res_64,
+      i_srl -> srl_res_64,
+      i_sra -> sra_res_64,
+      i_lui -> lui_res_64,
+      i_sub -> sub_res_64
     )
   )
+
+  val add_res_32 = src1_32 + src1_32
+
+  val slt_res_32 =
+    (Mux(src1_32.asSInt() < src2_32.asSInt(), 1.U(32.W), 0.U(32.W))).asUInt()
+
+  val sltu_res_32 = Mux(src1_32.asUInt() < src2_32.asUInt(), 1.U(32.W), 0.U(32.W))
+
+  val and_res_32 = src1_32 & src2_32
+
+  val or_res_32 = src1_32 | src2_32
+
+  val xor_res_32 = src1_32 ^ src2_32
+
+  val lui_res_32 = src2_32
+
+  val sub_res_32 = src1_32 - src2_32
+
+  val alu_res_32 = Mux1H(
+    Seq(
+      (aluop === 0.U) -> 0.U,
+      i_add -> add_res_32,
+      i_slt -> slt_res_32,
+      i_sltu -> sltu_res_32,
+      i_and -> and_res_32,
+      i_or -> or_res_32,
+      i_xor -> xor_res_32,
+      i_sll -> sll_res_32,
+      i_srl -> srl_res_32,
+      i_sra -> sra_res_32,
+      i_lui -> lui_res_32,
+      i_sub -> sub_res_32
+    )
+  )
+
   val alu_res =
-    Mux(is_w, Cat(Fill(32, alu_res_64(31)), alu_res_64(31, 0)), alu_res_64)
+    Mux(is_w, Cat(Fill(32, alu_res_32(31)), alu_res_32), alu_res_64)
 
   io.ex_to_isu.alu_res := alu_res
 
 }
+
+
