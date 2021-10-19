@@ -120,7 +120,7 @@ class Execution extends Module {
     )
   )
 
-  val add_res_32 = src1_32 + src1_32
+  val add_res_32 = src1_32 + src2_32
 
   val slt_res_32 =
     (Mux(src1_32.asSInt() < src2_32.asSInt(), 1.U(32.W), 0.U(32.W))).asUInt()
