@@ -1,8 +1,6 @@
 回归测试
-./build.sh -e chisel_cpu_diff -b -r "non-output/riscv-tests"
+./build.sh -e chisel_cpu_diff -b -r "non-output/cpu-tests non-output/riscv-tests"
 测试并输出波形
 ./build.sh -e chisel_cpu_diff -d -b -s -a "-i non-output/riscv-tests/auipc-riscv-tests.bin --dump-wave -b 0" -m "EMU_TRACE=1"
 查看波形
 ./build.sh -e chisel_cpu_diff -d -w
-
-./build.sh -e chisel_cpu_diff -d -b -s -a "-i non-output/riscv-tests/srlw-riscv-tests.bin" -m "EMU_TRACE=1"
