@@ -4,3 +4,6 @@
 ./build.sh -e chisel_cpu_diff -d -b -s -a "-i non-output/riscv-tests/auipc-riscv-tests.bin --dump-wave -b 0" -m "EMU_TRACE=1"
 查看波形
 ./build.sh -e chisel_cpu_diff -d -w
+
+ysyx-yzu-hlf\bin\custom-output\hello\amtest-hello.txt
+./build.sh -e chisel_cpu_diff -d -b -s -a "-i custom-output/hello/amtest-hello.bin" -m "EMU_TRACE=1"
