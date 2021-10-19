@@ -219,8 +219,8 @@ class Decode extends Module {
         (beq &&  (rs1_data === rs2_data)) ||
         (blt &&  (rs1_data.asSInt() < rs2_data.asSInt())) ||
         (bltu && (rs1_data.asUInt() < rs2_data.asUInt())) ||
-        (bge &&  (rs1_data.asSInt() > rs2_data.asSInt())) ||
-        (bgeu && (rs1_data.asUInt() < rs2_data.asUInt()))
+        (bge &&  (rs1_data.asSInt() >= rs2_data.asSInt())) ||
+        (bgeu && (rs1_data.asUInt() >= rs2_data.asUInt()))
     )
     val pc_target = Mux1H(Seq(
       is_jal -> jal_target,
