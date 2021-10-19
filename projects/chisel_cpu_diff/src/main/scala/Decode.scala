@@ -169,8 +169,8 @@ class Decode extends Module {
       lsuop(6) -> N,
       lsuop(7) -> N,
 
+      rv64op(9) -> Y,
       rv64op(10) -> Y,
-      rv64op(11) -> Y,
       (rv64op =/= 0.U && !rv64op(10) && !(rv64op(11))) -> N
     ))
     val save = Mux1H(Seq(

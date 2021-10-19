@@ -527,7 +527,7 @@ module Decode(
   assign io_id_to_ex_dest = io_if_to_id_inst[11:7]; // @[Decode.scala 42:20]
   assign io_id_to_ex_rf_w = ~save & ~is_br; // @[Decode.scala 234:31]
   assign io_id_to_ex_load = ctr_signals_7[0] | ctr_signals_7[1] | ctr_signals_7[2] | ctr_signals_7[3] | ctr_signals_7[4]
-     | ctr_signals_8[10] | ctr_signals_8[11]; // @[Mux.scala 27:72]
+     | ctr_signals_8[9] | ctr_signals_8[10]; // @[Mux.scala 27:72]
   assign io_id_to_ex_save = ctr_signals_7[5] | ctr_signals_7[6] | ctr_signals_7[7] | ctr_signals_8[11]; // @[Mux.scala 27:72]
   assign io_id_to_if_pc_target = _pc_target_T_7 | _pc_target_T_5; // @[Mux.scala 27:72]
   assign io_id_to_if_jump = bruop[0] | bruop[1] | _jump_T_21; // @[Decode.scala 218:36]
