@@ -155,7 +155,7 @@ class Execution extends Module {
   )
 
   val alu_res =
-    Mux(is_w, Cat(Fill(32, alu_res_32(31)), alu_res_32), alu_res_64)
+    Mux(is_w, Cat(Fill(32, alu_res_32(31)), alu_res_32(31,0)), alu_res_64)
 
   io.ex_to_isu.alu_res := alu_res
 
