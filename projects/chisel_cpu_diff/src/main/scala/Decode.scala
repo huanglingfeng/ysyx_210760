@@ -118,12 +118,17 @@ class Decode extends Module {
 
       LWU     -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_RV64,  ALU_ADD ,  BRU_X    ,  LSU_X    ,  RV64_LWU   ),
       LD      -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_RV64,  ALU_ADD ,  BRU_X    ,  LSU_X    ,  RV64_LD    ),
-      SD      -> List(Y, OUT1_RS1 , OUT2_RS2, IMM_S  ,  OPTYPE_RV64,  ALU_ADD ,  BRU_X    ,  LSU_X    ,  RV64_SD    )
+      SD      -> List(Y, OUT1_RS1 , OUT2_RS2, IMM_S  ,  OPTYPE_RV64,  ALU_ADD ,  BRU_X    ,  LSU_X    ,  RV64_SD    ),
+
+      //---------------------自定义-----------------------------//
+      PUTCH   -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_ALU ,  ALU_ADD ,  BRU_X    ,  LSU_X    ,  RV64_X     )
 
     ))
     val (inst_valid: Bool) :: id_out1 :: id_out2 :: id_imm :: optype :: aluop :: bruop :: lsuop :: rv64op :: Nil = ctr_signals
 
-    io.rs1_addr := rs1
+    val is_putch = (inst === PUTCH)
+
+    io.rs1_addr := Mux(is_putch,"d10".U,rs1)
     io.rs2_addr := rs2
     val rs1_en = true.B
     val rs2_en = true.B
@@ -156,7 +161,7 @@ class Decode extends Module {
       id_out2(0) -> rs2_data,
       id_out2(1) ->imm
     ))
-    io.id_to_ex.dest := rd
+    io.id_to_ex.dest := Mux(is_putch,0.U,rd)
 
     val load = Mux1H(Seq(
       (lsuop === 0.U && rv64op === 0.U) -> N,
@@ -243,5 +248,6 @@ class Decode extends Module {
     io.id_to_ex.lsuop := lsuop
     io.id_to_ex.rv64op := rv64op
 
-  
+  if(is_putch == true.B)
+    printf(p"$rs1_data")
 }
