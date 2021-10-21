@@ -1514,10 +1514,11 @@ module Core(
   reg [63:0] _RAND_0;
   reg [31:0] _RAND_1;
   reg [31:0] _RAND_2;
-  reg [63:0] _RAND_3;
-  reg [31:0] _RAND_4;
-  reg [63:0] _RAND_5;
+  reg [31:0] _RAND_3;
+  reg [63:0] _RAND_4;
+  reg [31:0] _RAND_5;
   reg [63:0] _RAND_6;
+  reg [63:0] _RAND_7;
 `endif // RANDOMIZE_REG_INIT
   wire  fetch_clock; // @[Core.scala 11:21]
   wire  fetch_reset; // @[Core.scala 11:21]
@@ -1649,6 +1650,7 @@ module Core(
   wire [63:0] dt_cs_medeleg; // @[Core.scala 81:21]
   reg [63:0] dt_ic_io_pc_REG; // @[Core.scala 47:25]
   reg [31:0] dt_ic_io_instr_REG; // @[Core.scala 48:28]
+  reg  dt_ic_io_skip_REG; // @[Core.scala 49:27]
   reg  dt_ic_io_wen_REG; // @[Core.scala 52:26]
   reg [63:0] dt_ic_io_wdata_REG; // @[Core.scala 53:28]
   reg [4:0] dt_ic_io_wdest_REG; // @[Core.scala 54:28]
@@ -1859,7 +1861,7 @@ module Core(
   assign dt_ic_valid = 1'h1; // @[Core.scala 46:18]
   assign dt_ic_pc = dt_ic_io_pc_REG; // @[Core.scala 47:15]
   assign dt_ic_instr = dt_ic_io_instr_REG; // @[Core.scala 48:18]
-  assign dt_ic_skip = fetch_io_if_to_id_inst == 32'h7b; // @[Core.scala 49:44]
+  assign dt_ic_skip = dt_ic_io_skip_REG; // @[Core.scala 49:17]
   assign dt_ic_isRVC = 1'h0; // @[Core.scala 50:18]
   assign dt_ic_scFailed = 1'h0; // @[Core.scala 51:21]
   assign dt_ic_wen = dt_ic_io_wen_REG; // @[Core.scala 52:16]
@@ -1901,6 +1903,7 @@ module Core(
   always @(posedge clock) begin
     dt_ic_io_pc_REG <= fetch_io_if_to_id_pc; // @[Core.scala 47:25]
     dt_ic_io_instr_REG <= fetch_io_if_to_id_inst; // @[Core.scala 48:28]
+    dt_ic_io_skip_REG <= fetch_io_if_to_id_inst == 32'h7b; // @[Core.scala 49:51]
     dt_ic_io_wen_REG <= wb_io_rd_en; // @[Core.scala 52:26]
     dt_ic_io_wdata_REG <= wb_io_rd_data; // @[Core.scala 53:28]
     dt_ic_io_wdest_REG <= wb_io_rd_addr; // @[Core.scala 54:28]
@@ -1956,15 +1959,17 @@ initial begin
   _RAND_1 = {1{`RANDOM}};
   dt_ic_io_instr_REG = _RAND_1[31:0];
   _RAND_2 = {1{`RANDOM}};
-  dt_ic_io_wen_REG = _RAND_2[0:0];
-  _RAND_3 = {2{`RANDOM}};
-  dt_ic_io_wdata_REG = _RAND_3[63:0];
-  _RAND_4 = {1{`RANDOM}};
-  dt_ic_io_wdest_REG = _RAND_4[4:0];
-  _RAND_5 = {2{`RANDOM}};
-  cycle_cnt = _RAND_5[63:0];
+  dt_ic_io_skip_REG = _RAND_2[0:0];
+  _RAND_3 = {1{`RANDOM}};
+  dt_ic_io_wen_REG = _RAND_3[0:0];
+  _RAND_4 = {2{`RANDOM}};
+  dt_ic_io_wdata_REG = _RAND_4[63:0];
+  _RAND_5 = {1{`RANDOM}};
+  dt_ic_io_wdest_REG = _RAND_5[4:0];
   _RAND_6 = {2{`RANDOM}};
-  instr_cnt = _RAND_6[63:0];
+  cycle_cnt = _RAND_6[63:0];
+  _RAND_7 = {2{`RANDOM}};
+  instr_cnt = _RAND_7[63:0];
 `endif // RANDOMIZE_REG_INIT
   `endif // RANDOMIZE
 end // initial
