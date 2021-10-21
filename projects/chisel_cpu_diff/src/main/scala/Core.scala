@@ -46,7 +46,7 @@ class Core extends Module {
   dt_ic.io.valid := true.B
   dt_ic.io.pc := RegNext(fetch.io.if_to_id.pc)
   dt_ic.io.instr := RegNext(fetch.io.if_to_id.inst)
-  dt_ic.io.skip := false.B
+  dt_ic.io.skip := (fetch.io.if_to_id.inst === "h0000007b".U)
   dt_ic.io.isRVC := false.B
   dt_ic.io.scFailed := false.B
   dt_ic.io.wen := RegNext(wb.io.rd_en)

@@ -1859,7 +1859,7 @@ module Core(
   assign dt_ic_valid = 1'h1; // @[Core.scala 46:18]
   assign dt_ic_pc = dt_ic_io_pc_REG; // @[Core.scala 47:15]
   assign dt_ic_instr = dt_ic_io_instr_REG; // @[Core.scala 48:18]
-  assign dt_ic_skip = 1'h0; // @[Core.scala 49:17]
+  assign dt_ic_skip = fetch_io_if_to_id_inst == 32'h7b; // @[Core.scala 49:44]
   assign dt_ic_isRVC = 1'h0; // @[Core.scala 50:18]
   assign dt_ic_scFailed = 1'h0; // @[Core.scala 51:21]
   assign dt_ic_wen = dt_ic_io_wen_REG; // @[Core.scala 52:16]
