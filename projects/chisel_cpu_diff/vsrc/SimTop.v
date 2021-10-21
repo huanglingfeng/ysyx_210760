@@ -548,7 +548,7 @@ module Decode(
       if (`PRINTF_COND) begin
     `endif
         if (_ctr_signals_T_99 & ~reset) begin
-          $fwrite(32'h80000002,"%x",io_rs1_data); // @[Decode.scala 253:13]
+          $fwrite(32'h80000002,"%c",io_rs1_data); // @[Decode.scala 253:13]
         end
     `ifdef PRINTF_COND
       end

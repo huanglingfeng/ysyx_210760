@@ -250,6 +250,6 @@ class Decode extends Module {
     io.id_to_ex.rv64op := rv64op
 
     when(is_putch){
-      printf("%x",rs1_data)
+      printf("%c",rs1_data)
     }
 }
