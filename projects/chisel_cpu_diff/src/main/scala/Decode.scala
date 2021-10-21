@@ -126,7 +126,7 @@ class Decode extends Module {
     ))
     val (inst_valid: Bool) :: id_out1 :: id_out2 :: id_imm :: optype :: aluop :: bruop :: lsuop :: rv64op :: Nil = ctr_signals
 
-    val is_putch = (inst === PUTCH)
+    val is_putch = RegNext(inst === PUTCH)
 
     io.rs1_addr := Mux(is_putch,"d10".U,rs1)
     io.rs2_addr := rs2

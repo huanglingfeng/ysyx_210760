@@ -102,6 +102,9 @@ module Decode(
   output [4:0]  io_rs2_addr,
   input  [63:0] io_rs2_data
 );
+`ifdef RANDOMIZE_REG_INIT
+  reg [31:0] _RAND_0;
+`endif // RANDOMIZE_REG_INIT
   wire [4:0] rd = io_if_to_id_inst[11:7]; // @[Decode.scala 42:20]
   wire [4:0] rs1 = io_if_to_id_inst[19:15]; // @[Decode.scala 44:20]
   wire [52:0] imm_i_hi = io_if_to_id_inst[31] ? 53'h1fffffffffffff : 53'h0; // @[Bitwise.scala 72:12]
@@ -489,6 +492,7 @@ module Decode(
   wire [11:0] _ctr_signals_T_539 = _ctr_signals_T_5 ? 12'h0 : _ctr_signals_T_538; // @[Lookup.scala 33:37]
   wire [11:0] _ctr_signals_T_540 = _ctr_signals_T_3 ? 12'h0 : _ctr_signals_T_539; // @[Lookup.scala 33:37]
   wire [11:0] ctr_signals_8 = _ctr_signals_T_1 ? 12'h0 : _ctr_signals_T_540; // @[Lookup.scala 33:37]
+  reg  is_putch; // @[Decode.scala 129:27]
   wire [63:0] _imm_T_8 = ctr_signals_3[0] ? imm_i : 64'h0; // @[Mux.scala 27:72]
   wire [63:0] _imm_T_9 = ctr_signals_3[1] ? imm_s : 64'h0; // @[Mux.scala 27:72]
   wire [63:0] _imm_T_10 = ctr_signals_3[2] ? imm_b : 64'h0; // @[Mux.scala 27:72]
@@ -533,21 +537,22 @@ module Decode(
   assign io_id_to_ex_out1 = _io_id_to_ex_out1_T_4 | _io_id_to_ex_out1_T_5; // @[Mux.scala 27:72]
   assign io_id_to_ex_out2 = _io_id_to_ex_out2_T_4 | _io_id_to_ex_out2_T_5; // @[Mux.scala 27:72]
   assign io_id_to_ex_imm = _imm_T_18 | _imm_T_13; // @[Mux.scala 27:72]
-  assign io_id_to_ex_dest = _ctr_signals_T_99 ? 5'h0 : rd; // @[Decode.scala 164:28]
+  assign io_id_to_ex_dest = is_putch ? 5'h0 : rd; // @[Decode.scala 164:28]
   assign io_id_to_ex_rf_w = ~save & ~is_br; // @[Decode.scala 239:31]
   assign io_id_to_ex_load = ctr_signals_7[0] | ctr_signals_7[1] | ctr_signals_7[2] | ctr_signals_7[3] | ctr_signals_7[4]
      | ctr_signals_8[9] | ctr_signals_8[10]; // @[Mux.scala 27:72]
   assign io_id_to_ex_save = ctr_signals_7[5] | ctr_signals_7[6] | ctr_signals_7[7] | ctr_signals_8[11]; // @[Mux.scala 27:72]
   assign io_id_to_if_pc_target = _pc_target_T_7 | _pc_target_T_5; // @[Mux.scala 27:72]
   assign io_id_to_if_jump = bruop[0] | bruop[1] | _jump_T_21; // @[Decode.scala 223:36]
-  assign io_rs1_addr = _ctr_signals_T_99 ? 5'ha : rs1; // @[Decode.scala 131:23]
+  assign io_rs1_addr = is_putch ? 5'ha : rs1; // @[Decode.scala 131:23]
   assign io_rs2_addr = io_if_to_id_inst[24:20]; // @[Decode.scala 45:20]
   always @(posedge clock) begin
+    is_putch <= 32'h7b == io_if_to_id_inst; // @[Decode.scala 129:33]
     `ifndef SYNTHESIS
     `ifdef PRINTF_COND
       if (`PRINTF_COND) begin
     `endif
-        if (_ctr_signals_T_99 & ~reset) begin
+        if (is_putch & ~reset) begin
           $fwrite(32'h80000002,"%x",io_rs1_data); // @[Decode.scala 252:13]
         end
     `ifdef PRINTF_COND
@@ -555,6 +560,51 @@ module Decode(
     `endif
     `endif // SYNTHESIS
   end
+// Register and memory initialization
+`ifdef RANDOMIZE_GARBAGE_ASSIGN
+`define RANDOMIZE
+`endif
+`ifdef RANDOMIZE_INVALID_ASSIGN
+`define RANDOMIZE
+`endif
+`ifdef RANDOMIZE_REG_INIT
+`define RANDOMIZE
+`endif
+`ifdef RANDOMIZE_MEM_INIT
+`define RANDOMIZE
+`endif
+`ifndef RANDOM
+`define RANDOM $random
+`endif
+`ifdef RANDOMIZE_MEM_INIT
+  integer initvar;
+`endif
+`ifndef SYNTHESIS
+`ifdef FIRRTL_BEFORE_INITIAL
+`FIRRTL_BEFORE_INITIAL
+`endif
+initial begin
+  `ifdef RANDOMIZE
+    `ifdef INIT_RANDOM
+      `INIT_RANDOM
+    `endif
+    `ifndef VERILATOR
+      `ifdef RANDOMIZE_DELAY
+        #`RANDOMIZE_DELAY begin end
+      `else
+        #0.002 begin end
+      `endif
+    `endif
+`ifdef RANDOMIZE_REG_INIT
+  _RAND_0 = {1{`RANDOM}};
+  is_putch = _RAND_0[0:0];
+`endif // RANDOMIZE_REG_INIT
+  `endif // RANDOMIZE
+end // initial
+`ifdef FIRRTL_AFTER_INITIAL
+`FIRRTL_AFTER_INITIAL
+`endif
+`endif // SYNTHESIS
 endmodule
 module Execution(
   input  [10:0] io_id_to_ex_aluop,
