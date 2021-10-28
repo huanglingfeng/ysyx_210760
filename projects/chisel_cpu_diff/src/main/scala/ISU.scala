@@ -25,6 +25,9 @@ class ISU extends Module {
   val rv64op = io.ex_to_isu.rv64op
   val load = io.ex_to_isu.load
   val save = io.ex_to_isu.save
+  
+  val is_csr = io.ex_to_isu.is_csr
+  val csr_res = io.ex_to_isu.csr_res
 
   val i_lb = lsuop(0)
   val i_lh = lsuop(1)
@@ -142,7 +145,7 @@ class ISU extends Module {
     )
   )
 
-  io.isu_to_wb.isu_res := isu_res
+  io.isu_to_wb.isu_res := Mux(is_csr,csr_res,isu_res)
   io.isu_to_wb.dest := Mux(save, 0.U, io.ex_to_isu.dest)
   io.isu_to_wb.rf_w := Mux(save, false.B, io.ex_to_isu.rf_w)
 }

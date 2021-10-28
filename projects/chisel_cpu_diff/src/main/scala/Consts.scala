@@ -2,6 +2,7 @@ import chisel3._
 import chisel3.util._
 
 object Consts {
+//----------------------Decode consts---------------------//
   val Y = true.B
   val N = false.B
 
@@ -24,12 +25,13 @@ object Consts {
   val IMM_J = "b010000".U(SEL_ID_IMM_WIDTH.W)
   val IMM_4 = "b100000".U(SEL_ID_IMM_WIDTH.W)
 
-  val SEL_OPTYPE_WIDTH = 4
-  val OPTYPE_X = "b0000".U(SEL_OPTYPE_WIDTH.W)
-  val OPTYPE_ALU = "b0001".U(SEL_OPTYPE_WIDTH.W)
-  val OPTYPE_BRU = "b0010".U(SEL_OPTYPE_WIDTH.W)
-  val OPTYPE_LSU = "b0100".U(SEL_OPTYPE_WIDTH.W)
-  val OPTYPE_RV64 = "b1000".U(SEL_OPTYPE_WIDTH.W)
+  val SEL_OPTYPE_WIDTH = 5
+  val OPTYPE_X = "b00000".U(SEL_OPTYPE_WIDTH.W)
+  val OPTYPE_ALU = "b00001".U(SEL_OPTYPE_WIDTH.W)
+  val OPTYPE_BRU = "b00010".U(SEL_OPTYPE_WIDTH.W)
+  val OPTYPE_LSU = "b00100".U(SEL_OPTYPE_WIDTH.W)
+  val OPTYPE_RV64 = "b01000".U(SEL_OPTYPE_WIDTH.W)
+  val OPTYPE_CSR = "b10000".U(SEL_OPTYPE_WIDTH.W)
 
   val SEL_ALU_OP_WIDTH = 11
   val ALU_X = "b00000000000".U(SEL_ALU_OP_WIDTH.W)
@@ -81,4 +83,22 @@ object Consts {
   val RV64_LWU = "b001000000000".U(SEL_RV64_OP_WIDTH.W)
   val RV64_LD = "b010000000000".U(SEL_RV64_OP_WIDTH.W)
   val RV64_SD = "b100000000000".U(SEL_RV64_OP_WIDTH.W)
+
+  val SEL_CSR_WIDTH = 6
+  val CSR_X    = "d0".U(SEL_CSR_WIDTH.W)
+  val CSR_RW   = "d1".U(SEL_CSR_WIDTH.W)
+  val CSR_RS   = "d2".U(SEL_CSR_WIDTH.W)
+  val CSR_RC   = "d3".U(SEL_CSR_WIDTH.W)
+  val CSR_RWI  = "d4".U(SEL_CSR_WIDTH.W)
+  val CSR_RSI  = "d5".U(SEL_CSR_WIDTH.W)
+  val CSR_RCI  = "d6".U(SEL_CSR_WIDTH.W)
+
+//-------------------csr consts--------------------------//
+  val MCYCLE_N  = "hB00".U(12.W)
+  val MEPC_N    = "h341".U(12.W)
+  val MCAUSE_N  = "h342".U(12.W)
+  val MTEVC_N   = "h305".U(12.W)
+  val MSTATUS_N = "h300".U(12.W)
+  val MIP_N     = "h344".U(12.W)
+  val MIE_N     = "h304".U(12.W)
 }

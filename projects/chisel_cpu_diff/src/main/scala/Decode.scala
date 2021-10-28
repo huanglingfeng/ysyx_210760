@@ -12,6 +12,9 @@ class ID_TO_EX_BUS extends Bundle{
   val lsuop = Output(UInt(8.W))
   val rv64op = Output(UInt(12.W))
   
+  val is_csr = Output(Bool())
+  val csr_res = Output(UInt(64.W))
+  
   val out1  = Output(UInt(64.W))
   val out2  = Output(UInt(64.W))
 
@@ -23,11 +26,21 @@ class ID_TO_EX_BUS extends Bundle{
   val save = Output(Bool())
 
 }
+class ID_TO_CSR_BUS extends Bundle{
+  val csrop = Output(UInt(SEL_CSR_WIDTH.W))
+  val csr_addr = Output(UInt(12.W))
+  val src1 = Output(UInt(64.W))
+  val is_zero = Output(Bool())
+  
+  val csr_res = Input(UInt(64.W))
+}
 class Decode extends Module {
   val io = IO(new Bundle {
     val if_to_id=Flipped(new IF_TO_ID_BUS)
     val id_to_ex=new ID_TO_EX_BUS
     val id_to_if= new ID_TO_IF_BUS
+
+    val id_to_csr = new ID_TO_CSR_BUS
 
     val rs1_addr = Output(UInt(5.W))
     val rs1_data = Input(UInt(64.W))
@@ -54,77 +67,85 @@ class Decode extends Module {
   val imm_4 = 4.U(64.W)
 
   val ctr_signals = ListLookup(inst,
-    List(N,OUT1_X,OUT2_X,IMM_X,OPTYPE_X,ALU_X,BRU_X,LSU_X,RV64_X),Array(
-      /*inst_valid    | id_out1   | id_out2 | id_imm |   optype     |  aluop   |  bruop    |  lsuop    |  rv64op     |   */
+    List(N,OUT1_X,OUT2_X,IMM_X,OPTYPE_X,ALU_X,BRU_X,LSU_X,RV64_X,  CSR_X   ),Array(
+      /*inst_valid    | id_out1   | id_out2 | id_imm |   optype     |  aluop   |  bruop    |  lsuop    |  rv64op     | csrop    |  */
       //-------------------RV32I_ALUInstr------------------------------//
-      /*e.x.: -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_X   ,  ALU_ADD ,  BRU_X    ,  LSU_X    ,  RV64_X     ),  */
-      ADDI    -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_ALU ,  ALU_ADD ,  BRU_X    ,  LSU_X    ,  RV64_X     ),
-      SLLI    -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_ALU ,  ALU_SLL ,  BRU_X    ,  LSU_X    ,  RV64_X     ),
-      SLTI    -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_ALU ,  ALU_SLT ,  BRU_X    ,  LSU_X    ,  RV64_X     ),
-      SLTIU   -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_ALU ,  ALU_SLTU ,  BRU_X    ,  LSU_X    ,  RV64_X     ),
-      XORI    -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_ALU ,  ALU_XOR ,  BRU_X    ,  LSU_X    ,  RV64_X     ),
-      SRLI    -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_ALU ,  ALU_SRL ,  BRU_X    ,  LSU_X    ,  RV64_X     ),
-      ORI     -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_ALU ,  ALU_OR  ,  BRU_X    ,  LSU_X    ,  RV64_X     ),
-      ANDI    -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_ALU ,  ALU_AND ,  BRU_X    ,  LSU_X    ,  RV64_X     ),
-      SRAI    -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_ALU ,  ALU_SRA ,  BRU_X    ,  LSU_X    ,  RV64_X     ),
+      /*e.x.: -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_X   ,  ALU_ADD ,  BRU_X    ,  LSU_X    ,  RV64_X     ,  CSR_X   ),  */
+      ADDI    -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_ALU ,  ALU_ADD ,  BRU_X    ,  LSU_X    ,  RV64_X     ,  CSR_X   ),
+      SLLI    -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_ALU ,  ALU_SLL ,  BRU_X    ,  LSU_X    ,  RV64_X     ,  CSR_X   ),
+      SLTI    -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_ALU ,  ALU_SLT ,  BRU_X    ,  LSU_X    ,  RV64_X     ,  CSR_X   ),
+      SLTIU   -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_ALU ,  ALU_SLTU,  BRU_X    ,  LSU_X    ,  RV64_X     ,  CSR_X   ),
+      XORI    -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_ALU ,  ALU_XOR ,  BRU_X    ,  LSU_X    ,  RV64_X     ,  CSR_X   ),
+      SRLI    -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_ALU ,  ALU_SRL ,  BRU_X    ,  LSU_X    ,  RV64_X     ,  CSR_X   ),
+      ORI     -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_ALU ,  ALU_OR  ,  BRU_X    ,  LSU_X    ,  RV64_X     ,  CSR_X   ),
+      ANDI    -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_ALU ,  ALU_AND ,  BRU_X    ,  LSU_X    ,  RV64_X     ,  CSR_X   ),
+      SRAI    -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_ALU ,  ALU_SRA ,  BRU_X    ,  LSU_X    ,  RV64_X     ,  CSR_X   ),
 
-      ADD     -> List(Y, OUT1_RS1 , OUT2_RS2, IMM_X  ,  OPTYPE_ALU ,  ALU_ADD ,  BRU_X    ,  LSU_X    ,  RV64_X     ),
-      SLL     -> List(Y, OUT1_RS1 , OUT2_RS2, IMM_X  ,  OPTYPE_ALU ,  ALU_SLL ,  BRU_X    ,  LSU_X    ,  RV64_X     ),
-      SLT     -> List(Y, OUT1_RS1 , OUT2_RS2, IMM_X  ,  OPTYPE_ALU ,  ALU_SLT ,  BRU_X    ,  LSU_X    ,  RV64_X     ),
-      SLTU    -> List(Y, OUT1_RS1 , OUT2_RS2, IMM_X  ,  OPTYPE_ALU ,  ALU_SLTU ,  BRU_X    ,  LSU_X    ,  RV64_X     ),
-      XOR     -> List(Y, OUT1_RS1 , OUT2_RS2, IMM_X  ,  OPTYPE_ALU ,  ALU_XOR ,  BRU_X    ,  LSU_X    ,  RV64_X     ),
-      SRL     -> List(Y, OUT1_RS1 , OUT2_RS2, IMM_X  ,  OPTYPE_ALU ,  ALU_SRL ,  BRU_X    ,  LSU_X    ,  RV64_X     ),
-      OR      -> List(Y, OUT1_RS1 , OUT2_RS2, IMM_X  ,  OPTYPE_ALU ,  ALU_OR  ,  BRU_X    ,  LSU_X    ,  RV64_X     ),
-      AND     -> List(Y, OUT1_RS1 , OUT2_RS2, IMM_X  ,  OPTYPE_ALU ,  ALU_AND ,  BRU_X    ,  LSU_X    ,  RV64_X     ),
-      SUB     -> List(Y, OUT1_RS1 , OUT2_RS2, IMM_X  ,  OPTYPE_ALU ,  ALU_SUB ,  BRU_X    ,  LSU_X    ,  RV64_X     ),
-      SRA     -> List(Y, OUT1_RS1 , OUT2_RS2, IMM_X  ,  OPTYPE_ALU ,  ALU_SRA ,  BRU_X    ,  LSU_X    ,  RV64_X     ),
+      ADD     -> List(Y, OUT1_RS1 , OUT2_RS2, IMM_X  ,  OPTYPE_ALU ,  ALU_ADD ,  BRU_X    ,  LSU_X    ,  RV64_X     ,  CSR_X   ),
+      SLL     -> List(Y, OUT1_RS1 , OUT2_RS2, IMM_X  ,  OPTYPE_ALU ,  ALU_SLL ,  BRU_X    ,  LSU_X    ,  RV64_X     ,  CSR_X   ),
+      SLT     -> List(Y, OUT1_RS1 , OUT2_RS2, IMM_X  ,  OPTYPE_ALU ,  ALU_SLT ,  BRU_X    ,  LSU_X    ,  RV64_X     ,  CSR_X   ),
+      SLTU    -> List(Y, OUT1_RS1 , OUT2_RS2, IMM_X  ,  OPTYPE_ALU ,  ALU_SLTU ,  BRU_X   ,  LSU_X    ,  RV64_X     ,  CSR_X   ),
+      XOR     -> List(Y, OUT1_RS1 , OUT2_RS2, IMM_X  ,  OPTYPE_ALU ,  ALU_XOR ,  BRU_X    ,  LSU_X    ,  RV64_X     ,  CSR_X   ),
+      SRL     -> List(Y, OUT1_RS1 , OUT2_RS2, IMM_X  ,  OPTYPE_ALU ,  ALU_SRL ,  BRU_X    ,  LSU_X    ,  RV64_X     ,  CSR_X   ),
+      OR      -> List(Y, OUT1_RS1 , OUT2_RS2, IMM_X  ,  OPTYPE_ALU ,  ALU_OR  ,  BRU_X    ,  LSU_X    ,  RV64_X     ,  CSR_X   ),
+      AND     -> List(Y, OUT1_RS1 , OUT2_RS2, IMM_X  ,  OPTYPE_ALU ,  ALU_AND ,  BRU_X    ,  LSU_X    ,  RV64_X     ,  CSR_X   ),
+      SUB     -> List(Y, OUT1_RS1 , OUT2_RS2, IMM_X  ,  OPTYPE_ALU ,  ALU_SUB ,  BRU_X    ,  LSU_X    ,  RV64_X     ,  CSR_X   ),
+      SRA     -> List(Y, OUT1_RS1 , OUT2_RS2, IMM_X  ,  OPTYPE_ALU ,  ALU_SRA ,  BRU_X    ,  LSU_X    ,  RV64_X     ,  CSR_X   ),
 
-      AUIPC   -> List(Y, OUT1_PC  , OUT2_IMM, IMM_U  ,  OPTYPE_ALU ,  ALU_ADD ,  BRU_X    ,  LSU_X    ,  RV64_X     ),
-      LUI     -> List(Y, OUT1_X   , OUT2_IMM, IMM_U  ,  OPTYPE_ALU ,  ALU_LUI ,  BRU_X    ,  LSU_X    ,  RV64_X     ),
+      AUIPC   -> List(Y, OUT1_PC  , OUT2_IMM, IMM_U  ,  OPTYPE_ALU ,  ALU_ADD ,  BRU_X    ,  LSU_X    ,  RV64_X     ,  CSR_X   ),
+      LUI     -> List(Y, OUT1_X   , OUT2_IMM, IMM_U  ,  OPTYPE_ALU ,  ALU_LUI ,  BRU_X    ,  LSU_X    ,  RV64_X     ,  CSR_X   ),
 
       //-------------------RV32I_BRUInstr------------------------------//
-      /*e.x.: -> List(Y, OUT1_PC  , OUT2_IMM, IMM_4  ,   OPTYPE_BRU ,  ALU_X   ,  BRU_JAL  ,  LSU_X    ,  RV64_X     ),  */
-      JAL     -> List(Y, OUT1_PC  , OUT2_IMM, IMM_4  ,   OPTYPE_BRU ,  ALU_ADD ,  BRU_JAL  ,  LSU_X    ,  RV64_X     ),
-      JALR    -> List(Y, OUT1_PC  , OUT2_IMM, IMM_4  ,   OPTYPE_BRU ,  ALU_ADD ,  BRU_JALR ,  LSU_X    ,  RV64_X     ),
+      /*e.x.: -> List(Y, OUT1_PC  , OUT2_IMM, IMM_4  ,   OPTYPE_BRU ,  ALU_X   ,  BRU_JAL  ,  LSU_X    ,  RV64_X     ,  CSR_X   ),  */
+      JAL     -> List(Y, OUT1_PC  , OUT2_IMM, IMM_4  ,   OPTYPE_BRU ,  ALU_ADD ,  BRU_JAL  ,  LSU_X    ,  RV64_X     ,  CSR_X   ),
+      JALR    -> List(Y, OUT1_PC  , OUT2_IMM, IMM_4  ,   OPTYPE_BRU ,  ALU_ADD ,  BRU_JALR ,  LSU_X    ,  RV64_X     ,  CSR_X   ),
 
-      BNE     -> List(Y, OUT1_X   , OUT2_X  , IMM_X  ,   OPTYPE_BRU ,  ALU_X   ,  BRU_BNE  ,  LSU_X    ,  RV64_X     ),
-      BEQ     -> List(Y, OUT1_X   , OUT2_X  , IMM_X  ,   OPTYPE_BRU ,  ALU_X   ,  BRU_BEQ  ,  LSU_X    ,  RV64_X     ),
-      BLT     -> List(Y, OUT1_X   , OUT2_X  , IMM_X  ,   OPTYPE_BRU ,  ALU_X   ,  BRU_BLT  ,  LSU_X    ,  RV64_X     ),
-      BGE     -> List(Y, OUT1_X   , OUT2_X  , IMM_X  ,   OPTYPE_BRU ,  ALU_X   ,  BRU_BGE  ,  LSU_X    ,  RV64_X     ),
-      BLTU    -> List(Y, OUT1_X   , OUT2_X  , IMM_X  ,   OPTYPE_BRU ,  ALU_X   ,  BRU_BLTU ,  LSU_X    ,  RV64_X     ),
-      BGEU    -> List(Y, OUT1_X   , OUT2_X  , IMM_X  ,   OPTYPE_BRU ,  ALU_X   ,  BRU_BGEU ,  LSU_X    ,  RV64_X     ),
+      BNE     -> List(Y, OUT1_X   , OUT2_X  , IMM_X  ,   OPTYPE_BRU ,  ALU_X   ,  BRU_BNE  ,  LSU_X    ,  RV64_X     ,  CSR_X   ),
+      BEQ     -> List(Y, OUT1_X   , OUT2_X  , IMM_X  ,   OPTYPE_BRU ,  ALU_X   ,  BRU_BEQ  ,  LSU_X    ,  RV64_X     ,  CSR_X   ),
+      BLT     -> List(Y, OUT1_X   , OUT2_X  , IMM_X  ,   OPTYPE_BRU ,  ALU_X   ,  BRU_BLT  ,  LSU_X    ,  RV64_X     ,  CSR_X   ),
+      BGE     -> List(Y, OUT1_X   , OUT2_X  , IMM_X  ,   OPTYPE_BRU ,  ALU_X   ,  BRU_BGE  ,  LSU_X    ,  RV64_X     ,  CSR_X   ),
+      BLTU    -> List(Y, OUT1_X   , OUT2_X  , IMM_X  ,   OPTYPE_BRU ,  ALU_X   ,  BRU_BLTU ,  LSU_X    ,  RV64_X     ,  CSR_X   ),
+      BGEU    -> List(Y, OUT1_X   , OUT2_X  , IMM_X  ,   OPTYPE_BRU ,  ALU_X   ,  BRU_BGEU ,  LSU_X    ,  RV64_X     ,  CSR_X   ),
 
       //-------------------RV32I_LSUInstr------------------------------//
-      /*e.x.: -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_LSU ,  ALU_ADD ,  BRU_X    ,  LSU_LB   ,  RV64_X     ),  */
-      LB      -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_LSU ,  ALU_ADD ,  BRU_X    ,  LSU_LB   ,  RV64_X     ),
-      LH      -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_LSU ,  ALU_ADD ,  BRU_X    ,  LSU_LH   ,  RV64_X     ),
-      LW      -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_LSU ,  ALU_ADD ,  BRU_X    ,  LSU_LW   ,  RV64_X     ),
-      LBU     -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_LSU ,  ALU_ADD ,  BRU_X    ,  LSU_LBU  ,  RV64_X     ),
-      LHU     -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_LSU ,  ALU_ADD ,  BRU_X    ,  LSU_LHU  ,  RV64_X     ),
-      SB      -> List(Y, OUT1_RS1 , OUT2_RS2, IMM_S  ,  OPTYPE_LSU ,  ALU_ADD ,  BRU_X    ,  LSU_SB   ,  RV64_X     ),
-      SH      -> List(Y, OUT1_RS1 , OUT2_RS2, IMM_S  ,  OPTYPE_LSU ,  ALU_ADD ,  BRU_X    ,  LSU_SH   ,  RV64_X     ),
-      SW      -> List(Y, OUT1_RS1 , OUT2_RS2, IMM_S  ,  OPTYPE_LSU ,  ALU_ADD ,  BRU_X    ,  LSU_SW   ,  RV64_X     ),
+      /*e.x.: -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_LSU ,  ALU_ADD ,  BRU_X    ,  LSU_LB   ,  RV64_X     ,  CSR_X   ),  */
+      LB      -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_LSU ,  ALU_ADD ,  BRU_X    ,  LSU_LB   ,  RV64_X     ,  CSR_X   ),
+      LH      -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_LSU ,  ALU_ADD ,  BRU_X    ,  LSU_LH   ,  RV64_X     ,  CSR_X   ),
+      LW      -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_LSU ,  ALU_ADD ,  BRU_X    ,  LSU_LW   ,  RV64_X     ,  CSR_X   ),
+      LBU     -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_LSU ,  ALU_ADD ,  BRU_X    ,  LSU_LBU  ,  RV64_X     ,  CSR_X   ),
+      LHU     -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_LSU ,  ALU_ADD ,  BRU_X    ,  LSU_LHU  ,  RV64_X     ,  CSR_X   ),
+      SB      -> List(Y, OUT1_RS1 , OUT2_RS2, IMM_S  ,  OPTYPE_LSU ,  ALU_ADD ,  BRU_X    ,  LSU_SB   ,  RV64_X     ,  CSR_X   ),
+      SH      -> List(Y, OUT1_RS1 , OUT2_RS2, IMM_S  ,  OPTYPE_LSU ,  ALU_ADD ,  BRU_X    ,  LSU_SH   ,  RV64_X     ,  CSR_X   ),
+      SW      -> List(Y, OUT1_RS1 , OUT2_RS2, IMM_S  ,  OPTYPE_LSU ,  ALU_ADD ,  BRU_X    ,  LSU_SW   ,  RV64_X     ,  CSR_X   ),
       //-------------------RV64IInstr----------------------------------//
-      /*e.x.: -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_X   ,  ALU_ADD ,  BRU_X    ,  LSU_X    ,  RV64_X     ),  */
-      ADDIW   -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_RV64,  ALU_ADD ,  BRU_X    ,  LSU_X    ,  RV64_ADDIW ),
-      SLLIW   -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_RV64,  ALU_SLL ,  BRU_X    ,  LSU_X    ,  RV64_SLLIW ),
-      SRLIW   -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_RV64,  ALU_SRL ,  BRU_X    ,  LSU_X    ,  RV64_SRLIW ),
-      SRAIW   -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_RV64,  ALU_SRA ,  BRU_X    ,  LSU_X    ,  RV64_SRAIW ),
-      SLLW    -> List(Y, OUT1_RS1 , OUT2_RS2, IMM_X  ,  OPTYPE_RV64,  ALU_SLL ,  BRU_X    ,  LSU_X    ,  RV64_SLLW  ),
-      SRLW    -> List(Y, OUT1_RS1 , OUT2_RS2, IMM_X  ,  OPTYPE_RV64,  ALU_SRL ,  BRU_X    ,  LSU_X    ,  RV64_SRLW  ),
-      SRAW    -> List(Y, OUT1_RS1 , OUT2_RS2, IMM_X  ,  OPTYPE_RV64,  ALU_SRA ,  BRU_X    ,  LSU_X    ,  RV64_SRAW  ),
-      ADDW    -> List(Y, OUT1_RS1 , OUT2_RS2, IMM_X  ,  OPTYPE_RV64,  ALU_ADD ,  BRU_X    ,  LSU_X    ,  RV64_ADDW  ),
-      SUBW    -> List(Y, OUT1_RS1 , OUT2_RS2, IMM_X  ,  OPTYPE_RV64,  ALU_SUB ,  BRU_X    ,  LSU_X    ,  RV64_SUBW  ),
+      /*e.x.: -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_X   ,  ALU_ADD ,  BRU_X    ,  LSU_X    ,  RV64_X     ,  CSR_X   ),  */
+      ADDIW   -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_RV64,  ALU_ADD ,  BRU_X    ,  LSU_X    ,  RV64_ADDIW ,  CSR_X   ),
+      SLLIW   -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_RV64,  ALU_SLL ,  BRU_X    ,  LSU_X    ,  RV64_SLLIW ,  CSR_X   ),
+      SRLIW   -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_RV64,  ALU_SRL ,  BRU_X    ,  LSU_X    ,  RV64_SRLIW ,  CSR_X   ),
+      SRAIW   -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_RV64,  ALU_SRA ,  BRU_X    ,  LSU_X    ,  RV64_SRAIW ,  CSR_X   ),
+      SLLW    -> List(Y, OUT1_RS1 , OUT2_RS2, IMM_X  ,  OPTYPE_RV64,  ALU_SLL ,  BRU_X    ,  LSU_X    ,  RV64_SLLW  ,  CSR_X   ),
+      SRLW    -> List(Y, OUT1_RS1 , OUT2_RS2, IMM_X  ,  OPTYPE_RV64,  ALU_SRL ,  BRU_X    ,  LSU_X    ,  RV64_SRLW  ,  CSR_X   ),
+      SRAW    -> List(Y, OUT1_RS1 , OUT2_RS2, IMM_X  ,  OPTYPE_RV64,  ALU_SRA ,  BRU_X    ,  LSU_X    ,  RV64_SRAW  ,  CSR_X   ),
+      ADDW    -> List(Y, OUT1_RS1 , OUT2_RS2, IMM_X  ,  OPTYPE_RV64,  ALU_ADD ,  BRU_X    ,  LSU_X    ,  RV64_ADDW  ,  CSR_X   ),
+      SUBW    -> List(Y, OUT1_RS1 , OUT2_RS2, IMM_X  ,  OPTYPE_RV64,  ALU_SUB ,  BRU_X    ,  LSU_X    ,  RV64_SUBW  ,  CSR_X   ),
 
-      LWU     -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_RV64,  ALU_ADD ,  BRU_X    ,  LSU_X    ,  RV64_LWU   ),
-      LD      -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_RV64,  ALU_ADD ,  BRU_X    ,  LSU_X    ,  RV64_LD    ),
-      SD      -> List(Y, OUT1_RS1 , OUT2_RS2, IMM_S  ,  OPTYPE_RV64,  ALU_ADD ,  BRU_X    ,  LSU_X    ,  RV64_SD    ),
+      LWU     -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_RV64,  ALU_ADD ,  BRU_X    ,  LSU_X    ,  RV64_LWU   ,  CSR_X   ),
+      LD      -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_RV64,  ALU_ADD ,  BRU_X    ,  LSU_X    ,  RV64_LD    ,  CSR_X   ),
+      SD      -> List(Y, OUT1_RS1 , OUT2_RS2, IMM_S  ,  OPTYPE_RV64,  ALU_ADD ,  BRU_X    ,  LSU_X    ,  RV64_SD    ,  CSR_X   ),
+
+      //------------------CSR Instr-----------------------------//
+      CSRRW   -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_CSR ,  ALU_ADD ,  BRU_X    ,  LSU_X    ,  RV64_X     ,  CSR_RW    ),
+      CSRRS   -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_CSR ,  ALU_ADD ,  BRU_X    ,  LSU_X    ,  RV64_X     ,  CSR_RS    ),
+      CSRRC   -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_CSR ,  ALU_ADD ,  BRU_X    ,  LSU_X    ,  RV64_X     ,  CSR_RC    ),
+      CSRRWI  -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_CSR ,  ALU_ADD ,  BRU_X    ,  LSU_X    ,  RV64_X     ,  CSR_RWI   ),
+      CSRRSI  -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_CSR ,  ALU_ADD ,  BRU_X    ,  LSU_X    ,  RV64_X     ,  CSR_RSI   ),
+      CSRRCI  -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_CSR ,  ALU_ADD ,  BRU_X    ,  LSU_X    ,  RV64_X     ,  CSR_RCI   ),
 
       //---------------------自定义-----------------------------//
-      PUTCH   -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_ALU ,  ALU_ADD ,  BRU_X    ,  LSU_X    ,  RV64_X     )
+      PUTCH   -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_ALU ,  ALU_ADD ,  BRU_X    ,  LSU_X    ,  RV64_X     ,  CSR_X   )
 
     ))
-    val (inst_valid: Bool) :: id_out1 :: id_out2 :: id_imm :: optype :: aluop :: bruop :: lsuop :: rv64op :: Nil = ctr_signals
+    val (inst_valid: Bool) :: id_out1 :: id_out2 :: id_imm :: optype :: aluop :: bruop :: lsuop :: rv64op :: csrop :: Nil = ctr_signals
 
     val is_putch = Wire(Bool())
     is_putch := (inst === PUTCH)
@@ -144,8 +165,6 @@ class Decode extends Module {
       id_imm(4) -> imm_j,
       id_imm(5) -> imm_4
     ))
-
-    
 
     val rs1_data = Mux(rs1_en,io.rs1_data,0.U)
     val rs2_data = Mux(rs2_en,io.rs2_data,0.U)
@@ -241,7 +260,6 @@ class Decode extends Module {
     io.id_to_ex.load := load
     io.id_to_ex.save := save
     
-    
     io.id_to_if.jump := jump
     io.id_to_if.pc_target := pc_target
     
@@ -249,7 +267,27 @@ class Decode extends Module {
     io.id_to_ex.lsuop := lsuop
     io.id_to_ex.rv64op := rv64op
 
+  //-------------------自定义指令-------------------//
     when(is_putch){
       printf("%c",rs1_data)
     }
+
+    //-----------------csr op----------------------//
+    val is_csr = (optype === OPTYPE_CSR)
+    val is_zimm = Mux1H(Seq(
+      !is_csr -> false.B,
+      (csrop === CSRRW)  -> false.B,
+      (csrop === CSRRS)  -> false.B,
+      (csrop === CSRRC)  -> false.B,
+      (csrop === CSRRWI) -> true.B,
+      (csrop === CSRRSI) -> true.B,
+      (csrop === CSRRCI) -> true.B
+    ))
+    io.id_to_csr.csrop := csrop
+    io.id_to_csr.src1 := Mux(is_zimm,Cat(Fill(59,0.U),rs1(4,0)),rs1_data)
+    io.id_to_csr.csr_addr := Mux(is_csr,inst(31,20),0.U)
+    io.id_to_csr.is_zero := ((rs1 === 0.U) || !is_csr)
+
+    io.id_to_ex.is_csr := (optype === OPTYPE_CSR)
+    io.id_to_ex.csr_res := io.id_to_csr.csr_res
 }

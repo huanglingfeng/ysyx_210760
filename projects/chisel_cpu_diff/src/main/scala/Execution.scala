@@ -3,6 +3,9 @@ import chisel3.util._
 import Consts._
 
 class EX_TO_ISU_BUS extends Bundle {
+  val is_csr = Output(Bool())
+  val csr_res = Output(UInt(64.W))
+
   val alu_res = Output(UInt(64.W))
 
   val src1 = Output(UInt(64.W))
@@ -36,6 +39,10 @@ class Execution extends Module {
   io.ex_to_isu.rf_w := io.id_to_ex.rf_w
   io.ex_to_isu.load := io.id_to_ex.load
   io.ex_to_isu.save := io.id_to_ex.save
+
+  io.ex_to_isu.is_csr := io.id_to_ex.is_csr
+  io.ex_to_isu.csr_res := io.id_to_ex.csr_res
+  
   io.ex_to_isu.src1 := src1_64
   io.ex_to_isu.src2 := src2_64
   io.ex_to_isu.imm := imm

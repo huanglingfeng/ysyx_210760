@@ -37,6 +37,9 @@ class Core extends Module {
   rf.io.rd_data := wb.io.rd_data
   rf.io.rd_en := wb.io.rd_en
 
+  val csr = Module(new CSR)
+  decode.io.id_to_csr <> csr.io.id_to_csr
+
   /* ----- Difftest ------------------------------ */
 
   val dt_ic = Module(new DifftestInstrCommit)
@@ -82,13 +85,13 @@ class Core extends Module {
   dt_cs.io.clock := clock
   dt_cs.io.coreid := 0.U
   dt_cs.io.priviledgeMode := 3.U // Machine mode
-  dt_cs.io.mstatus := 0.U
+  dt_cs.io.mstatus := csr.io.mstatus
   dt_cs.io.sstatus := 0.U
-  dt_cs.io.mepc := 0.U
+  dt_cs.io.mepc := csr.io.mepc
   dt_cs.io.sepc := 0.U
   dt_cs.io.mtval := 0.U
   dt_cs.io.stval := 0.U
-  dt_cs.io.mtvec := 0.U
+  dt_cs.io.mtvec := csr.io.mtevc
   dt_cs.io.stvec := 0.U
   dt_cs.io.mcause := 0.U
   dt_cs.io.scause := 0.U
