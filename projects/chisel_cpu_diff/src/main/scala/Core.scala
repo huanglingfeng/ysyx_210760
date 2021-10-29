@@ -1,6 +1,8 @@
 import chisel3._
 import chisel3.util.experimental._
 import difftest._
+import Instructions._
+import Consts._
 
 class Core extends Module {
   val io = IO(new Bundle {
@@ -49,7 +51,9 @@ class Core extends Module {
   dt_ic.io.valid := true.B
   dt_ic.io.pc := RegNext(fetch.io.if_to_id.pc)
   dt_ic.io.instr := RegNext(fetch.io.if_to_id.inst)
-  dt_ic.io.skip := RegNext(fetch.io.if_to_id.inst === "h0000007b".U)
+  dt_ic.io.skip := RegNext(fetch.io.if_to_id.inst === "h0000007b".U || fetch.io.if_to_id.inst === CSRRW 
+  || fetch.io.if_to_id.inst === CSRRS || fetch.io.if_to_id.inst === CSRRC || fetch.io.if_to_id.inst === CSRRWI
+  || fetch.io.if_to_id.inst === CSRRSI || fetch.io.if_to_id.inst === CSRRCI)
   dt_ic.io.isRVC := false.B
   dt_ic.io.scFailed := false.B
   dt_ic.io.wen := RegNext(wb.io.rd_en)
@@ -85,13 +89,13 @@ class Core extends Module {
   dt_cs.io.clock := clock
   dt_cs.io.coreid := 0.U
   dt_cs.io.priviledgeMode := 3.U // Machine mode
-  dt_cs.io.mstatus := csr.io.mstatus
+  dt_cs.io.mstatus := RegNext(csr.io.mstatus)
   dt_cs.io.sstatus := 0.U
-  dt_cs.io.mepc := csr.io.mepc
+  dt_cs.io.mepc := RegNext(csr.io.mepc)
   dt_cs.io.sepc := 0.U
   dt_cs.io.mtval := 0.U
   dt_cs.io.stval := 0.U
-  dt_cs.io.mtvec := csr.io.mtevc
+  dt_cs.io.mtvec := RegNext(csr.io.mtevc)
   dt_cs.io.stvec := 0.U
   dt_cs.io.mcause := 0.U
   dt_cs.io.scause := 0.U
