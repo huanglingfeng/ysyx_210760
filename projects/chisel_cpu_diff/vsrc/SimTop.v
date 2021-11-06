@@ -1903,9 +1903,6 @@ module Core(
   reg [31:0] _RAND_5;
   reg [63:0] _RAND_6;
   reg [63:0] _RAND_7;
-  reg [63:0] _RAND_8;
-  reg [63:0] _RAND_9;
-  reg [63:0] _RAND_10;
 `endif // RANDOMIZE_REG_INIT
   wire  fetch_clock; // @[Core.scala 13:21]
   wire  fetch_reset; // @[Core.scala 13:21]
@@ -2075,9 +2072,6 @@ module Core(
   wire [63:0] _cycle_cnt_T_1 = cycle_cnt + 64'h1; // @[Core.scala 73:26]
   wire [63:0] _instr_cnt_T_1 = instr_cnt + 64'h1; // @[Core.scala 74:26]
   wire [63:0] rf_a0_0 = rf_rf_10;
-  reg [63:0] dt_cs_io_mstatus_REG; // @[Core.scala 92:30]
-  reg [63:0] dt_cs_io_mepc_REG; // @[Core.scala 94:27]
-  reg [63:0] dt_cs_io_mtvec_REG; // @[Core.scala 98:28]
   InstFetch fetch ( // @[Core.scala 13:21]
     .clock(fetch_clock),
     .reset(fetch_reset),
@@ -2341,13 +2335,13 @@ module Core(
   assign dt_cs_clock = clock; // @[Core.scala 89:18]
   assign dt_cs_coreid = 8'h0; // @[Core.scala 90:19]
   assign dt_cs_priviledgeMode = 2'h3; // @[Core.scala 91:27]
-  assign dt_cs_mstatus = dt_cs_io_mstatus_REG; // @[Core.scala 92:20]
+  assign dt_cs_mstatus = csr_io_mstatus; // @[Core.scala 92:20]
   assign dt_cs_sstatus = 64'h0; // @[Core.scala 93:20]
-  assign dt_cs_mepc = dt_cs_io_mepc_REG; // @[Core.scala 94:17]
+  assign dt_cs_mepc = csr_io_mepc; // @[Core.scala 94:17]
   assign dt_cs_sepc = 64'h0; // @[Core.scala 95:17]
   assign dt_cs_mtval = 64'h0; // @[Core.scala 96:18]
   assign dt_cs_stval = 64'h0; // @[Core.scala 97:18]
-  assign dt_cs_mtvec = dt_cs_io_mtvec_REG; // @[Core.scala 98:18]
+  assign dt_cs_mtvec = csr_io_mtvec; // @[Core.scala 98:18]
   assign dt_cs_stvec = 64'h0; // @[Core.scala 99:18]
   assign dt_cs_mcause = 64'h0; // @[Core.scala 100:19]
   assign dt_cs_scause = 64'h0; // @[Core.scala 101:19]
@@ -2375,9 +2369,6 @@ module Core(
     end else begin
       instr_cnt <= _instr_cnt_T_1; // @[Core.scala 74:13]
     end
-    dt_cs_io_mstatus_REG <= csr_io_mstatus; // @[Core.scala 92:30]
-    dt_cs_io_mepc_REG <= csr_io_mepc; // @[Core.scala 94:27]
-    dt_cs_io_mtvec_REG <= csr_io_mtvec; // @[Core.scala 98:28]
   end
 // Register and memory initialization
 `ifdef RANDOMIZE_GARBAGE_ASSIGN
@@ -2431,12 +2422,6 @@ initial begin
   cycle_cnt = _RAND_6[63:0];
   _RAND_7 = {2{`RANDOM}};
   instr_cnt = _RAND_7[63:0];
-  _RAND_8 = {2{`RANDOM}};
-  dt_cs_io_mstatus_REG = _RAND_8[63:0];
-  _RAND_9 = {2{`RANDOM}};
-  dt_cs_io_mepc_REG = _RAND_9[63:0];
-  _RAND_10 = {2{`RANDOM}};
-  dt_cs_io_mtvec_REG = _RAND_10[63:0];
 `endif // RANDOMIZE_REG_INIT
   `endif // RANDOMIZE
 end // initial

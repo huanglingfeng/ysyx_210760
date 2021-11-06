@@ -89,13 +89,13 @@ class Core extends Module {
   dt_cs.io.clock := clock
   dt_cs.io.coreid := 0.U
   dt_cs.io.priviledgeMode := 3.U // Machine mode
-  dt_cs.io.mstatus := RegNext(csr.io.mstatus)
+  dt_cs.io.mstatus := csr.io.mstatus
   dt_cs.io.sstatus := 0.U
-  dt_cs.io.mepc := RegNext(csr.io.mepc)
+  dt_cs.io.mepc := csr.io.mepc
   dt_cs.io.sepc := 0.U
   dt_cs.io.mtval := 0.U
   dt_cs.io.stval := 0.U
-  dt_cs.io.mtvec := RegNext(csr.io.mtvec)
+  dt_cs.io.mtvec := csr.io.mtvec
   dt_cs.io.stvec := 0.U
   dt_cs.io.mcause := 0.U
   dt_cs.io.scause := 0.U
