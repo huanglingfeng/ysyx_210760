@@ -1750,7 +1750,7 @@ module CSR(
   wire [63:0] _GEN_9 = is_rw ? _csr_mask_T : _GEN_6; // @[CSR.scala 62:17 CSR.scala 65:16]
   wire [63:0] csr_data_i = ~is_trap_begin & ~is_trap_end ? _GEN_8 : 64'h0; // @[CSR.scala 61:40]
   wire [63:0] csr_mask = ~is_trap_begin & ~is_trap_end ? _GEN_9 : 64'h0; // @[CSR.scala 61:40]
-  wire [63:0] _mcycle_T_2 = csr_data_i | csr_mask; // @[CSR.scala 77:38]
+  wire [63:0] _mcycle_T_2 = csr_data_i & csr_mask; // @[CSR.scala 77:38]
   wire [63:0] _mcycle_T_3 = mcycle | _mcycle_T_2; // @[CSR.scala 77:24]
   wire [63:0] _mepc_T_1 = mepc | _mcycle_T_2; // @[CSR.scala 79:20]
   wire [63:0] _mcause_T_1 = mcause | _mcycle_T_2; // @[CSR.scala 81:24]

@@ -74,19 +74,19 @@ class CSR extends Module {
     }
 
     when(csr_addr === MCYCLE_N) {
-      mcycle := mcycle | (csr_data_i | csr_mask)
+      mcycle := mcycle | (csr_data_i & csr_mask)
     }.elsewhen(csr_addr === MEPC_N) {
-      mepc := mepc | (csr_data_i | csr_mask)
+      mepc := mepc | (csr_data_i & csr_mask)
     }.elsewhen(csr_addr === MCAUSE_N) {
-      mcause := mcause | (csr_data_i | csr_mask)
+      mcause := mcause | (csr_data_i & csr_mask)
     }.elsewhen(csr_addr === MTVEC_N) {
-      mtvec := mtvec | (csr_data_i | csr_mask)
+      mtvec := mtvec | (csr_data_i & csr_mask)
     }.elsewhen(csr_addr === MSTATUS_N) {
-      mstatus := mstatus | (csr_data_i | csr_mask)
+      mstatus := mstatus | (csr_data_i & csr_mask)
     }.elsewhen(csr_addr === MIP_N) {
-      mip := mip | (csr_data_i | csr_mask)
+      mip := mip | (csr_data_i & csr_mask)
     }.elsewhen(csr_addr === MIE_N) {
-      mie := mie | (csr_data_i | csr_mask)
+      mie := mie | (csr_data_i & csr_mask)
     }
   }.elsewhen(is_trap_begin) {
     mstatus := Cat(mstatus(63,8),mstatus(3),mstatus(6,4),0.U,mstatus(2,0))
