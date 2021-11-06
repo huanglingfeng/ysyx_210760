@@ -84,7 +84,7 @@ object Consts {
   val RV64_LD = "b010000000000".U(SEL_RV64_OP_WIDTH.W)
   val RV64_SD = "b100000000000".U(SEL_RV64_OP_WIDTH.W)
 
-  val SEL_CSR_WIDTH = 6
+  val SEL_CSR_WIDTH = 8
   val CSR_X    = "d0".U(SEL_CSR_WIDTH.W)
   val CSR_RW   = "d1".U(SEL_CSR_WIDTH.W)
   val CSR_RS   = "d2".U(SEL_CSR_WIDTH.W)
@@ -92,13 +92,13 @@ object Consts {
   val CSR_RWI  = "d4".U(SEL_CSR_WIDTH.W)
   val CSR_RSI  = "d5".U(SEL_CSR_WIDTH.W)
   val CSR_RCI  = "d6".U(SEL_CSR_WIDTH.W)
+  val CSR_ECALL= "d7".U(SEL_CSR_WIDTH.W)
+  val CSR_MRET = "d8".U(SEL_CSR_WIDTH.W)
 
 //-------------------csr consts--------------------------//
   val MCYCLE_N  = "hB00".U(12.W)
   val MEPC_N    = "h341".U(12.W)
   val MCAUSE_N  = "h342".U(12.W)
-  val MTEVC_N   = "h305".U(12.W)
+  val MTVEC_N   = "h305".U(12.W)
   val MSTATUS_N = "h300".U(12.W)
-  val MIP_N     = "h344".U(12.W)
-  val MIE_N     = "h304".U(12.W)
 }

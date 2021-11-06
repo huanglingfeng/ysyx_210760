@@ -40,7 +40,7 @@ class Core extends Module {
   rf.io.rd_en := wb.io.rd_en
 
   val csr = Module(new CSR)
-  decode.io.id_to_csr <> csr.io.id_to_csr
+  decode.io.id_to_csr <> csr.io.csr_to_id
 
   /* ----- Difftest ------------------------------ */
 
@@ -95,7 +95,7 @@ class Core extends Module {
   dt_cs.io.sepc := 0.U
   dt_cs.io.mtval := 0.U
   dt_cs.io.stval := 0.U
-  dt_cs.io.mtvec := RegNext(csr.io.mtevc)
+  dt_cs.io.mtvec := RegNext(csr.io.mtvec)
   dt_cs.io.stvec := 0.U
   dt_cs.io.mcause := 0.U
   dt_cs.io.scause := 0.U

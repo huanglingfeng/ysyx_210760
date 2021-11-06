@@ -31,8 +31,11 @@ class ID_TO_CSR_BUS extends Bundle{
   val csr_addr = Output(UInt(12.W))
   val src1 = Output(UInt(64.W))
   val is_zero = Output(Bool())
+  val id_pc = Output(UInt(64.W))
   
   val csr_res = Input(UInt(64.W))
+
+  val csr_target = Input(UInt(64.W))
 }
 class Decode extends Module {
   val io = IO(new Bundle {
@@ -51,6 +54,8 @@ class Decode extends Module {
 
   val inst   = io.if_to_id.inst
   val pc     = io.if_to_id.pc
+
+  io.id_to_csr.id_pc := pc
 
   val rd     = inst(11,7)
   val funct3 = inst(14,12)
@@ -134,6 +139,7 @@ class Decode extends Module {
       SD      -> List(Y, OUT1_RS1 , OUT2_RS2, IMM_S  ,  OPTYPE_RV64,  ALU_ADD ,  BRU_X    ,  LSU_X    ,  RV64_SD    ,  CSR_X   ),
 
       //------------------CSR Instr-----------------------------//
+      /*e.x.: -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_CSR ,  ALU_ADD ,  BRU_X    ,  LSU_X    ,  RV64_X     ,  CSR_RW    ),  */
       CSRRW   -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_CSR ,  ALU_ADD ,  BRU_X    ,  LSU_X    ,  RV64_X     ,  CSR_RW    ),
       CSRRS   -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_CSR ,  ALU_ADD ,  BRU_X    ,  LSU_X    ,  RV64_X     ,  CSR_RS    ),
       CSRRC   -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_CSR ,  ALU_ADD ,  BRU_X    ,  LSU_X    ,  RV64_X     ,  CSR_RC    ),
@@ -141,6 +147,8 @@ class Decode extends Module {
       CSRRSI  -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_CSR ,  ALU_ADD ,  BRU_X    ,  LSU_X    ,  RV64_X     ,  CSR_RSI   ),
       CSRRCI  -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_CSR ,  ALU_ADD ,  BRU_X    ,  LSU_X    ,  RV64_X     ,  CSR_RCI   ),
 
+      ECALL   -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_CSR ,  ALU_ADD ,  BRU_X    ,  LSU_X    ,  RV64_X     ,  CSR_ECALL ),
+      MRET    -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_CSR ,  ALU_ADD ,  BRU_X    ,  LSU_X    ,  RV64_X     ,  CSR_MRET  ),
       //---------------------自定义-----------------------------//
       PUTCH   -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_ALU ,  ALU_ADD ,  BRU_X    ,  LSU_X    ,  RV64_X     ,  CSR_X   )
 
@@ -154,6 +162,9 @@ class Decode extends Module {
     io.rs2_addr := rs2
     val rs1_en = true.B
     val rs2_en = true.B
+
+    val csr_jump = ((csrop === CSR_ECALL) || (csrop === CSR_MRET))
+    val csr_target = io.id_to_csr.csr_target
 
     val imm = Mux1H(Seq(
       (id_imm === 0.U) -> 0.U,
@@ -240,7 +251,7 @@ class Decode extends Module {
     val bltu = bruop(6)
     val bgeu = bruop(7)
 
-    val jump = (is_jal || is_jalr) || (
+    val jump = (is_jal || is_jalr || csr_jump) || (
         (bne &&  (rs1_data =/= rs2_data)) ||
         (beq &&  (rs1_data === rs2_data)) ||
         (blt &&  (rs1_data.asSInt() < rs2_data.asSInt())) ||
@@ -251,6 +262,7 @@ class Decode extends Module {
     val pc_target = Mux1H(Seq(
       is_jal -> jal_target,
       is_jalr -> jalr_target,
+      csr_jump -> csr_target,
       is_br -> br_target,
       (is_br && !jump) -> "h8000_0000".U(64.W) 
     ))
