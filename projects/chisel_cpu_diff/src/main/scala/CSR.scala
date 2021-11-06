@@ -89,7 +89,9 @@ class CSR extends Module {
       mie := (mie & ~csr_mask) | (csr_data_i & csr_mask)
     }
   }.elsewhen(is_trap_begin) {
-    mstatus := Cat(mstatus(63,8),mstatus(3),mstatus(6,4),0.U,mstatus(2,0))
+    when(csrop === CSR_ECALL){
+      mstatus := Cat(mstatus(63,13),"b11".U(2.W),mstatus(10,8),mstatus(3),mstatus(6,4),0.U,mstatus(2,0))
+    }
     when(mtvec(1, 0) === 0.U) {
       csr_target := mtvec
     }.elsewhen(mtvec(1, 0) === 1.U) {
@@ -102,8 +104,9 @@ class CSR extends Module {
 
     mepc := id_pc
   }.elsewhen(is_trap_end) {
-    mstatus := Cat(mstatus(63,8),1.U,mstatus(6,4),mstatus(7),mstatus(2,0))
-
+    when(csrop === CSR_MRET){
+      mstatus := Cat(mstatus(63,13),"b00".U(2.W),mstatus(10,8),1.U,mstatus(6,4),mstatus(7),mstatus(2,0))
+    }
     csr_target := mepc
   }
 
