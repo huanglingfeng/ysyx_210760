@@ -97,7 +97,7 @@ class Core extends Module {
   dt_cs.io.stval := 0.U
   dt_cs.io.mtvec := csr.io.mtvec
   dt_cs.io.stvec := 0.U
-  dt_cs.io.mcause := 0.U
+  dt_cs.io.mcause := csr.io.mcause
   dt_cs.io.scause := 0.U
   dt_cs.io.satp := 0.U
   dt_cs.io.mip := 0.U

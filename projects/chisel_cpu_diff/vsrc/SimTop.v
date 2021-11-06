@@ -1691,6 +1691,7 @@ module CSR(
   output [63:0] io_csr_to_id_csr_res,
   output [63:0] io_csr_to_id_csr_target,
   output [63:0] io_mepc,
+  output [63:0] io_mcause,
   output [63:0] io_mtvec,
   output [63:0] io_mstatus
 );
@@ -1794,6 +1795,7 @@ module CSR(
   assign io_csr_to_id_csr_res = ~is_trap_begin & ~is_trap_end ? _GEN_7 : 64'h0; // @[CSR.scala 61:40]
   assign io_csr_to_id_csr_target = _GEN_57[63:0]; // @[CSR.scala 111:27]
   assign io_mepc = mepc; // @[CSR.scala 114:11]
+  assign io_mcause = mcause; // @[CSR.scala 115:13]
   assign io_mtvec = mtvec; // @[CSR.scala 116:12]
   assign io_mstatus = mstatus; // @[CSR.scala 117:14]
   always @(posedge clock) begin
@@ -2057,6 +2059,7 @@ module Core(
   wire [63:0] csr_io_csr_to_id_csr_res; // @[Core.scala 42:19]
   wire [63:0] csr_io_csr_to_id_csr_target; // @[Core.scala 42:19]
   wire [63:0] csr_io_mepc; // @[Core.scala 42:19]
+  wire [63:0] csr_io_mcause; // @[Core.scala 42:19]
   wire [63:0] csr_io_mtvec; // @[Core.scala 42:19]
   wire [63:0] csr_io_mstatus; // @[Core.scala 42:19]
   wire  dt_ic_clock; // @[Core.scala 47:21]
@@ -2238,6 +2241,7 @@ module Core(
     .io_csr_to_id_csr_res(csr_io_csr_to_id_csr_res),
     .io_csr_to_id_csr_target(csr_io_csr_to_id_csr_target),
     .io_mepc(csr_io_mepc),
+    .io_mcause(csr_io_mcause),
     .io_mtvec(csr_io_mtvec),
     .io_mstatus(csr_io_mstatus)
   );
@@ -2390,7 +2394,7 @@ module Core(
   assign dt_cs_stval = 64'h0; // @[Core.scala 97:18]
   assign dt_cs_mtvec = csr_io_mtvec; // @[Core.scala 98:18]
   assign dt_cs_stvec = 64'h0; // @[Core.scala 99:18]
-  assign dt_cs_mcause = 64'h0; // @[Core.scala 100:19]
+  assign dt_cs_mcause = csr_io_mcause; // @[Core.scala 100:19]
   assign dt_cs_scause = 64'h0; // @[Core.scala 101:19]
   assign dt_cs_satp = 64'h0; // @[Core.scala 102:17]
   assign dt_cs_mip = 64'h0; // @[Core.scala 103:16]
