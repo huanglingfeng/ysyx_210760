@@ -101,6 +101,7 @@ module Decode(
   output        io_id_to_if_jump,
   output [7:0]  io_id_to_csr_csrop,
   output [11:0] io_id_to_csr_csr_addr,
+  output [63:0] io_id_to_csr_src1,
   output        io_id_to_csr_is_zero,
   output [63:0] io_id_to_csr_id_pc,
   input  [63:0] io_id_to_csr_csr_res,
@@ -695,6 +696,13 @@ module Decode(
   wire [63:0] _pc_target_T_9 = _pc_target_T_8 | _pc_target_T_5; // @[Mux.scala 27:72]
   wire  is_csr = ctr_signals_4 == 5'h10; // @[Decode.scala 288:26]
   wire  _is_zimm_T = ~is_csr; // @[Decode.scala 290:7]
+  wire [14:0] _GEN_0 = {{7'd0}, csrop}; // @[Decode.scala 291:14]
+  wire [14:0] _is_zimm_T_1 = _GEN_0 & 15'h707f; // @[Decode.scala 291:14]
+  wire  _is_zimm_T_8 = 15'h5073 == _is_zimm_T_1; // @[Decode.scala 294:14]
+  wire  _is_zimm_T_10 = 15'h6073 == _is_zimm_T_1; // @[Decode.scala 295:14]
+  wire  _is_zimm_T_12 = 15'h7073 == _is_zimm_T_1; // @[Decode.scala 296:14]
+  wire  is_zimm = _is_zimm_T_8 | _is_zimm_T_10 | _is_zimm_T_12; // @[Mux.scala 27:72]
+  wire [63:0] _io_id_to_csr_src1_T = {59'h0,rs1}; // @[Cat.scala 30:58]
   assign io_id_to_ex_aluop = _ctr_signals_T_1 ? 11'h1 : _ctr_signals_T_457; // @[Lookup.scala 33:37]
   assign io_id_to_ex_lsuop = _ctr_signals_T_1 ? 8'h0 : _ctr_signals_T_571; // @[Lookup.scala 33:37]
   assign io_id_to_ex_rv64op = _ctr_signals_T_1 ? 12'h0 : _ctr_signals_T_628; // @[Lookup.scala 33:37]
@@ -712,6 +720,7 @@ module Decode(
   assign io_id_to_if_jump = bruop[0] | bruop[1] | csr_jump | _jump_T_22; // @[Decode.scala 254:48]
   assign io_id_to_csr_csrop = _ctr_signals_T_1 ? 8'h0 : _ctr_signals_T_685; // @[Lookup.scala 33:37]
   assign io_id_to_csr_csr_addr = is_csr ? io_if_to_id_inst[31:20] : 12'h0; // @[Decode.scala 300:33]
+  assign io_id_to_csr_src1 = is_zimm ? _io_id_to_csr_src1_T : io_rs1_data; // @[Decode.scala 299:29]
   assign io_id_to_csr_is_zero = rs1 == 5'h0 | _is_zimm_T; // @[Decode.scala 301:44]
   assign io_id_to_csr_id_pc = io_if_to_id_pc; // @[Decode.scala 58:22]
   assign io_rs1_addr = _ctr_signals_T_115 ? 5'ha : rs1; // @[Decode.scala 161:23]
@@ -1686,6 +1695,7 @@ module CSR(
   input         reset,
   input  [7:0]  io_csr_to_id_csrop,
   input  [11:0] io_csr_to_id_csr_addr,
+  input  [63:0] io_csr_to_id_src1,
   input         io_csr_to_id_is_zero,
   input  [63:0] io_csr_to_id_id_pc,
   output [63:0] io_csr_to_id_csr_res,
@@ -1738,16 +1748,16 @@ module CSR(
   wire  is_trap_begin = io_csr_to_id_csrop == 8'h7; // @[CSR.scala 57:30]
   wire  is_trap_end = io_csr_to_id_csrop == 8'h8; // @[CSR.scala 58:28]
   wire [63:0] _csr_mask_T = io_csr_to_id_is_zero ? 64'h0 : 64'hffffffffffffffff; // @[CSR.scala 65:22]
-  wire [63:0] _csr_mask_T_1 = io_csr_to_id_is_zero ? 64'h0 : io_csr_to_id_csr_res; // @[CSR.scala 69:22]
-  wire [63:0] _csr_data_i_T = ~io_csr_to_id_csr_res; // @[CSR.scala 72:21]
+  wire [63:0] _csr_mask_T_1 = io_csr_to_id_is_zero ? 64'h0 : io_csr_to_id_src1; // @[CSR.scala 69:22]
+  wire [63:0] _csr_data_i_T = ~io_csr_to_id_src1; // @[CSR.scala 72:21]
   wire [63:0] _GEN_1 = is_rc ? csr_data_o : 64'h0; // @[CSR.scala 70:23 CSR.scala 71:15]
   wire [63:0] _GEN_2 = is_rc ? _csr_data_i_T : 64'h0; // @[CSR.scala 70:23 CSR.scala 72:18]
   wire [63:0] _GEN_3 = is_rc ? _csr_mask_T_1 : 64'h0; // @[CSR.scala 70:23 CSR.scala 73:16]
   wire [63:0] _GEN_4 = is_rs ? csr_data_o : _GEN_1; // @[CSR.scala 66:23 CSR.scala 67:15]
-  wire [63:0] _GEN_5 = is_rs ? io_csr_to_id_csr_res : _GEN_2; // @[CSR.scala 66:23 CSR.scala 68:18]
+  wire [63:0] _GEN_5 = is_rs ? io_csr_to_id_src1 : _GEN_2; // @[CSR.scala 66:23 CSR.scala 68:18]
   wire [63:0] _GEN_6 = is_rs ? _csr_mask_T_1 : _GEN_3; // @[CSR.scala 66:23 CSR.scala 69:16]
   wire [63:0] _GEN_7 = is_rw ? csr_data_o : _GEN_4; // @[CSR.scala 62:17 CSR.scala 63:15]
-  wire [63:0] _GEN_8 = is_rw ? io_csr_to_id_csr_res : _GEN_5; // @[CSR.scala 62:17 CSR.scala 64:18]
+  wire [63:0] _GEN_8 = is_rw ? io_csr_to_id_src1 : _GEN_5; // @[CSR.scala 62:17 CSR.scala 64:18]
   wire [63:0] _GEN_9 = is_rw ? _csr_mask_T : _GEN_6; // @[CSR.scala 62:17 CSR.scala 65:16]
   wire [63:0] csr_data_i = ~is_trap_begin & ~is_trap_end ? _GEN_8 : 64'h0; // @[CSR.scala 61:40]
   wire [63:0] csr_mask = ~is_trap_begin & ~is_trap_end ? _GEN_9 : 64'h0; // @[CSR.scala 61:40]
@@ -1981,6 +1991,7 @@ module Core(
   wire  decode_io_id_to_if_jump; // @[Core.scala 15:22]
   wire [7:0] decode_io_id_to_csr_csrop; // @[Core.scala 15:22]
   wire [11:0] decode_io_id_to_csr_csr_addr; // @[Core.scala 15:22]
+  wire [63:0] decode_io_id_to_csr_src1; // @[Core.scala 15:22]
   wire  decode_io_id_to_csr_is_zero; // @[Core.scala 15:22]
   wire [63:0] decode_io_id_to_csr_id_pc; // @[Core.scala 15:22]
   wire [63:0] decode_io_id_to_csr_csr_res; // @[Core.scala 15:22]
@@ -2054,6 +2065,7 @@ module Core(
   wire  csr_reset; // @[Core.scala 42:19]
   wire [7:0] csr_io_csr_to_id_csrop; // @[Core.scala 42:19]
   wire [11:0] csr_io_csr_to_id_csr_addr; // @[Core.scala 42:19]
+  wire [63:0] csr_io_csr_to_id_src1; // @[Core.scala 42:19]
   wire  csr_io_csr_to_id_is_zero; // @[Core.scala 42:19]
   wire [63:0] csr_io_csr_to_id_id_pc; // @[Core.scala 42:19]
   wire [63:0] csr_io_csr_to_id_csr_res; // @[Core.scala 42:19]
@@ -2149,6 +2161,7 @@ module Core(
     .io_id_to_if_jump(decode_io_id_to_if_jump),
     .io_id_to_csr_csrop(decode_io_id_to_csr_csrop),
     .io_id_to_csr_csr_addr(decode_io_id_to_csr_csr_addr),
+    .io_id_to_csr_src1(decode_io_id_to_csr_src1),
     .io_id_to_csr_is_zero(decode_io_id_to_csr_is_zero),
     .io_id_to_csr_id_pc(decode_io_id_to_csr_id_pc),
     .io_id_to_csr_csr_res(decode_io_id_to_csr_csr_res),
@@ -2232,6 +2245,7 @@ module Core(
     .reset(csr_reset),
     .io_csr_to_id_csrop(csr_io_csr_to_id_csrop),
     .io_csr_to_id_csr_addr(csr_io_csr_to_id_csr_addr),
+    .io_csr_to_id_src1(csr_io_csr_to_id_src1),
     .io_csr_to_id_is_zero(csr_io_csr_to_id_is_zero),
     .io_csr_to_id_id_pc(csr_io_csr_to_id_id_pc),
     .io_csr_to_id_csr_res(csr_io_csr_to_id_csr_res),
@@ -2352,6 +2366,7 @@ module Core(
   assign csr_reset = reset;
   assign csr_io_csr_to_id_csrop = decode_io_id_to_csr_csrop; // @[Core.scala 43:23]
   assign csr_io_csr_to_id_csr_addr = decode_io_id_to_csr_csr_addr; // @[Core.scala 43:23]
+  assign csr_io_csr_to_id_src1 = decode_io_id_to_csr_src1; // @[Core.scala 43:23]
   assign csr_io_csr_to_id_is_zero = decode_io_id_to_csr_is_zero; // @[Core.scala 43:23]
   assign csr_io_csr_to_id_id_pc = decode_io_id_to_csr_id_pc; // @[Core.scala 43:23]
   assign dt_ic_clock = clock; // @[Core.scala 48:18]

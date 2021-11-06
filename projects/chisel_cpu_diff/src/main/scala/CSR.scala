@@ -47,7 +47,7 @@ class CSR extends Module {
       (csr_addr === MIE_N) -> mie
     )
   )
-  val csr_res_i = io.csr_to_id.csr_res
+  val csr_src = src1
   val csr_data_i = WireInit(0.U(64.W))
   val csr_mask = WireInit(0.U(64.W)) //屏蔽信号，0屏蔽
   val is_rw = (csrop === CSR_RW || csrop === CSR_RWI)
@@ -61,16 +61,16 @@ class CSR extends Module {
   when(!is_trap_begin && !is_trap_end) {
     when(is_rw) {
       csr_res := csr_data_o
-      csr_data_i := csr_res_i
+      csr_data_i := csr_src
       csr_mask := Mux(is_zero, 0.U, "hffff_ffff_ffff_ffff".U(64.W))
     }.elsewhen(is_rs) {
       csr_res := csr_data_o
-      csr_data_i := csr_res_i
-      csr_mask := Mux(is_zero, 0.U, csr_res_i)
+      csr_data_i := csr_src
+      csr_mask := Mux(is_zero, 0.U, csr_src)
     }.elsewhen(is_rc) {
       csr_res := csr_data_o
-      csr_data_i := ~csr_res_i
-      csr_mask := Mux(is_zero, 0.U, csr_res_i)
+      csr_data_i := ~csr_src
+      csr_mask := Mux(is_zero, 0.U, csr_src)
     }
 
     when(csr_addr === MCYCLE_N) {
