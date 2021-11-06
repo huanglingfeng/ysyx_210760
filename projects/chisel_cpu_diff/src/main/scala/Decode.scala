@@ -288,12 +288,12 @@ class Decode extends Module {
     val is_csr = (optype === OPTYPE_CSR)
     val is_zimm = Mux1H(Seq(
       !is_csr -> false.B,
-      (csrop === CSRRW)  -> false.B,
-      (csrop === CSRRS)  -> false.B,
-      (csrop === CSRRC)  -> false.B,
-      (csrop === CSRRWI) -> true.B,
-      (csrop === CSRRSI) -> true.B,
-      (csrop === CSRRCI) -> true.B
+      (csrop === CSR_RW)  -> false.B,
+      (csrop === CSR_RS)  -> false.B,
+      (csrop === CSR_RC)  -> false.B,
+      (csrop === CSR_RWI) -> true.B,
+      (csrop === CSR_RSI) -> true.B,
+      (csrop === CSR_RCI) -> true.B
     ))
     io.id_to_csr.csrop := csrop
     io.id_to_csr.src1 := Mux(is_zimm,Cat(Fill(59,0.U),rs1(4,0)),rs1_data)
