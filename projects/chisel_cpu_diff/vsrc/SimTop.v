@@ -1701,7 +1701,9 @@ module CSR(
   output [63:0] io_mepc,
   output [63:0] io_mcause,
   output [63:0] io_mtvec,
-  output [63:0] io_mstatus
+  output [63:0] io_mstatus,
+  output [63:0] io_mie,
+  output [63:0] io_mip
 );
 `ifdef RANDOMIZE_REG_INIT
   reg [63:0] _RAND_0;
@@ -1818,6 +1820,8 @@ module CSR(
   assign io_mcause = mcause; // @[CSR.scala 118:13]
   assign io_mtvec = mtvec; // @[CSR.scala 119:12]
   assign io_mstatus = mstatus; // @[CSR.scala 120:14]
+  assign io_mie = mie; // @[CSR.scala 122:10]
+  assign io_mip = mip; // @[CSR.scala 121:10]
   always @(posedge clock) begin
     if (reset) begin // @[CSR.scala 26:23]
       mcycle <= 64'h0; // @[CSR.scala 26:23]
@@ -2086,6 +2090,8 @@ module Core(
   wire [63:0] csr_io_mcause; // @[Core.scala 42:19]
   wire [63:0] csr_io_mtvec; // @[Core.scala 42:19]
   wire [63:0] csr_io_mstatus; // @[Core.scala 42:19]
+  wire [63:0] csr_io_mie; // @[Core.scala 42:19]
+  wire [63:0] csr_io_mip; // @[Core.scala 42:19]
   wire  dt_ic_clock; // @[Core.scala 47:21]
   wire [7:0] dt_ic_coreid; // @[Core.scala 47:21]
   wire [7:0] dt_ic_index; // @[Core.scala 47:21]
@@ -2265,7 +2271,9 @@ module Core(
     .io_mepc(csr_io_mepc),
     .io_mcause(csr_io_mcause),
     .io_mtvec(csr_io_mtvec),
-    .io_mstatus(csr_io_mstatus)
+    .io_mstatus(csr_io_mstatus),
+    .io_mie(csr_io_mie),
+    .io_mip(csr_io_mip)
   );
   DifftestInstrCommit dt_ic ( // @[Core.scala 47:21]
     .clock(dt_ic_clock),
@@ -2420,8 +2428,8 @@ module Core(
   assign dt_cs_mcause = csr_io_mcause; // @[Core.scala 101:19]
   assign dt_cs_scause = 64'h0; // @[Core.scala 102:19]
   assign dt_cs_satp = 64'h0; // @[Core.scala 103:17]
-  assign dt_cs_mip = 64'h0; // @[Core.scala 104:16]
-  assign dt_cs_mie = 64'h0; // @[Core.scala 105:16]
+  assign dt_cs_mip = csr_io_mip; // @[Core.scala 104:16]
+  assign dt_cs_mie = csr_io_mie; // @[Core.scala 105:16]
   assign dt_cs_mscratch = 64'h0; // @[Core.scala 106:21]
   assign dt_cs_sscratch = 64'h0; // @[Core.scala 107:21]
   assign dt_cs_mideleg = 64'h0; // @[Core.scala 108:20]
