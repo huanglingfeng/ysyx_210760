@@ -101,4 +101,6 @@ object Consts {
   val MCAUSE_N  = "h342".U(12.W)
   val MTVEC_N   = "h305".U(12.W)
   val MSTATUS_N = "h300".U(12.W)
+  val MIP_N     = "h344".U(12.W)
+  val MIE_N     = "h304".U(12.W)
 }

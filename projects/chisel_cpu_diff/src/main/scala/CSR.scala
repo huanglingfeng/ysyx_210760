@@ -11,6 +11,8 @@ class CSR extends Module {
     val mcause = Output(UInt(64.W))
     val mtvec = Output(UInt(64.W))
     val mstatus = Output(UInt(64.W))
+    val mie = Output(UInt(64.W))
+    val mip = Output(UInt(64.W))
 
   })
   val csrop = io.csr_to_id.csrop
@@ -30,6 +32,9 @@ class CSR extends Module {
   val mtvec = RegInit(UInt(64.W), 0.U)
   val mstatus = RegInit(UInt(64.W), "h0000_0000_0000_1800".U)
 
+  val mie = RegInit(0.U(64.W))
+  val mip = RegInit(0.U(64.W))
+
   val csr_data_o = Mux1H(
     Seq(
       (csr_addr === 0.U) -> 0.U,
@@ -37,7 +42,9 @@ class CSR extends Module {
       (csr_addr === MEPC_N) -> mepc,
       (csr_addr === MCAUSE_N) -> mcause,
       (csr_addr === MTVEC_N) -> mtvec,
-      (csr_addr === MSTATUS_N) -> mstatus
+      (csr_addr === MSTATUS_N) -> mstatus,
+      (csr_addr === MIP_N) -> mip,
+      (csr_addr === MIE_N) -> mie
     )
   )
   val csr_res_i = io.csr_to_id.csr_res
@@ -51,9 +58,6 @@ class CSR extends Module {
   val is_trap_end = (csrop === CSR_MRET)
 
   val csr_target = WireInit(0.U(64.W))
-
-  val mie = mstatus(3)
-  val mpie = mstatus(7)
   when(!is_trap_begin && !is_trap_end) {
     when(is_rw) {
       csr_res := csr_data_o
@@ -70,27 +74,35 @@ class CSR extends Module {
     }
 
     when(csr_addr === MCYCLE_N) {
-      mcycle := mcycle | (csr_data_i & csr_mask)
+      mcycle := mcycle | (csr_data_i | csr_mask)
     }.elsewhen(csr_addr === MEPC_N) {
-      mepc := mepc | (csr_data_i & csr_mask)
+      mepc := mepc | (csr_data_i | csr_mask)
     }.elsewhen(csr_addr === MCAUSE_N) {
-      mcause := mcause | (csr_data_i & csr_mask)
+      mcause := mcause | (csr_data_i | csr_mask)
     }.elsewhen(csr_addr === MTVEC_N) {
-      mtvec := mtvec | (csr_data_i & csr_mask)
+      mtvec := mtvec | (csr_data_i | csr_mask)
     }.elsewhen(csr_addr === MSTATUS_N) {
-      mstatus := mstatus | (csr_data_i & csr_mask)
+      mstatus := mstatus | (csr_data_i | csr_mask)
+    }.elsewhen(csr_addr === MIP_N) {
+      mip := mip | (csr_data_i | csr_mask)
+    }.elsewhen(csr_addr === MIE_N) {
+      mie := mie | (csr_data_i | csr_mask)
     }
   }.elsewhen(is_trap_begin) {
-    mstatus := Cat(mstatus(63,8),mie,mstatus(6,4),0.U,mstatus(2,0))
+    mstatus := Cat(mstatus(63,8),mstatus(3),mstatus(6,4),0.U,mstatus(2,0))
     when(mtvec(1, 0) === 0.U) {
       csr_target := mtvec
     }.elsewhen(mtvec(1, 0) === 1.U) {
       csr_target := (Cat(mtvec(63, 2), 0.U(2.W)) + Cat(0.U, mcause(62, 0)) << 2)
     }
 
+    when(mstatus(12,11) === "b11".U(2.W) && (csrop === CSR_ECALL)){
+      mcause := "h0000_0000_0000_000b".U(64.W)
+    }
+
     mepc := id_pc
   }.elsewhen(is_trap_end) {
-    mstatus := Cat(mstatus(63,8),1.U,mstatus(6,4),mpie,mstatus(2,0))
+    mstatus := Cat(mstatus(63,8),1.U,mstatus(6,4),mstatus(7),mstatus(2,0))
 
     csr_target := mepc
   }
@@ -103,4 +115,6 @@ class CSR extends Module {
   io.mcause := mcause
   io.mtvec := mtvec
   io.mstatus := mstatus
+  io.mip := mip
+  io.mie := mie
 }
