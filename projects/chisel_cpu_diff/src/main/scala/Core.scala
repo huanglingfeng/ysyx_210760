@@ -51,9 +51,10 @@ class Core extends Module {
   dt_ic.io.valid := true.B
   dt_ic.io.pc := RegNext(fetch.io.if_to_id.pc)
   dt_ic.io.instr := RegNext(fetch.io.if_to_id.inst)
-  dt_ic.io.skip := RegNext(fetch.io.if_to_id.inst === "h0000007b".U || fetch.io.if_to_id.inst === CSRRW 
-  || fetch.io.if_to_id.inst === CSRRS || fetch.io.if_to_id.inst === CSRRC || fetch.io.if_to_id.inst === CSRRWI
-  || fetch.io.if_to_id.inst === CSRRSI || fetch.io.if_to_id.inst === CSRRCI)
+  dt_ic.io.skip := RegNext(fetch.io.if_to_id.inst === "h0000007b".U) 
+  // || fetch.io.if_to_id.inst === CSRRW 
+  // || fetch.io.if_to_id.inst === CSRRS || fetch.io.if_to_id.inst === CSRRC || fetch.io.if_to_id.inst === CSRRWI
+  // || fetch.io.if_to_id.inst === CSRRSI || fetch.io.if_to_id.inst === CSRRCI)
   dt_ic.io.isRVC := false.B
   dt_ic.io.scFailed := false.B
   dt_ic.io.wen := RegNext(wb.io.rd_en)
