@@ -2098,6 +2098,7 @@ module Core(
   wire  dt_ic_valid; // @[Core.scala 47:21]
   wire [63:0] dt_ic_pc; // @[Core.scala 47:21]
   wire [31:0] dt_ic_instr; // @[Core.scala 47:21]
+  wire [7:0] dt_ic_special; // @[Core.scala 47:21]
   wire  dt_ic_skip; // @[Core.scala 47:21]
   wire  dt_ic_isRVC; // @[Core.scala 47:21]
   wire  dt_ic_scFailed; // @[Core.scala 47:21]
@@ -2282,6 +2283,7 @@ module Core(
     .valid(dt_ic_valid),
     .pc(dt_ic_pc),
     .instr(dt_ic_instr),
+    .special(dt_ic_special),
     .skip(dt_ic_skip),
     .isRVC(dt_ic_isRVC),
     .scFailed(dt_ic_scFailed),
@@ -2395,6 +2397,7 @@ module Core(
   assign dt_ic_valid = 1'h1; // @[Core.scala 51:18]
   assign dt_ic_pc = dt_ic_io_pc_REG; // @[Core.scala 52:15]
   assign dt_ic_instr = dt_ic_io_instr_REG; // @[Core.scala 53:18]
+  assign dt_ic_special = 8'h0;
   assign dt_ic_skip = dt_ic_io_skip_REG; // @[Core.scala 54:17]
   assign dt_ic_isRVC = 1'h0; // @[Core.scala 58:18]
   assign dt_ic_scFailed = 1'h0; // @[Core.scala 59:21]
