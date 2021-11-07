@@ -96,11 +96,12 @@ object Consts {
   val CSR_MRET = "d8".U(SEL_CSR_WIDTH.W)
 
 //-------------------csr consts--------------------------//
-  val MCYCLE_N  = "hB00".U(12.W)
-  val MEPC_N    = "h341".U(12.W)
-  val MCAUSE_N  = "h342".U(12.W)
-  val MTVEC_N   = "h305".U(12.W)
-  val MSTATUS_N = "h300".U(12.W)
-  val MIP_N     = "h344".U(12.W)
-  val MIE_N     = "h304".U(12.W)
+  val MCYCLE_N   = "hB00".U(12.W)
+  val MEPC_N     = "h341".U(12.W)
+  val MCAUSE_N   = "h342".U(12.W)
+  val MTVEC_N    = "h305".U(12.W)
+  val MSTATUS_N  = "h300".U(12.W)
+  val MIP_N      = "h344".U(12.W)
+  val MIE_N      = "h304".U(12.W)
+  val MSCRATCH_N = "h340".U(12.W)
 }

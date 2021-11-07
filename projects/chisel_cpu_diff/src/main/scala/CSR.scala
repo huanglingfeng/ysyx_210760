@@ -13,6 +13,7 @@ class CSR extends Module {
     val mstatus = Output(UInt(64.W))
     val mie = Output(UInt(64.W))
     val mip = Output(UInt(64.W))
+    val mscratch = Output(UInt(64.W))
 
   })
   val csrop = io.csr_to_id.csrop
@@ -31,6 +32,7 @@ class CSR extends Module {
   val mcause = RegInit(UInt(64.W), 0.U)
   val mtvec = RegInit(UInt(64.W), 0.U)
   val mstatus = RegInit(UInt(64.W), "h0000_0000_0000_1800".U)
+  val mscratch = RegInit(UInt(64.W), 0.U)
 
   val mie = RegInit(0.U(64.W))
   val mip = RegInit(0.U(64.W))
@@ -87,6 +89,8 @@ class CSR extends Module {
       mip := (mip & ~csr_mask) | (csr_data_i & csr_mask)
     }.elsewhen(csr_addr === MIE_N) {
       mie := (mie & ~csr_mask) | (csr_data_i & csr_mask)
+    }.elsewhen(csr_addr === MSCRATCH_N){
+      mscratch := (mscratch & ~csr_mask) | (csr_data_i & csr_mask)
     }
   }.elsewhen(is_trap_begin) {
     when(csrop === CSR_ECALL){
@@ -120,4 +124,5 @@ class CSR extends Module {
   io.mstatus := mstatus
   io.mip := mip
   io.mie := mie
+  io.mscratch := mscratch
 }
