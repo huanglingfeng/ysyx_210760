@@ -2,7 +2,7 @@ import chisel3._
 import chisel3.util._
 import Consts._
 
-class EX_TO_ISU_BUS extends Bundle {
+class EX_TO_LSU_BUS extends Bundle {
   val is_csr = Output(Bool())
   val csr_res = Output(UInt(64.W))
 
@@ -24,7 +24,7 @@ class Execution extends Module {
   val io = IO(new Bundle {
 
     val id_to_ex = Flipped(new ID_TO_EX_BUS)
-    val ex_to_isu = new EX_TO_ISU_BUS
+    val ex_to_lsu = new EX_TO_LSU_BUS
 
   })
   val aluop = io.id_to_ex.aluop
@@ -33,19 +33,19 @@ class Execution extends Module {
   val src2_64 = io.id_to_ex.out2
   val imm = io.id_to_ex.imm
 
-  io.ex_to_isu.lsuop := io.id_to_ex.lsuop
-  io.ex_to_isu.rv64op := io.id_to_ex.rv64op
-  io.ex_to_isu.dest := io.id_to_ex.dest
-  io.ex_to_isu.rf_w := io.id_to_ex.rf_w
-  io.ex_to_isu.load := io.id_to_ex.load
-  io.ex_to_isu.save := io.id_to_ex.save
+  io.ex_to_lsu.lsuop := io.id_to_ex.lsuop
+  io.ex_to_lsu.rv64op := io.id_to_ex.rv64op
+  io.ex_to_lsu.dest := io.id_to_ex.dest
+  io.ex_to_lsu.rf_w := io.id_to_ex.rf_w
+  io.ex_to_lsu.load := io.id_to_ex.load
+  io.ex_to_lsu.save := io.id_to_ex.save
 
-  io.ex_to_isu.is_csr := io.id_to_ex.is_csr
-  io.ex_to_isu.csr_res := io.id_to_ex.csr_res
+  io.ex_to_lsu.is_csr := io.id_to_ex.is_csr
+  io.ex_to_lsu.csr_res := io.id_to_ex.csr_res
   
-  io.ex_to_isu.src1 := src1_64
-  io.ex_to_isu.src2 := src2_64
-  io.ex_to_isu.imm := imm
+  io.ex_to_lsu.src1 := src1_64
+  io.ex_to_lsu.src2 := src2_64
+  io.ex_to_lsu.imm := imm
 
   val is_w = Mux1H(
     Seq(
@@ -164,7 +164,7 @@ class Execution extends Module {
   val alu_res =
     Mux(is_w, Cat(Fill(32, alu_res_32(31)), alu_res_32(31,0)), alu_res_64)
 
-  io.ex_to_isu.alu_res := alu_res
+  io.ex_to_lsu.alu_res := alu_res
 
 }
 

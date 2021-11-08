@@ -20,12 +20,12 @@ class Core extends Module {
   val exu = Module(new Execution)
   decode.io.id_to_ex <> exu.io.id_to_ex
 
-  val isu = Module(new ISU)
-  exu.io.ex_to_isu <> isu.io.ex_to_isu
-  isu.io.dmem <> io.dmem
+  val lsu = Module(new LSU)
+  exu.io.ex_to_lsu <> lsu.io.ex_to_lsu
+  lsu.io.dmem <> io.dmem
 
   val wb = Module(new WB)
-  isu.io.isu_to_wb <> wb.io.isu_to_wb
+  lsu.io.lsu_to_wb <> wb.io.lsu_to_wb
 
   val rf = Module(new RegFile)
   /*------------idu <> rf---------------------*/
