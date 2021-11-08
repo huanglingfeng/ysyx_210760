@@ -750,18 +750,18 @@ module Execution(
   input         io_id_to_ex_rf_w,
   input         io_id_to_ex_load,
   input         io_id_to_ex_save,
-  output        io_ex_to_isu_is_csr,
-  output [63:0] io_ex_to_isu_csr_res,
-  output [63:0] io_ex_to_isu_alu_res,
-  output [63:0] io_ex_to_isu_src1,
-  output [63:0] io_ex_to_isu_src2,
-  output [63:0] io_ex_to_isu_imm,
-  output [7:0]  io_ex_to_isu_lsuop,
-  output [11:0] io_ex_to_isu_rv64op,
-  output [4:0]  io_ex_to_isu_dest,
-  output        io_ex_to_isu_rf_w,
-  output        io_ex_to_isu_load,
-  output        io_ex_to_isu_save
+  output        io_ex_to_lsu_is_csr,
+  output [63:0] io_ex_to_lsu_csr_res,
+  output [63:0] io_ex_to_lsu_alu_res,
+  output [63:0] io_ex_to_lsu_src1,
+  output [63:0] io_ex_to_lsu_src2,
+  output [63:0] io_ex_to_lsu_imm,
+  output [7:0]  io_ex_to_lsu_lsuop,
+  output [11:0] io_ex_to_lsu_rv64op,
+  output [4:0]  io_ex_to_lsu_dest,
+  output        io_ex_to_lsu_rf_w,
+  output        io_ex_to_lsu_load,
+  output        io_ex_to_lsu_save
 );
   wire  is_w = io_id_to_ex_rv64op[0] | io_id_to_ex_rv64op[1] | io_id_to_ex_rv64op[2] | io_id_to_ex_rv64op[3] |
     io_id_to_ex_rv64op[4] | io_id_to_ex_rv64op[5] | io_id_to_ex_rv64op[6] | io_id_to_ex_rv64op[7] | io_id_to_ex_rv64op[8
@@ -859,35 +859,35 @@ module Execution(
   wire [31:0] alu_res_lo = alu_res_32[31:0]; // @[Execution.scala 165:55]
   wire [63:0] _alu_res_T_2 = {alu_res_hi,alu_res_lo}; // @[Cat.scala 30:58]
   wire [126:0] alu_res = is_w ? {{63'd0}, _alu_res_T_2} : alu_res_64; // @[Execution.scala 165:8]
-  assign io_ex_to_isu_is_csr = io_id_to_ex_is_csr; // @[Execution.scala 43:23]
-  assign io_ex_to_isu_csr_res = io_id_to_ex_csr_res; // @[Execution.scala 44:24]
-  assign io_ex_to_isu_alu_res = alu_res[63:0]; // @[Execution.scala 167:24]
-  assign io_ex_to_isu_src1 = io_id_to_ex_out1; // @[Execution.scala 46:21]
-  assign io_ex_to_isu_src2 = io_id_to_ex_out2; // @[Execution.scala 47:21]
-  assign io_ex_to_isu_imm = io_id_to_ex_imm; // @[Execution.scala 48:20]
-  assign io_ex_to_isu_lsuop = io_id_to_ex_lsuop; // @[Execution.scala 36:22]
-  assign io_ex_to_isu_rv64op = io_id_to_ex_rv64op; // @[Execution.scala 37:23]
-  assign io_ex_to_isu_dest = io_id_to_ex_dest; // @[Execution.scala 38:21]
-  assign io_ex_to_isu_rf_w = io_id_to_ex_rf_w; // @[Execution.scala 39:21]
-  assign io_ex_to_isu_load = io_id_to_ex_load; // @[Execution.scala 40:21]
-  assign io_ex_to_isu_save = io_id_to_ex_save; // @[Execution.scala 41:21]
+  assign io_ex_to_lsu_is_csr = io_id_to_ex_is_csr; // @[Execution.scala 43:23]
+  assign io_ex_to_lsu_csr_res = io_id_to_ex_csr_res; // @[Execution.scala 44:24]
+  assign io_ex_to_lsu_alu_res = alu_res[63:0]; // @[Execution.scala 167:24]
+  assign io_ex_to_lsu_src1 = io_id_to_ex_out1; // @[Execution.scala 46:21]
+  assign io_ex_to_lsu_src2 = io_id_to_ex_out2; // @[Execution.scala 47:21]
+  assign io_ex_to_lsu_imm = io_id_to_ex_imm; // @[Execution.scala 48:20]
+  assign io_ex_to_lsu_lsuop = io_id_to_ex_lsuop; // @[Execution.scala 36:22]
+  assign io_ex_to_lsu_rv64op = io_id_to_ex_rv64op; // @[Execution.scala 37:23]
+  assign io_ex_to_lsu_dest = io_id_to_ex_dest; // @[Execution.scala 38:21]
+  assign io_ex_to_lsu_rf_w = io_id_to_ex_rf_w; // @[Execution.scala 39:21]
+  assign io_ex_to_lsu_load = io_id_to_ex_load; // @[Execution.scala 40:21]
+  assign io_ex_to_lsu_save = io_id_to_ex_save; // @[Execution.scala 41:21]
 endmodule
-module ISU(
-  input         io_ex_to_isu_is_csr,
-  input  [63:0] io_ex_to_isu_csr_res,
-  input  [63:0] io_ex_to_isu_alu_res,
-  input  [63:0] io_ex_to_isu_src1,
-  input  [63:0] io_ex_to_isu_src2,
-  input  [63:0] io_ex_to_isu_imm,
-  input  [7:0]  io_ex_to_isu_lsuop,
-  input  [11:0] io_ex_to_isu_rv64op,
-  input  [4:0]  io_ex_to_isu_dest,
-  input         io_ex_to_isu_rf_w,
-  input         io_ex_to_isu_load,
-  input         io_ex_to_isu_save,
-  output [63:0] io_isu_to_wb_isu_res,
-  output [4:0]  io_isu_to_wb_dest,
-  output        io_isu_to_wb_rf_w,
+module LSU(
+  input         io_ex_to_lsu_is_csr,
+  input  [63:0] io_ex_to_lsu_csr_res,
+  input  [63:0] io_ex_to_lsu_alu_res,
+  input  [63:0] io_ex_to_lsu_src1,
+  input  [63:0] io_ex_to_lsu_src2,
+  input  [63:0] io_ex_to_lsu_imm,
+  input  [7:0]  io_ex_to_lsu_lsuop,
+  input  [11:0] io_ex_to_lsu_rv64op,
+  input  [4:0]  io_ex_to_lsu_dest,
+  input         io_ex_to_lsu_rf_w,
+  input         io_ex_to_lsu_load,
+  input         io_ex_to_lsu_save,
+  output [63:0] io_lsu_to_wb_lsu_res,
+  output [4:0]  io_lsu_to_wb_dest,
+  output        io_lsu_to_wb_rf_w,
   output        io_dmem_en,
   output [63:0] io_dmem_addr,
   input  [63:0] io_dmem_rdata,
@@ -895,52 +895,52 @@ module ISU(
   output [63:0] io_dmem_wmask,
   output        io_dmem_wen
 );
-  wire  i_lb = io_ex_to_isu_lsuop[0]; // @[ISU.scala 32:19]
-  wire  i_lh = io_ex_to_isu_lsuop[1]; // @[ISU.scala 33:19]
-  wire  i_lw = io_ex_to_isu_lsuop[2]; // @[ISU.scala 34:19]
-  wire  i_lbu = io_ex_to_isu_lsuop[3]; // @[ISU.scala 35:20]
-  wire  i_lhu = io_ex_to_isu_lsuop[4]; // @[ISU.scala 36:20]
-  wire  i_sb = io_ex_to_isu_lsuop[5]; // @[ISU.scala 37:19]
-  wire  i_sh = io_ex_to_isu_lsuop[6]; // @[ISU.scala 38:19]
-  wire  i_sw = io_ex_to_isu_lsuop[7]; // @[ISU.scala 39:19]
-  wire  i_lwu = io_ex_to_isu_rv64op[9]; // @[ISU.scala 41:21]
-  wire  i_ld = io_ex_to_isu_rv64op[10]; // @[ISU.scala 42:20]
-  wire  i_sd = io_ex_to_isu_rv64op[11]; // @[ISU.scala 43:20]
-  wire  _addr_real_T = io_ex_to_isu_load | io_ex_to_isu_save; // @[ISU.scala 46:11]
-  wire [63:0] _addr_real_T_2 = io_ex_to_isu_src1 + io_ex_to_isu_imm; // @[ISU.scala 47:10]
-  wire [63:0] addr_real = _addr_real_T ? _addr_real_T_2 : 64'h80000000; // @[ISU.scala 45:22]
-  wire  sel_b = addr_real[0]; // @[ISU.scala 51:22]
-  wire  sel_h = addr_real[1]; // @[ISU.scala 52:22]
-  wire  sel_w = addr_real[2]; // @[ISU.scala 53:22]
-  wire  _wmask_T_1 = ~sel_w; // @[ISU.scala 60:16]
-  wire  _wmask_T_2 = i_sw & ~sel_w; // @[ISU.scala 60:13]
-  wire  _wmask_T_3 = i_sw & sel_w; // @[ISU.scala 61:13]
-  wire  _wmask_T_5 = ~sel_h; // @[ISU.scala 63:27]
-  wire  _wmask_T_6 = _wmask_T_1 & ~sel_h; // @[ISU.scala 63:24]
-  wire  _wmask_T_7 = i_sh & (_wmask_T_1 & ~sel_h); // @[ISU.scala 63:13]
-  wire  _wmask_T_9 = _wmask_T_1 & sel_h; // @[ISU.scala 64:24]
-  wire  _wmask_T_10 = i_sh & (_wmask_T_1 & sel_h); // @[ISU.scala 64:13]
-  wire  _wmask_T_12 = sel_w & _wmask_T_5; // @[ISU.scala 65:24]
-  wire  _wmask_T_13 = i_sh & (sel_w & _wmask_T_5); // @[ISU.scala 65:13]
-  wire  _wmask_T_14 = sel_w & sel_h; // @[ISU.scala 66:24]
-  wire  _wmask_T_15 = i_sh & (sel_w & sel_h); // @[ISU.scala 66:13]
-  wire  _wmask_T_19 = ~sel_b; // @[ISU.scala 68:37]
-  wire  _wmask_T_20 = _wmask_T_6 & ~sel_b; // @[ISU.scala 68:34]
-  wire  _wmask_T_21 = i_sb & (_wmask_T_6 & ~sel_b); // @[ISU.scala 68:13]
-  wire  _wmask_T_25 = _wmask_T_6 & sel_b; // @[ISU.scala 69:34]
-  wire  _wmask_T_26 = i_sb & (_wmask_T_6 & sel_b); // @[ISU.scala 69:13]
-  wire  _wmask_T_30 = _wmask_T_9 & _wmask_T_19; // @[ISU.scala 70:34]
-  wire  _wmask_T_31 = i_sb & (_wmask_T_9 & _wmask_T_19); // @[ISU.scala 70:13]
-  wire  _wmask_T_34 = _wmask_T_9 & sel_b; // @[ISU.scala 71:34]
-  wire  _wmask_T_35 = i_sb & (_wmask_T_9 & sel_b); // @[ISU.scala 71:13]
-  wire  _wmask_T_39 = _wmask_T_12 & _wmask_T_19; // @[ISU.scala 72:34]
-  wire  _wmask_T_40 = i_sb & (_wmask_T_12 & _wmask_T_19); // @[ISU.scala 72:13]
-  wire  _wmask_T_43 = _wmask_T_12 & sel_b; // @[ISU.scala 73:34]
-  wire  _wmask_T_44 = i_sb & (_wmask_T_12 & sel_b); // @[ISU.scala 73:13]
-  wire  _wmask_T_47 = _wmask_T_14 & _wmask_T_19; // @[ISU.scala 74:34]
-  wire  _wmask_T_48 = i_sb & (_wmask_T_14 & _wmask_T_19); // @[ISU.scala 74:13]
-  wire  _wmask_T_50 = _wmask_T_14 & sel_b; // @[ISU.scala 75:34]
-  wire  _wmask_T_51 = i_sb & (_wmask_T_14 & sel_b); // @[ISU.scala 75:13]
+  wire  i_lb = io_ex_to_lsu_lsuop[0]; // @[LSU.scala 32:19]
+  wire  i_lh = io_ex_to_lsu_lsuop[1]; // @[LSU.scala 33:19]
+  wire  i_lw = io_ex_to_lsu_lsuop[2]; // @[LSU.scala 34:19]
+  wire  i_lbu = io_ex_to_lsu_lsuop[3]; // @[LSU.scala 35:20]
+  wire  i_lhu = io_ex_to_lsu_lsuop[4]; // @[LSU.scala 36:20]
+  wire  i_sb = io_ex_to_lsu_lsuop[5]; // @[LSU.scala 37:19]
+  wire  i_sh = io_ex_to_lsu_lsuop[6]; // @[LSU.scala 38:19]
+  wire  i_sw = io_ex_to_lsu_lsuop[7]; // @[LSU.scala 39:19]
+  wire  i_lwu = io_ex_to_lsu_rv64op[9]; // @[LSU.scala 41:21]
+  wire  i_ld = io_ex_to_lsu_rv64op[10]; // @[LSU.scala 42:20]
+  wire  i_sd = io_ex_to_lsu_rv64op[11]; // @[LSU.scala 43:20]
+  wire  _addr_real_T = io_ex_to_lsu_load | io_ex_to_lsu_save; // @[LSU.scala 46:11]
+  wire [63:0] _addr_real_T_2 = io_ex_to_lsu_src1 + io_ex_to_lsu_imm; // @[LSU.scala 47:10]
+  wire [63:0] addr_real = _addr_real_T ? _addr_real_T_2 : 64'h80000000; // @[LSU.scala 45:22]
+  wire  sel_b = addr_real[0]; // @[LSU.scala 51:22]
+  wire  sel_h = addr_real[1]; // @[LSU.scala 52:22]
+  wire  sel_w = addr_real[2]; // @[LSU.scala 53:22]
+  wire  _wmask_T_1 = ~sel_w; // @[LSU.scala 60:16]
+  wire  _wmask_T_2 = i_sw & ~sel_w; // @[LSU.scala 60:13]
+  wire  _wmask_T_3 = i_sw & sel_w; // @[LSU.scala 61:13]
+  wire  _wmask_T_5 = ~sel_h; // @[LSU.scala 63:27]
+  wire  _wmask_T_6 = _wmask_T_1 & ~sel_h; // @[LSU.scala 63:24]
+  wire  _wmask_T_7 = i_sh & (_wmask_T_1 & ~sel_h); // @[LSU.scala 63:13]
+  wire  _wmask_T_9 = _wmask_T_1 & sel_h; // @[LSU.scala 64:24]
+  wire  _wmask_T_10 = i_sh & (_wmask_T_1 & sel_h); // @[LSU.scala 64:13]
+  wire  _wmask_T_12 = sel_w & _wmask_T_5; // @[LSU.scala 65:24]
+  wire  _wmask_T_13 = i_sh & (sel_w & _wmask_T_5); // @[LSU.scala 65:13]
+  wire  _wmask_T_14 = sel_w & sel_h; // @[LSU.scala 66:24]
+  wire  _wmask_T_15 = i_sh & (sel_w & sel_h); // @[LSU.scala 66:13]
+  wire  _wmask_T_19 = ~sel_b; // @[LSU.scala 68:37]
+  wire  _wmask_T_20 = _wmask_T_6 & ~sel_b; // @[LSU.scala 68:34]
+  wire  _wmask_T_21 = i_sb & (_wmask_T_6 & ~sel_b); // @[LSU.scala 68:13]
+  wire  _wmask_T_25 = _wmask_T_6 & sel_b; // @[LSU.scala 69:34]
+  wire  _wmask_T_26 = i_sb & (_wmask_T_6 & sel_b); // @[LSU.scala 69:13]
+  wire  _wmask_T_30 = _wmask_T_9 & _wmask_T_19; // @[LSU.scala 70:34]
+  wire  _wmask_T_31 = i_sb & (_wmask_T_9 & _wmask_T_19); // @[LSU.scala 70:13]
+  wire  _wmask_T_34 = _wmask_T_9 & sel_b; // @[LSU.scala 71:34]
+  wire  _wmask_T_35 = i_sb & (_wmask_T_9 & sel_b); // @[LSU.scala 71:13]
+  wire  _wmask_T_39 = _wmask_T_12 & _wmask_T_19; // @[LSU.scala 72:34]
+  wire  _wmask_T_40 = i_sb & (_wmask_T_12 & _wmask_T_19); // @[LSU.scala 72:13]
+  wire  _wmask_T_43 = _wmask_T_12 & sel_b; // @[LSU.scala 73:34]
+  wire  _wmask_T_44 = i_sb & (_wmask_T_12 & sel_b); // @[LSU.scala 73:13]
+  wire  _wmask_T_47 = _wmask_T_14 & _wmask_T_19; // @[LSU.scala 74:34]
+  wire  _wmask_T_48 = i_sb & (_wmask_T_14 & _wmask_T_19); // @[LSU.scala 74:13]
+  wire  _wmask_T_50 = _wmask_T_14 & sel_b; // @[LSU.scala 75:34]
+  wire  _wmask_T_51 = i_sb & (_wmask_T_14 & sel_b); // @[LSU.scala 75:13]
   wire [63:0] _wmask_T_53 = i_sd ? 64'hffffffffffffffff : 64'h0; // @[Mux.scala 27:72]
   wire [63:0] _wmask_T_54 = _wmask_T_2 ? 64'hffffffff : 64'h0; // @[Mux.scala 27:72]
   wire [63:0] _wmask_T_55 = _wmask_T_3 ? 64'hffffffff00000000 : 64'h0; // @[Mux.scala 27:72]
@@ -969,63 +969,63 @@ module ISU(
   wire [63:0] _wmask_T_79 = _wmask_T_78 | _wmask_T_64; // @[Mux.scala 27:72]
   wire [63:0] _wmask_T_80 = _wmask_T_79 | _wmask_T_65; // @[Mux.scala 27:72]
   wire [63:0] _wmask_T_81 = _wmask_T_80 | _wmask_T_66; // @[Mux.scala 27:72]
-  wire [31:0] sdata_hi = io_ex_to_isu_src2[31:0]; // @[ISU.scala 83:30]
+  wire [31:0] sdata_hi = io_ex_to_lsu_src2[31:0]; // @[LSU.scala 83:30]
   wire [63:0] _sdata_T_1 = {sdata_hi,sdata_hi}; // @[Cat.scala 30:58]
-  wire [15:0] sdata_hi_1 = io_ex_to_isu_src2[15:0]; // @[ISU.scala 84:30]
+  wire [15:0] sdata_hi_1 = io_ex_to_lsu_src2[15:0]; // @[LSU.scala 84:30]
   wire [63:0] _sdata_T_2 = {sdata_hi_1,sdata_hi_1,sdata_hi_1,sdata_hi_1}; // @[Cat.scala 30:58]
-  wire [7:0] sdata_hi_3 = io_ex_to_isu_src2[7:0]; // @[ISU.scala 85:30]
+  wire [7:0] sdata_hi_3 = io_ex_to_lsu_src2[7:0]; // @[LSU.scala 85:30]
   wire [63:0] _sdata_T_3 = {sdata_hi_3,sdata_hi_3,sdata_hi_3,sdata_hi_3,sdata_hi_3,sdata_hi_3,sdata_hi_3,sdata_hi_3}; // @[Cat.scala 30:58]
-  wire [63:0] _sdata_T_5 = i_sd ? io_ex_to_isu_src2 : 64'h0; // @[Mux.scala 27:72]
+  wire [63:0] _sdata_T_5 = i_sd ? io_ex_to_lsu_src2 : 64'h0; // @[Mux.scala 27:72]
   wire [63:0] _sdata_T_6 = i_sw ? _sdata_T_1 : 64'h0; // @[Mux.scala 27:72]
   wire [63:0] _sdata_T_7 = i_sh ? _sdata_T_2 : 64'h0; // @[Mux.scala 27:72]
   wire [63:0] _sdata_T_8 = i_sb ? _sdata_T_3 : 64'h0; // @[Mux.scala 27:72]
   wire [63:0] _sdata_T_10 = _sdata_T_5 | _sdata_T_6; // @[Mux.scala 27:72]
   wire [63:0] _sdata_T_11 = _sdata_T_10 | _sdata_T_7; // @[Mux.scala 27:72]
-  wire [60:0] io_dmem_addr_hi = addr_real[63:3]; // @[ISU.scala 90:32]
-  wire  _rdata_T_1 = i_lw | i_lwu; // @[ISU.scala 100:14]
-  wire  _rdata_T_3 = (i_lw | i_lwu) & _wmask_T_1; // @[ISU.scala 100:24]
-  wire [31:0] rdata_lo = io_dmem_rdata[31:0]; // @[ISU.scala 100:57]
+  wire [60:0] io_dmem_addr_hi = addr_real[63:3]; // @[LSU.scala 90:32]
+  wire  _rdata_T_1 = i_lw | i_lwu; // @[LSU.scala 100:14]
+  wire  _rdata_T_3 = (i_lw | i_lwu) & _wmask_T_1; // @[LSU.scala 100:24]
+  wire [31:0] rdata_lo = io_dmem_rdata[31:0]; // @[LSU.scala 100:57]
   wire [63:0] _rdata_T_4 = {32'h0,rdata_lo}; // @[Cat.scala 30:58]
-  wire  _rdata_T_6 = _rdata_T_1 & sel_w; // @[ISU.scala 101:24]
-  wire [31:0] rdata_lo_1 = io_dmem_rdata[63:32]; // @[ISU.scala 101:57]
+  wire  _rdata_T_6 = _rdata_T_1 & sel_w; // @[LSU.scala 101:24]
+  wire [31:0] rdata_lo_1 = io_dmem_rdata[63:32]; // @[LSU.scala 101:57]
   wire [63:0] _rdata_T_7 = {32'h0,rdata_lo_1}; // @[Cat.scala 30:58]
-  wire  _rdata_T_8 = i_lh | i_lhu; // @[ISU.scala 103:14]
-  wire  _rdata_T_12 = (i_lh | i_lhu) & _wmask_T_6; // @[ISU.scala 103:24]
-  wire [15:0] rdata_lo_2 = io_dmem_rdata[15:0]; // @[ISU.scala 103:69]
+  wire  _rdata_T_8 = i_lh | i_lhu; // @[LSU.scala 103:14]
+  wire  _rdata_T_12 = (i_lh | i_lhu) & _wmask_T_6; // @[LSU.scala 103:24]
+  wire [15:0] rdata_lo_2 = io_dmem_rdata[15:0]; // @[LSU.scala 103:69]
   wire [63:0] _rdata_T_13 = {48'h0,rdata_lo_2}; // @[Cat.scala 30:58]
-  wire  _rdata_T_17 = _rdata_T_8 & _wmask_T_9; // @[ISU.scala 104:24]
-  wire [15:0] rdata_lo_3 = io_dmem_rdata[31:16]; // @[ISU.scala 104:69]
+  wire  _rdata_T_17 = _rdata_T_8 & _wmask_T_9; // @[LSU.scala 104:24]
+  wire [15:0] rdata_lo_3 = io_dmem_rdata[31:16]; // @[LSU.scala 104:69]
   wire [63:0] _rdata_T_18 = {48'h0,rdata_lo_3}; // @[Cat.scala 30:58]
-  wire  _rdata_T_22 = _rdata_T_8 & _wmask_T_12; // @[ISU.scala 105:24]
-  wire [15:0] rdata_lo_4 = io_dmem_rdata[47:32]; // @[ISU.scala 105:69]
+  wire  _rdata_T_22 = _rdata_T_8 & _wmask_T_12; // @[LSU.scala 105:24]
+  wire [15:0] rdata_lo_4 = io_dmem_rdata[47:32]; // @[LSU.scala 105:69]
   wire [63:0] _rdata_T_23 = {48'h0,rdata_lo_4}; // @[Cat.scala 30:58]
-  wire  _rdata_T_26 = _rdata_T_8 & _wmask_T_14; // @[ISU.scala 106:24]
-  wire [15:0] rdata_lo_5 = io_dmem_rdata[63:48]; // @[ISU.scala 106:69]
+  wire  _rdata_T_26 = _rdata_T_8 & _wmask_T_14; // @[LSU.scala 106:24]
+  wire [15:0] rdata_lo_5 = io_dmem_rdata[63:48]; // @[LSU.scala 106:69]
   wire [63:0] _rdata_T_27 = {48'h0,rdata_lo_5}; // @[Cat.scala 30:58]
-  wire  _rdata_T_28 = i_lb | i_lbu; // @[ISU.scala 108:13]
-  wire  _rdata_T_34 = (i_lb | i_lbu) & _wmask_T_20; // @[ISU.scala 108:23]
-  wire [7:0] rdata_lo_6 = io_dmem_rdata[7:0]; // @[ISU.scala 108:78]
+  wire  _rdata_T_28 = i_lb | i_lbu; // @[LSU.scala 108:13]
+  wire  _rdata_T_34 = (i_lb | i_lbu) & _wmask_T_20; // @[LSU.scala 108:23]
+  wire [7:0] rdata_lo_6 = io_dmem_rdata[7:0]; // @[LSU.scala 108:78]
   wire [63:0] _rdata_T_35 = {56'h0,rdata_lo_6}; // @[Cat.scala 30:58]
-  wire  _rdata_T_41 = _rdata_T_28 & _wmask_T_25; // @[ISU.scala 109:23]
-  wire [7:0] rdata_lo_7 = io_dmem_rdata[15:8]; // @[ISU.scala 109:78]
+  wire  _rdata_T_41 = _rdata_T_28 & _wmask_T_25; // @[LSU.scala 109:23]
+  wire [7:0] rdata_lo_7 = io_dmem_rdata[15:8]; // @[LSU.scala 109:78]
   wire [63:0] _rdata_T_42 = {56'h0,rdata_lo_7}; // @[Cat.scala 30:58]
-  wire  _rdata_T_48 = _rdata_T_28 & _wmask_T_30; // @[ISU.scala 110:23]
-  wire [7:0] rdata_lo_8 = io_dmem_rdata[23:16]; // @[ISU.scala 110:78]
+  wire  _rdata_T_48 = _rdata_T_28 & _wmask_T_30; // @[LSU.scala 110:23]
+  wire [7:0] rdata_lo_8 = io_dmem_rdata[23:16]; // @[LSU.scala 110:78]
   wire [63:0] _rdata_T_49 = {56'h0,rdata_lo_8}; // @[Cat.scala 30:58]
-  wire  _rdata_T_54 = _rdata_T_28 & _wmask_T_34; // @[ISU.scala 111:23]
-  wire [7:0] rdata_lo_9 = io_dmem_rdata[31:24]; // @[ISU.scala 111:78]
+  wire  _rdata_T_54 = _rdata_T_28 & _wmask_T_34; // @[LSU.scala 111:23]
+  wire [7:0] rdata_lo_9 = io_dmem_rdata[31:24]; // @[LSU.scala 111:78]
   wire [63:0] _rdata_T_55 = {56'h0,rdata_lo_9}; // @[Cat.scala 30:58]
-  wire  _rdata_T_61 = _rdata_T_28 & _wmask_T_39; // @[ISU.scala 112:23]
-  wire [7:0] rdata_lo_10 = io_dmem_rdata[39:32]; // @[ISU.scala 112:78]
+  wire  _rdata_T_61 = _rdata_T_28 & _wmask_T_39; // @[LSU.scala 112:23]
+  wire [7:0] rdata_lo_10 = io_dmem_rdata[39:32]; // @[LSU.scala 112:78]
   wire [63:0] _rdata_T_62 = {56'h0,rdata_lo_10}; // @[Cat.scala 30:58]
-  wire  _rdata_T_67 = _rdata_T_28 & _wmask_T_43; // @[ISU.scala 113:23]
-  wire [7:0] rdata_lo_11 = io_dmem_rdata[47:40]; // @[ISU.scala 113:78]
+  wire  _rdata_T_67 = _rdata_T_28 & _wmask_T_43; // @[LSU.scala 113:23]
+  wire [7:0] rdata_lo_11 = io_dmem_rdata[47:40]; // @[LSU.scala 113:78]
   wire [63:0] _rdata_T_68 = {56'h0,rdata_lo_11}; // @[Cat.scala 30:58]
-  wire  _rdata_T_73 = _rdata_T_28 & _wmask_T_47; // @[ISU.scala 114:23]
-  wire [7:0] rdata_lo_12 = io_dmem_rdata[55:48]; // @[ISU.scala 114:78]
+  wire  _rdata_T_73 = _rdata_T_28 & _wmask_T_47; // @[LSU.scala 114:23]
+  wire [7:0] rdata_lo_12 = io_dmem_rdata[55:48]; // @[LSU.scala 114:78]
   wire [63:0] _rdata_T_74 = {56'h0,rdata_lo_12}; // @[Cat.scala 30:58]
-  wire  _rdata_T_78 = _rdata_T_28 & _wmask_T_50; // @[ISU.scala 115:23]
-  wire [7:0] rdata_lo_13 = io_dmem_rdata[63:56]; // @[ISU.scala 115:78]
+  wire  _rdata_T_78 = _rdata_T_28 & _wmask_T_50; // @[LSU.scala 115:23]
+  wire [7:0] rdata_lo_13 = io_dmem_rdata[63:56]; // @[LSU.scala 115:78]
   wire [63:0] _rdata_T_79 = {56'h0,rdata_lo_13}; // @[Cat.scala 30:58]
   wire [63:0] _rdata_T_81 = i_ld ? io_dmem_rdata : 64'h0; // @[Mux.scala 27:72]
   wire [63:0] _rdata_T_82 = _rdata_T_3 ? _rdata_T_4 : 64'h0; // @[Mux.scala 27:72]
@@ -1057,15 +1057,15 @@ module ISU(
   wire [63:0] _rdata_T_109 = _rdata_T_108 | _rdata_T_94; // @[Mux.scala 27:72]
   wire [63:0] ld_res = _rdata_T_109 | _rdata_T_95; // @[Mux.scala 27:72]
   wire [31:0] lw_res_hi = ld_res[31] ? 32'hffffffff : 32'h0; // @[Bitwise.scala 72:12]
-  wire [31:0] lw_res_lo = ld_res[31:0]; // @[ISU.scala 120:46]
+  wire [31:0] lw_res_lo = ld_res[31:0]; // @[LSU.scala 120:46]
   wire [63:0] lw_res = {lw_res_hi,lw_res_lo}; // @[Cat.scala 30:58]
   wire [63:0] lwu_res = {32'h0,lw_res_lo}; // @[Cat.scala 30:58]
   wire [47:0] lh_res_hi = ld_res[15] ? 48'hffffffffffff : 48'h0; // @[Bitwise.scala 72:12]
-  wire [15:0] lh_res_lo = ld_res[15:0]; // @[ISU.scala 122:46]
+  wire [15:0] lh_res_lo = ld_res[15:0]; // @[LSU.scala 122:46]
   wire [63:0] lh_res = {lh_res_hi,lh_res_lo}; // @[Cat.scala 30:58]
   wire [16:0] lhu_res = {1'h0,lh_res_lo}; // @[Cat.scala 30:58]
   wire [55:0] lb_res_hi = ld_res[7] ? 56'hffffffffffffff : 56'h0; // @[Bitwise.scala 72:12]
-  wire [7:0] lb_res_lo = ld_res[7:0]; // @[ISU.scala 124:45]
+  wire [7:0] lb_res_lo = ld_res[7:0]; // @[LSU.scala 124:45]
   wire [63:0] lb_res = {lb_res_hi,lb_res_lo}; // @[Cat.scala 30:58]
   wire [63:0] lbu_res = {56'h0,lb_res_lo}; // @[Cat.scala 30:58]
   wire [63:0] _load_res_T_2 = i_ld ? ld_res : 64'h0; // @[Mux.scala 27:72]
@@ -1082,30 +1082,30 @@ module ISU(
   wire [63:0] _load_res_T_13 = _load_res_T_12 | _GEN_0; // @[Mux.scala 27:72]
   wire [63:0] _load_res_T_14 = _load_res_T_13 | _load_res_T_7; // @[Mux.scala 27:72]
   wire [63:0] load_res = _load_res_T_14 | _load_res_T_8; // @[Mux.scala 27:72]
-  wire  _isu_res_T_1 = ~(io_ex_to_isu_save | io_ex_to_isu_load); // @[ISU.scala 142:7]
-  wire [63:0] _isu_res_T_2 = _isu_res_T_1 ? io_ex_to_isu_alu_res : 64'h0; // @[Mux.scala 27:72]
-  wire [63:0] _isu_res_T_4 = io_ex_to_isu_load ? load_res : 64'h0; // @[Mux.scala 27:72]
-  wire [63:0] isu_res = _isu_res_T_2 | _isu_res_T_4; // @[Mux.scala 27:72]
-  assign io_isu_to_wb_isu_res = io_ex_to_isu_is_csr ? io_ex_to_isu_csr_res : isu_res; // @[ISU.scala 148:30]
-  assign io_isu_to_wb_dest = io_ex_to_isu_save ? 5'h0 : io_ex_to_isu_dest; // @[ISU.scala 149:27]
-  assign io_isu_to_wb_rf_w = io_ex_to_isu_save ? 1'h0 : io_ex_to_isu_rf_w; // @[ISU.scala 150:27]
-  assign io_dmem_en = io_ex_to_isu_load | io_ex_to_isu_save; // @[ISU.scala 89:22]
+  wire  _lsu_res_T_1 = ~(io_ex_to_lsu_save | io_ex_to_lsu_load); // @[LSU.scala 142:7]
+  wire [63:0] _lsu_res_T_2 = _lsu_res_T_1 ? io_ex_to_lsu_alu_res : 64'h0; // @[Mux.scala 27:72]
+  wire [63:0] _lsu_res_T_4 = io_ex_to_lsu_load ? load_res : 64'h0; // @[Mux.scala 27:72]
+  wire [63:0] lsu_res = _lsu_res_T_2 | _lsu_res_T_4; // @[Mux.scala 27:72]
+  assign io_lsu_to_wb_lsu_res = io_ex_to_lsu_is_csr ? io_ex_to_lsu_csr_res : lsu_res; // @[LSU.scala 148:30]
+  assign io_lsu_to_wb_dest = io_ex_to_lsu_save ? 5'h0 : io_ex_to_lsu_dest; // @[LSU.scala 149:27]
+  assign io_lsu_to_wb_rf_w = io_ex_to_lsu_save ? 1'h0 : io_ex_to_lsu_rf_w; // @[LSU.scala 150:27]
+  assign io_dmem_en = io_ex_to_lsu_load | io_ex_to_lsu_save; // @[LSU.scala 89:22]
   assign io_dmem_addr = {io_dmem_addr_hi,3'h0}; // @[Cat.scala 30:58]
   assign io_dmem_wdata = _sdata_T_11 | _sdata_T_8; // @[Mux.scala 27:72]
   assign io_dmem_wmask = _wmask_T_81 | _wmask_T_67; // @[Mux.scala 27:72]
-  assign io_dmem_wen = io_ex_to_isu_save; // @[ISU.scala 91:15]
+  assign io_dmem_wen = io_ex_to_lsu_save; // @[LSU.scala 91:15]
 endmodule
 module WB(
-  input  [63:0] io_isu_to_wb_isu_res,
-  input  [4:0]  io_isu_to_wb_dest,
-  input         io_isu_to_wb_rf_w,
+  input  [63:0] io_lsu_to_wb_lsu_res,
+  input  [4:0]  io_lsu_to_wb_dest,
+  input         io_lsu_to_wb_rf_w,
   output [4:0]  io_rd_addr,
   output [63:0] io_rd_data,
   output        io_rd_en
 );
-  assign io_rd_addr = io_isu_to_wb_dest; // @[WB.scala 13:14]
-  assign io_rd_data = io_isu_to_wb_isu_res; // @[WB.scala 14:14]
-  assign io_rd_en = io_isu_to_wb_rf_w; // @[WB.scala 15:12]
+  assign io_rd_addr = io_lsu_to_wb_dest; // @[WB.scala 13:14]
+  assign io_rd_data = io_lsu_to_wb_lsu_res; // @[WB.scala 14:14]
+  assign io_rd_en = io_lsu_to_wb_rf_w; // @[WB.scala 15:12]
 endmodule
 module RegFile(
   input         clock,
@@ -2051,42 +2051,42 @@ module Core(
   wire  exu_io_id_to_ex_rf_w; // @[Core.scala 20:19]
   wire  exu_io_id_to_ex_load; // @[Core.scala 20:19]
   wire  exu_io_id_to_ex_save; // @[Core.scala 20:19]
-  wire  exu_io_ex_to_isu_is_csr; // @[Core.scala 20:19]
-  wire [63:0] exu_io_ex_to_isu_csr_res; // @[Core.scala 20:19]
-  wire [63:0] exu_io_ex_to_isu_alu_res; // @[Core.scala 20:19]
-  wire [63:0] exu_io_ex_to_isu_src1; // @[Core.scala 20:19]
-  wire [63:0] exu_io_ex_to_isu_src2; // @[Core.scala 20:19]
-  wire [63:0] exu_io_ex_to_isu_imm; // @[Core.scala 20:19]
-  wire [7:0] exu_io_ex_to_isu_lsuop; // @[Core.scala 20:19]
-  wire [11:0] exu_io_ex_to_isu_rv64op; // @[Core.scala 20:19]
-  wire [4:0] exu_io_ex_to_isu_dest; // @[Core.scala 20:19]
-  wire  exu_io_ex_to_isu_rf_w; // @[Core.scala 20:19]
-  wire  exu_io_ex_to_isu_load; // @[Core.scala 20:19]
-  wire  exu_io_ex_to_isu_save; // @[Core.scala 20:19]
-  wire  isu_io_ex_to_isu_is_csr; // @[Core.scala 23:19]
-  wire [63:0] isu_io_ex_to_isu_csr_res; // @[Core.scala 23:19]
-  wire [63:0] isu_io_ex_to_isu_alu_res; // @[Core.scala 23:19]
-  wire [63:0] isu_io_ex_to_isu_src1; // @[Core.scala 23:19]
-  wire [63:0] isu_io_ex_to_isu_src2; // @[Core.scala 23:19]
-  wire [63:0] isu_io_ex_to_isu_imm; // @[Core.scala 23:19]
-  wire [7:0] isu_io_ex_to_isu_lsuop; // @[Core.scala 23:19]
-  wire [11:0] isu_io_ex_to_isu_rv64op; // @[Core.scala 23:19]
-  wire [4:0] isu_io_ex_to_isu_dest; // @[Core.scala 23:19]
-  wire  isu_io_ex_to_isu_rf_w; // @[Core.scala 23:19]
-  wire  isu_io_ex_to_isu_load; // @[Core.scala 23:19]
-  wire  isu_io_ex_to_isu_save; // @[Core.scala 23:19]
-  wire [63:0] isu_io_isu_to_wb_isu_res; // @[Core.scala 23:19]
-  wire [4:0] isu_io_isu_to_wb_dest; // @[Core.scala 23:19]
-  wire  isu_io_isu_to_wb_rf_w; // @[Core.scala 23:19]
-  wire  isu_io_dmem_en; // @[Core.scala 23:19]
-  wire [63:0] isu_io_dmem_addr; // @[Core.scala 23:19]
-  wire [63:0] isu_io_dmem_rdata; // @[Core.scala 23:19]
-  wire [63:0] isu_io_dmem_wdata; // @[Core.scala 23:19]
-  wire [63:0] isu_io_dmem_wmask; // @[Core.scala 23:19]
-  wire  isu_io_dmem_wen; // @[Core.scala 23:19]
-  wire [63:0] wb_io_isu_to_wb_isu_res; // @[Core.scala 27:18]
-  wire [4:0] wb_io_isu_to_wb_dest; // @[Core.scala 27:18]
-  wire  wb_io_isu_to_wb_rf_w; // @[Core.scala 27:18]
+  wire  exu_io_ex_to_lsu_is_csr; // @[Core.scala 20:19]
+  wire [63:0] exu_io_ex_to_lsu_csr_res; // @[Core.scala 20:19]
+  wire [63:0] exu_io_ex_to_lsu_alu_res; // @[Core.scala 20:19]
+  wire [63:0] exu_io_ex_to_lsu_src1; // @[Core.scala 20:19]
+  wire [63:0] exu_io_ex_to_lsu_src2; // @[Core.scala 20:19]
+  wire [63:0] exu_io_ex_to_lsu_imm; // @[Core.scala 20:19]
+  wire [7:0] exu_io_ex_to_lsu_lsuop; // @[Core.scala 20:19]
+  wire [11:0] exu_io_ex_to_lsu_rv64op; // @[Core.scala 20:19]
+  wire [4:0] exu_io_ex_to_lsu_dest; // @[Core.scala 20:19]
+  wire  exu_io_ex_to_lsu_rf_w; // @[Core.scala 20:19]
+  wire  exu_io_ex_to_lsu_load; // @[Core.scala 20:19]
+  wire  exu_io_ex_to_lsu_save; // @[Core.scala 20:19]
+  wire  lsu_io_ex_to_lsu_is_csr; // @[Core.scala 23:19]
+  wire [63:0] lsu_io_ex_to_lsu_csr_res; // @[Core.scala 23:19]
+  wire [63:0] lsu_io_ex_to_lsu_alu_res; // @[Core.scala 23:19]
+  wire [63:0] lsu_io_ex_to_lsu_src1; // @[Core.scala 23:19]
+  wire [63:0] lsu_io_ex_to_lsu_src2; // @[Core.scala 23:19]
+  wire [63:0] lsu_io_ex_to_lsu_imm; // @[Core.scala 23:19]
+  wire [7:0] lsu_io_ex_to_lsu_lsuop; // @[Core.scala 23:19]
+  wire [11:0] lsu_io_ex_to_lsu_rv64op; // @[Core.scala 23:19]
+  wire [4:0] lsu_io_ex_to_lsu_dest; // @[Core.scala 23:19]
+  wire  lsu_io_ex_to_lsu_rf_w; // @[Core.scala 23:19]
+  wire  lsu_io_ex_to_lsu_load; // @[Core.scala 23:19]
+  wire  lsu_io_ex_to_lsu_save; // @[Core.scala 23:19]
+  wire [63:0] lsu_io_lsu_to_wb_lsu_res; // @[Core.scala 23:19]
+  wire [4:0] lsu_io_lsu_to_wb_dest; // @[Core.scala 23:19]
+  wire  lsu_io_lsu_to_wb_rf_w; // @[Core.scala 23:19]
+  wire  lsu_io_dmem_en; // @[Core.scala 23:19]
+  wire [63:0] lsu_io_dmem_addr; // @[Core.scala 23:19]
+  wire [63:0] lsu_io_dmem_rdata; // @[Core.scala 23:19]
+  wire [63:0] lsu_io_dmem_wdata; // @[Core.scala 23:19]
+  wire [63:0] lsu_io_dmem_wmask; // @[Core.scala 23:19]
+  wire  lsu_io_dmem_wen; // @[Core.scala 23:19]
+  wire [63:0] wb_io_lsu_to_wb_lsu_res; // @[Core.scala 27:18]
+  wire [4:0] wb_io_lsu_to_wb_dest; // @[Core.scala 27:18]
+  wire  wb_io_lsu_to_wb_rf_w; // @[Core.scala 27:18]
   wire [4:0] wb_io_rd_addr; // @[Core.scala 27:18]
   wire [63:0] wb_io_rd_data; // @[Core.scala 27:18]
   wire  wb_io_rd_en; // @[Core.scala 27:18]
@@ -2227,46 +2227,46 @@ module Core(
     .io_id_to_ex_rf_w(exu_io_id_to_ex_rf_w),
     .io_id_to_ex_load(exu_io_id_to_ex_load),
     .io_id_to_ex_save(exu_io_id_to_ex_save),
-    .io_ex_to_isu_is_csr(exu_io_ex_to_isu_is_csr),
-    .io_ex_to_isu_csr_res(exu_io_ex_to_isu_csr_res),
-    .io_ex_to_isu_alu_res(exu_io_ex_to_isu_alu_res),
-    .io_ex_to_isu_src1(exu_io_ex_to_isu_src1),
-    .io_ex_to_isu_src2(exu_io_ex_to_isu_src2),
-    .io_ex_to_isu_imm(exu_io_ex_to_isu_imm),
-    .io_ex_to_isu_lsuop(exu_io_ex_to_isu_lsuop),
-    .io_ex_to_isu_rv64op(exu_io_ex_to_isu_rv64op),
-    .io_ex_to_isu_dest(exu_io_ex_to_isu_dest),
-    .io_ex_to_isu_rf_w(exu_io_ex_to_isu_rf_w),
-    .io_ex_to_isu_load(exu_io_ex_to_isu_load),
-    .io_ex_to_isu_save(exu_io_ex_to_isu_save)
+    .io_ex_to_lsu_is_csr(exu_io_ex_to_lsu_is_csr),
+    .io_ex_to_lsu_csr_res(exu_io_ex_to_lsu_csr_res),
+    .io_ex_to_lsu_alu_res(exu_io_ex_to_lsu_alu_res),
+    .io_ex_to_lsu_src1(exu_io_ex_to_lsu_src1),
+    .io_ex_to_lsu_src2(exu_io_ex_to_lsu_src2),
+    .io_ex_to_lsu_imm(exu_io_ex_to_lsu_imm),
+    .io_ex_to_lsu_lsuop(exu_io_ex_to_lsu_lsuop),
+    .io_ex_to_lsu_rv64op(exu_io_ex_to_lsu_rv64op),
+    .io_ex_to_lsu_dest(exu_io_ex_to_lsu_dest),
+    .io_ex_to_lsu_rf_w(exu_io_ex_to_lsu_rf_w),
+    .io_ex_to_lsu_load(exu_io_ex_to_lsu_load),
+    .io_ex_to_lsu_save(exu_io_ex_to_lsu_save)
   );
-  ISU isu ( // @[Core.scala 23:19]
-    .io_ex_to_isu_is_csr(isu_io_ex_to_isu_is_csr),
-    .io_ex_to_isu_csr_res(isu_io_ex_to_isu_csr_res),
-    .io_ex_to_isu_alu_res(isu_io_ex_to_isu_alu_res),
-    .io_ex_to_isu_src1(isu_io_ex_to_isu_src1),
-    .io_ex_to_isu_src2(isu_io_ex_to_isu_src2),
-    .io_ex_to_isu_imm(isu_io_ex_to_isu_imm),
-    .io_ex_to_isu_lsuop(isu_io_ex_to_isu_lsuop),
-    .io_ex_to_isu_rv64op(isu_io_ex_to_isu_rv64op),
-    .io_ex_to_isu_dest(isu_io_ex_to_isu_dest),
-    .io_ex_to_isu_rf_w(isu_io_ex_to_isu_rf_w),
-    .io_ex_to_isu_load(isu_io_ex_to_isu_load),
-    .io_ex_to_isu_save(isu_io_ex_to_isu_save),
-    .io_isu_to_wb_isu_res(isu_io_isu_to_wb_isu_res),
-    .io_isu_to_wb_dest(isu_io_isu_to_wb_dest),
-    .io_isu_to_wb_rf_w(isu_io_isu_to_wb_rf_w),
-    .io_dmem_en(isu_io_dmem_en),
-    .io_dmem_addr(isu_io_dmem_addr),
-    .io_dmem_rdata(isu_io_dmem_rdata),
-    .io_dmem_wdata(isu_io_dmem_wdata),
-    .io_dmem_wmask(isu_io_dmem_wmask),
-    .io_dmem_wen(isu_io_dmem_wen)
+  LSU lsu ( // @[Core.scala 23:19]
+    .io_ex_to_lsu_is_csr(lsu_io_ex_to_lsu_is_csr),
+    .io_ex_to_lsu_csr_res(lsu_io_ex_to_lsu_csr_res),
+    .io_ex_to_lsu_alu_res(lsu_io_ex_to_lsu_alu_res),
+    .io_ex_to_lsu_src1(lsu_io_ex_to_lsu_src1),
+    .io_ex_to_lsu_src2(lsu_io_ex_to_lsu_src2),
+    .io_ex_to_lsu_imm(lsu_io_ex_to_lsu_imm),
+    .io_ex_to_lsu_lsuop(lsu_io_ex_to_lsu_lsuop),
+    .io_ex_to_lsu_rv64op(lsu_io_ex_to_lsu_rv64op),
+    .io_ex_to_lsu_dest(lsu_io_ex_to_lsu_dest),
+    .io_ex_to_lsu_rf_w(lsu_io_ex_to_lsu_rf_w),
+    .io_ex_to_lsu_load(lsu_io_ex_to_lsu_load),
+    .io_ex_to_lsu_save(lsu_io_ex_to_lsu_save),
+    .io_lsu_to_wb_lsu_res(lsu_io_lsu_to_wb_lsu_res),
+    .io_lsu_to_wb_dest(lsu_io_lsu_to_wb_dest),
+    .io_lsu_to_wb_rf_w(lsu_io_lsu_to_wb_rf_w),
+    .io_dmem_en(lsu_io_dmem_en),
+    .io_dmem_addr(lsu_io_dmem_addr),
+    .io_dmem_rdata(lsu_io_dmem_rdata),
+    .io_dmem_wdata(lsu_io_dmem_wdata),
+    .io_dmem_wmask(lsu_io_dmem_wmask),
+    .io_dmem_wen(lsu_io_dmem_wen)
   );
   WB wb ( // @[Core.scala 27:18]
-    .io_isu_to_wb_isu_res(wb_io_isu_to_wb_isu_res),
-    .io_isu_to_wb_dest(wb_io_isu_to_wb_dest),
-    .io_isu_to_wb_rf_w(wb_io_isu_to_wb_rf_w),
+    .io_lsu_to_wb_lsu_res(wb_io_lsu_to_wb_lsu_res),
+    .io_lsu_to_wb_dest(wb_io_lsu_to_wb_dest),
+    .io_lsu_to_wb_rf_w(wb_io_lsu_to_wb_rf_w),
     .io_rd_addr(wb_io_rd_addr),
     .io_rd_data(wb_io_rd_data),
     .io_rd_en(wb_io_rd_en)
@@ -2356,11 +2356,11 @@ module Core(
     .medeleg(dt_cs_medeleg)
   );
   assign io_imem_addr = fetch_io_imem_addr; // @[Core.scala 14:17]
-  assign io_dmem_en = isu_io_dmem_en; // @[Core.scala 25:15]
-  assign io_dmem_addr = isu_io_dmem_addr; // @[Core.scala 25:15]
-  assign io_dmem_wdata = isu_io_dmem_wdata; // @[Core.scala 25:15]
-  assign io_dmem_wmask = isu_io_dmem_wmask; // @[Core.scala 25:15]
-  assign io_dmem_wen = isu_io_dmem_wen; // @[Core.scala 25:15]
+  assign io_dmem_en = lsu_io_dmem_en; // @[Core.scala 25:15]
+  assign io_dmem_addr = lsu_io_dmem_addr; // @[Core.scala 25:15]
+  assign io_dmem_wdata = lsu_io_dmem_wdata; // @[Core.scala 25:15]
+  assign io_dmem_wmask = lsu_io_dmem_wmask; // @[Core.scala 25:15]
+  assign io_dmem_wen = lsu_io_dmem_wen; // @[Core.scala 25:15]
   assign fetch_clock = clock;
   assign fetch_reset = reset;
   assign fetch_io_imem_rdata = io_imem_rdata; // @[Core.scala 14:17]
@@ -2386,22 +2386,22 @@ module Core(
   assign exu_io_id_to_ex_rf_w = decode_io_id_to_ex_rf_w; // @[Core.scala 21:22]
   assign exu_io_id_to_ex_load = decode_io_id_to_ex_load; // @[Core.scala 21:22]
   assign exu_io_id_to_ex_save = decode_io_id_to_ex_save; // @[Core.scala 21:22]
-  assign isu_io_ex_to_isu_is_csr = exu_io_ex_to_isu_is_csr; // @[Core.scala 24:20]
-  assign isu_io_ex_to_isu_csr_res = exu_io_ex_to_isu_csr_res; // @[Core.scala 24:20]
-  assign isu_io_ex_to_isu_alu_res = exu_io_ex_to_isu_alu_res; // @[Core.scala 24:20]
-  assign isu_io_ex_to_isu_src1 = exu_io_ex_to_isu_src1; // @[Core.scala 24:20]
-  assign isu_io_ex_to_isu_src2 = exu_io_ex_to_isu_src2; // @[Core.scala 24:20]
-  assign isu_io_ex_to_isu_imm = exu_io_ex_to_isu_imm; // @[Core.scala 24:20]
-  assign isu_io_ex_to_isu_lsuop = exu_io_ex_to_isu_lsuop; // @[Core.scala 24:20]
-  assign isu_io_ex_to_isu_rv64op = exu_io_ex_to_isu_rv64op; // @[Core.scala 24:20]
-  assign isu_io_ex_to_isu_dest = exu_io_ex_to_isu_dest; // @[Core.scala 24:20]
-  assign isu_io_ex_to_isu_rf_w = exu_io_ex_to_isu_rf_w; // @[Core.scala 24:20]
-  assign isu_io_ex_to_isu_load = exu_io_ex_to_isu_load; // @[Core.scala 24:20]
-  assign isu_io_ex_to_isu_save = exu_io_ex_to_isu_save; // @[Core.scala 24:20]
-  assign isu_io_dmem_rdata = io_dmem_rdata; // @[Core.scala 25:15]
-  assign wb_io_isu_to_wb_isu_res = isu_io_isu_to_wb_isu_res; // @[Core.scala 28:20]
-  assign wb_io_isu_to_wb_dest = isu_io_isu_to_wb_dest; // @[Core.scala 28:20]
-  assign wb_io_isu_to_wb_rf_w = isu_io_isu_to_wb_rf_w; // @[Core.scala 28:20]
+  assign lsu_io_ex_to_lsu_is_csr = exu_io_ex_to_lsu_is_csr; // @[Core.scala 24:20]
+  assign lsu_io_ex_to_lsu_csr_res = exu_io_ex_to_lsu_csr_res; // @[Core.scala 24:20]
+  assign lsu_io_ex_to_lsu_alu_res = exu_io_ex_to_lsu_alu_res; // @[Core.scala 24:20]
+  assign lsu_io_ex_to_lsu_src1 = exu_io_ex_to_lsu_src1; // @[Core.scala 24:20]
+  assign lsu_io_ex_to_lsu_src2 = exu_io_ex_to_lsu_src2; // @[Core.scala 24:20]
+  assign lsu_io_ex_to_lsu_imm = exu_io_ex_to_lsu_imm; // @[Core.scala 24:20]
+  assign lsu_io_ex_to_lsu_lsuop = exu_io_ex_to_lsu_lsuop; // @[Core.scala 24:20]
+  assign lsu_io_ex_to_lsu_rv64op = exu_io_ex_to_lsu_rv64op; // @[Core.scala 24:20]
+  assign lsu_io_ex_to_lsu_dest = exu_io_ex_to_lsu_dest; // @[Core.scala 24:20]
+  assign lsu_io_ex_to_lsu_rf_w = exu_io_ex_to_lsu_rf_w; // @[Core.scala 24:20]
+  assign lsu_io_ex_to_lsu_load = exu_io_ex_to_lsu_load; // @[Core.scala 24:20]
+  assign lsu_io_ex_to_lsu_save = exu_io_ex_to_lsu_save; // @[Core.scala 24:20]
+  assign lsu_io_dmem_rdata = io_dmem_rdata; // @[Core.scala 25:15]
+  assign wb_io_lsu_to_wb_lsu_res = lsu_io_lsu_to_wb_lsu_res; // @[Core.scala 28:20]
+  assign wb_io_lsu_to_wb_dest = lsu_io_lsu_to_wb_dest; // @[Core.scala 28:20]
+  assign wb_io_lsu_to_wb_rf_w = lsu_io_lsu_to_wb_rf_w; // @[Core.scala 28:20]
   assign rf_clock = clock;
   assign rf_reset = reset;
   assign rf_io_rs1_addr = decode_io_rs1_addr; // @[Core.scala 32:18]
