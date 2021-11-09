@@ -5,6 +5,7 @@ import Consts._
 class CSR extends Module {
   val io = IO(new Bundle {
     val csr_to_id = Flipped(new ID_TO_CSR_BUS)
+    val csr_to_lsu = Flipped(new LSU_TO_CSR_BUS)
 
     val mcycle = Output(UInt(64.W))
     val mepc = Output(UInt(64.W))
@@ -36,6 +37,39 @@ class CSR extends Module {
 
   val mie = RegInit(0.U(64.W))
   val mip = RegInit(0.U(64.W))
+
+  //-----------------Clint-------------------------------------//
+  val is_clint = io.csr_to_lsu.is_clint
+  val is_mtime = io.csr_to_lsu.is_mtime
+  val is_mtimecmp = io.csr_to_lsu.is_mtimecmp
+  val load = io.csr_to_lsu.load
+  val save = io.csr_to_lsu.save
+  val wdata = io.csr_to_lsu.wdata
+
+  val mtime = RegInit(0.U(64.W))
+  when(true.B) {
+    mtime := mtime + 1.U
+  }
+  val mtimecmp = RegInit(UInt(64.W),"hffff_ffff_ffff_ffff".U)
+  when(mtime >= mtimecmp){
+    mip := Cat(mip(63,8),1.U,mip(6,0)) 
+  }
+  
+  val clint_out = WireInit(0.U(64.W))
+
+  when(is_clint){
+    when(load){
+      clint_out := Mux(is_mtime,mtime,Mux(is_mtimecmp,mtimecmp,"h0".U(64.W))) 
+    }.elsewhen(save){
+      when(is_mtime){
+        mtime := wdata
+      }.elsewhen(is_mtimecmp){
+        mtimecmp := wdata
+      }
+    }
+  }
+  io.csr_to_lsu.rdata := clint_out
+  //------------------------------------------------------------//
 
   val csr_data_o = Mux1H(
     Seq(

@@ -9,10 +9,23 @@ class LSU_TO_WB_BUS extends Bundle {
   val rf_w = Output(Bool())
 }
 
+class LSU_TO_CSR_BUS extends Bundle{
+  val is_clint = Output(Bool())
+  val is_mtime = Output(Bool())
+  val is_mtimecmp = Output(Bool())
+  val load = Output(Bool())
+  val save = Output(Bool())
+  val wdata = Output(UInt(64.W))
+
+  val rdata = Input(UInt(64.W))
+}
+
 class LSU extends Module {
   val io = IO(new Bundle {
     val ex_to_lsu = Flipped(new EX_TO_LSU_BUS)
     val lsu_to_wb = new LSU_TO_WB_BUS
+    
+    val lsu_to_csr = new LSU_TO_CSR_BUS
 
     val dmem = new RamIO
   })
@@ -86,7 +99,13 @@ class LSU extends Module {
     )
   )
 
-  io.dmem.en := load || save
+  val is_mtime = (addr_real === "h0200_bff8".U(64.W))
+  val is_mtimecmp = (addr_real === "h0200_4000".U(64.W))
+  val is_clint = is_mtime || is_mtimecmp  //在0x200_0000~-0x200_ffff的其他地址依然会访问ram
+  val clint_wdata = src2
+  val clint_rdata = io.lsu_to_csr.rdata
+
+  io.dmem.en := (load || save) && (!is_clint)
   io.dmem.addr := Cat(addr_real(63,3),0.U(3.W))
   io.dmem.wen := save
   io.dmem.wdata := sdata
@@ -145,7 +164,15 @@ class LSU extends Module {
     )
   )
 
-  io.lsu_to_wb.lsu_res := Mux(is_csr,csr_res,lsu_res)
+  io.lsu_to_wb.lsu_res := Mux(is_csr,csr_res,Mux(is_clint,clint_rdata,lsu_res))
   io.lsu_to_wb.dest := Mux(save, 0.U, io.ex_to_lsu.dest)
   io.lsu_to_wb.rf_w := Mux(save, false.B, io.ex_to_lsu.rf_w)
+
+  //--------------lsu <> clint----------------------------//
+  io.lsu_to_csr.is_clint := is_clint
+  io.lsu_to_csr.is_mtime := is_mtime
+  io.lsu_to_csr.is_mtimecmp := is_mtimecmp
+  io.lsu_to_csr.load := load
+  io.lsu_to_csr.save := save
+  io.lsu_to_csr.wdata := clint_wdata
 }
