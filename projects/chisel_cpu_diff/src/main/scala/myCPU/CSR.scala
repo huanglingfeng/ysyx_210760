@@ -34,7 +34,12 @@ class CSR extends Module {
   val mepc = Reg(UInt(64.W))
   val mcause = RegInit(UInt(64.W), 0.U)
   val mtvec = RegInit(UInt(64.W), 0.U)
-  val mstatus = RegInit(UInt(64.W), "h0000_0000_0000_1800".U)
+  val mstatus_i = RegInit(UInt(63.W), "h0000_0000_0000_1800".U)
+  val mSD = Wire(Bool())
+  mSD := (mstatus_i(16,15) === "b11".U || mstatus_i(14,13) === "b11".U)
+  val mstatus = Cat(mSD,mstatus_i)
+  
+
   val mscratch = RegInit(UInt(64.W), 0.U)
 
   val mie = RegInit(0.U(64.W))
@@ -120,7 +125,7 @@ class CSR extends Module {
     }.elsewhen(csr_addr === MTVEC_N) {
       mtvec := (mtvec & ~csr_mask) | (csr_data_i & csr_mask)
     }.elsewhen(csr_addr === MSTATUS_N) {
-      mstatus := ((mstatus & ~csr_mask) | (csr_data_i & csr_mask))
+      mstatus_i := Cat(mSD,((mstatus(62,0) & ~csr_mask(62,0)) | (csr_data_i(62,0) & csr_mask(62,0))))
     }.elsewhen(csr_addr === MIP_N) {
       mip := (mip & ~csr_mask) | (csr_data_i & csr_mask)
     }.elsewhen(csr_addr === MIE_N) {
@@ -130,7 +135,7 @@ class CSR extends Module {
     }
   }.elsewhen(is_trap_begin) {
     when(csrop === CSR_ECALL){
-      mstatus := Cat(mstatus(63,13),"b11".U(2.W),mstatus(10,8),mstatus(3),mstatus(6,4),0.U,mstatus(2,0))
+      mstatus_i := Cat(mSD,mstatus(62,13),"b11".U(2.W),mstatus(10,8),mstatus(3),mstatus(6,4),0.U,mstatus(2,0))
     }
     when(mtvec(1, 0) === 0.U) {
       csr_target := mtvec
@@ -145,7 +150,7 @@ class CSR extends Module {
     mepc := id_pc
   }.elsewhen(is_trap_end) {
     when(csrop === CSR_MRET){
-      mstatus := Cat(mstatus(63,13),"b00".U(2.W),mstatus(10,8),1.U,mstatus(6,4),mstatus(7),mstatus(2,0))
+      mstatus_i := Cat(mSD,mstatus(62,13),"b00".U(2.W),mstatus(10,8),1.U,mstatus(6,4),mstatus(7),mstatus(2,0))
     }
     csr_target := mepc
   }
@@ -157,8 +162,8 @@ class CSR extends Module {
   io.mepc := mepc
   io.mcause := mcause
   io.mtvec := mtvec
-  val mSD = (mstatus(16,15) === "b11".U || mstatus(14,13) === "b11".U)
-  io.mstatus := Cat(mSD,mstatus(62,0))
+  
+  io.mstatus := mstatus
   io.mip := mip
   io.mie := mie
   io.mscratch := mscratch
