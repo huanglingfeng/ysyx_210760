@@ -93,7 +93,7 @@ class Core extends Module {
   dt_cs.io.coreid := 0.U
   dt_cs.io.priviledgeMode := 3.U // Machine mode
   dt_cs.io.mstatus := csr.io.mstatus
-  dt_cs.io.sstatus := 0.U
+  dt_cs.io.sstatus := csr.io.sstatus
   dt_cs.io.mepc := csr.io.mepc
   dt_cs.io.sepc := 0.U
   dt_cs.io.mtval := 0.U

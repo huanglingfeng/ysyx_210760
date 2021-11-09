@@ -16,6 +16,8 @@ class CSR extends Module {
     val mip = Output(UInt(64.W))
     val mscratch = Output(UInt(64.W))
 
+    val sstatus = Output(UInt(64.W))
+
   })
   val csrop = io.csr_to_id.csrop
   val csr_addr = io.csr_to_id.csr_addr
@@ -118,7 +120,7 @@ class CSR extends Module {
     }.elsewhen(csr_addr === MTVEC_N) {
       mtvec := (mtvec & ~csr_mask) | (csr_data_i & csr_mask)
     }.elsewhen(csr_addr === MSTATUS_N) {
-      mstatus := (mstatus & ~csr_mask) | (csr_data_i & csr_mask)
+      mstatus := Cat(mstatus(16,15)==="b11".U || mstatus(14,13) === "b11".U,((mstatus & ~csr_mask) | (csr_data_i & csr_mask))(62,0))
     }.elsewhen(csr_addr === MIP_N) {
       mip := (mip & ~csr_mask) | (csr_data_i & csr_mask)
     }.elsewhen(csr_addr === MIE_N) {
@@ -128,7 +130,7 @@ class CSR extends Module {
     }
   }.elsewhen(is_trap_begin) {
     when(csrop === CSR_ECALL){
-      mstatus := Cat(mstatus(63,13),"b11".U(2.W),mstatus(10,8),mstatus(3),mstatus(6,4),0.U,mstatus(2,0))
+      mstatus := Cat(mstatus(16,15)==="b11".U || mstatus(14,13) === "b11".U,mstatus(62,13),"b11".U(2.W),mstatus(10,8),mstatus(3),mstatus(6,4),0.U,mstatus(2,0))
     }
     when(mtvec(1, 0) === 0.U) {
       csr_target := mtvec
@@ -159,4 +161,6 @@ class CSR extends Module {
   io.mip := mip
   io.mie := mie
   io.mscratch := mscratch
+  val sstatus = Cat(mstatus(63),0.U(46.W),mstatus(16,15),mstatus(14,13),0.U(13.W))
+  io.sstatus := sstatus
 }
