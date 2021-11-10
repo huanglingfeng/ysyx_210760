@@ -58,9 +58,9 @@ class CSR extends Module {
     mtime := mtime + 1.U
   }
   val mtimecmp = RegInit(UInt(64.W),"hffff_ffff_ffff_ffff".U)
-  when(mtime >= mtimecmp){
-    mip := Cat(mip(63,8),1.U,mip(6,0)) 
-  }
+  // when(mtime >= mtimecmp){
+  //   mip := Cat(mip(63,8),1.U,mip(6,0)) 
+  // }
   
   val clint_out = WireInit(0.U(64.W))
 
