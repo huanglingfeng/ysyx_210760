@@ -18,6 +18,9 @@ class CSR extends Module {
 
     val sstatus = Output(UInt(64.W))
 
+    val intrNO = Output(UInt(32.W))
+    val cause = Output(UInt(32.W))
+
   })
   val csrop = io.csr_to_id.csrop
   val csr_addr = io.csr_to_id.csr_addr
@@ -39,6 +42,10 @@ class CSR extends Module {
   mSD := (mstatus_i(16,15) === "b11".U || mstatus_i(14,13) === "b11".U)
   val mstatus = Cat(mSD,mstatus_i)
   
+  val intrNO = Mux(mcause(63) === true.B,mcause(31,0),0.U(32.W))
+  val cause = Mux(mcause(63) === false.B,mcause(31,0),0.U(32.W))
+  io.intrNO := intrNO
+  io.cause := cause
 
   val mscratch = RegInit(UInt(64.W), 0.U)
 
@@ -58,9 +65,9 @@ class CSR extends Module {
     mtime := mtime + 1.U
   }
   val mtimecmp = RegInit(UInt(64.W),"hffff_ffff_ffff_ffff".U)
-  // when(mtime >= mtimecmp){
-  //   mip := Cat(mip(63,8),1.U,mip(6,0)) 
-  // }
+  when(mtime >= mtimecmp){
+    mip := Cat(mip(63,8),1.U,mip(6,0)) 
+  }
   
   val clint_out = WireInit(0.U(64.W))
 
@@ -76,6 +83,7 @@ class CSR extends Module {
     }
   }
   io.csr_to_lsu.rdata := clint_out
+  val clk_int = (mip(7) === true.B)
   //------------------------------------------------------------//
 
   val csr_data_o = Mux1H(
@@ -97,8 +105,10 @@ class CSR extends Module {
   val is_rs = (csrop === CSR_RS || csrop === CSR_RSI)
   val is_rc = (csrop === CSR_RC || csrop === CSR_RCI)
 
-  val is_trap_begin = (csrop === CSR_ECALL)
+
+  val is_trap_begin = (csrop === CSR_ECALL) || clk_int
   val is_trap_end = (csrop === CSR_MRET)
+  io.csr_to_id.jump := is_trap_begin || is_trap_end
 
   val csr_target = WireInit(0.U(64.W))
   when(!is_trap_begin && !is_trap_end) {
@@ -135,7 +145,15 @@ class CSR extends Module {
     }
   }.elsewhen(is_trap_begin) {
     when(csrop === CSR_ECALL){
+      mcause := Cat(false.B,"d11".U(62.W))
       mstatus_i := Cat(mSD,mstatus(62,13),"b11".U(2.W),mstatus(10,8),mstatus(3),mstatus(6,4),0.U,mstatus(2,0))
+      mepc := id_pc
+    }
+    when(clk_int){
+      mcause := Cat(true.B,"d7".U(62.W))
+      mstatus_i := Cat(mSD,mstatus(62,13),"b11".U(2.W),mstatus(10,8),mstatus(3),mstatus(6,4),0.U,mstatus(2,0))
+      mie := Cat(mie(63,8),1.U,mie(6,0))
+      mepc := id_pc + 4.U
     }
     when(mtvec(1, 0) === 0.U) {
       csr_target := mtvec
@@ -147,10 +165,11 @@ class CSR extends Module {
       mcause := "h0000_0000_0000_000b".U(64.W)
     }
 
-    mepc := id_pc
+    
   }.elsewhen(is_trap_end) {
     when(csrop === CSR_MRET){
       mstatus_i := Cat(mSD,mstatus(62,13),"b00".U(2.W),mstatus(10,8),1.U,mstatus(6,4),mstatus(7),mstatus(2,0))
+      mtime := 0.U
     }
     csr_target := mepc
   }

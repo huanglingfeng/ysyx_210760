@@ -65,9 +65,9 @@ class Core extends Module {
   val dt_ae = Module(new DifftestArchEvent)
   dt_ae.io.clock := clock
   dt_ae.io.coreid := 0.U
-  dt_ae.io.intrNO := 0.U
-  dt_ae.io.cause := 0.U
-  dt_ae.io.exceptionPC := 0.U
+  dt_ae.io.intrNO := csr.io.intrNO
+  dt_ae.io.cause := csr.io.cause
+  dt_ae.io.exceptionPC := decode.id_to_csr.id_pc
 
   val cycle_cnt = RegInit(0.U(64.W))
   val instr_cnt = RegInit(0.U(64.W))

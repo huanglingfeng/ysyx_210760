@@ -35,6 +35,7 @@ class ID_TO_CSR_BUS extends Bundle{
   
   val csr_res = Input(UInt(64.W))
 
+  val csr_jump = Input(Bool())
   val csr_target = Input(UInt(64.W))
 }
 class Decode extends Module {
@@ -163,7 +164,7 @@ class Decode extends Module {
     val rs1_en = true.B
     val rs2_en = true.B
 
-    val csr_jump = ((csrop === CSR_ECALL) || (csrop === CSR_MRET))
+    val csr_jump = io.id_to_csr.csr_jump
     val csr_target = io.id_to_csr.csr_target
 
     val imm = Mux1H(Seq(
