@@ -1875,37 +1875,37 @@ module CSR(
   wire [63:0] _GEN_61 = _is_trap_begin_T ? _lo_T_8 : {{1'd0}, mstatus_i}; // @[CSR.scala 150:30 CSR.scala 152:17 CSR.scala 40:26]
   wire [63:0] _GEN_63 = mie_hi_lo ? 64'h8000000000000007 : _GEN_60; // @[CSR.scala 155:18 CSR.scala 156:14]
   wire [63:0] _GEN_64 = mie_hi_lo ? _lo_T_8 : _GEN_61; // @[CSR.scala 155:18 CSR.scala 157:17]
-  wire [61:0] csr_target_hi = mtvec[63:2]; // @[CSR.scala 164:31]
+  wire [61:0] csr_target_hi = mtvec[63:2]; // @[CSR.scala 166:31]
   wire [63:0] _csr_target_T = {csr_target_hi,2'h0}; // @[Cat.scala 30:58]
-  wire [62:0] csr_target_lo = mcause[62:0]; // @[CSR.scala 164:67]
+  wire [62:0] csr_target_lo = mcause[62:0]; // @[CSR.scala 166:67]
   wire [63:0] _csr_target_T_1 = {1'h0,csr_target_lo}; // @[Cat.scala 30:58]
-  wire [63:0] _csr_target_T_3 = _csr_target_T + _csr_target_T_1; // @[CSR.scala 164:50]
-  wire [65:0] _csr_target_T_4 = {_csr_target_T_3, 2'h0}; // @[CSR.scala 164:76]
-  wire [65:0] _GEN_66 = mtvec[1:0] == 2'h1 ? _csr_target_T_4 : 66'h0; // @[CSR.scala 163:37 CSR.scala 164:18]
-  wire [65:0] _GEN_67 = mtvec[1:0] == 2'h0 ? {{2'd0}, mtvec} : _GEN_66; // @[CSR.scala 161:31 CSR.scala 162:18]
-  wire  lo_lo_lo_hi = mstatus[7]; // @[CSR.scala 174:94]
+  wire [63:0] _csr_target_T_3 = _csr_target_T + _csr_target_T_1; // @[CSR.scala 166:50]
+  wire [65:0] _csr_target_T_4 = {_csr_target_T_3, 2'h0}; // @[CSR.scala 166:76]
+  wire [65:0] _GEN_68 = mtvec[1:0] == 2'h1 ? _csr_target_T_4 : 66'h0; // @[CSR.scala 165:37 CSR.scala 166:18]
+  wire [65:0] _GEN_69 = mtvec[1:0] == 2'h0 ? {{2'd0}, mtvec} : _GEN_68; // @[CSR.scala 163:31 CSR.scala 164:18]
+  wire  lo_lo_lo_hi = mstatus[7]; // @[CSR.scala 176:94]
   wire [63:0] _lo_T_10 = {mSD,lo_hi_hi_lo,2'h0,lo_hi_lo_lo,1'h1,lo_lo_hi_lo,lo_lo_lo_hi,lo_lo_lo_lo}; // @[Cat.scala 30:58]
-  wire [63:0] _GEN_69 = is_trap_end ? _lo_T_10 : {{1'd0}, mstatus_i}; // @[CSR.scala 173:29 CSR.scala 174:17 CSR.scala 40:26]
-  wire [63:0] _GEN_70 = is_trap_end ? 64'h0 : _GEN_13; // @[CSR.scala 173:29 CSR.scala 175:13]
-  wire [63:0] _GEN_71 = is_trap_end ? _GEN_69 : {{1'd0}, mstatus_i}; // @[CSR.scala 172:27 CSR.scala 40:26]
-  wire [63:0] _GEN_73 = is_trap_end ? mepc : 64'h0; // @[CSR.scala 172:27 CSR.scala 177:16]
-  wire [63:0] _GEN_75 = is_trap_begin ? _GEN_64 : _GEN_71; // @[CSR.scala 149:29]
-  wire [65:0] _GEN_77 = is_trap_begin ? _GEN_67 : {{2'd0}, _GEN_73}; // @[CSR.scala 149:29]
-  wire [63:0] _GEN_86 = ~is_trap_begin & ~is_trap_end ? _GEN_56 : _GEN_75; // @[CSR.scala 117:40]
-  wire [65:0] _GEN_90 = ~is_trap_begin & ~is_trap_end ? 66'h0 : _GEN_77; // @[CSR.scala 117:40]
-  wire [1:0] sstatus_hi_lo = mstatus[16:15]; // @[CSR.scala 192:42]
-  wire [1:0] sstatus_lo_hi = mstatus[14:13]; // @[CSR.scala 192:57]
+  wire [63:0] _GEN_71 = is_trap_end ? _lo_T_10 : {{1'd0}, mstatus_i}; // @[CSR.scala 175:29 CSR.scala 176:17 CSR.scala 40:26]
+  wire [63:0] _GEN_72 = is_trap_end ? 64'h0 : _GEN_13; // @[CSR.scala 175:29 CSR.scala 177:13]
+  wire [63:0] _GEN_73 = is_trap_end ? _GEN_71 : {{1'd0}, mstatus_i}; // @[CSR.scala 174:27 CSR.scala 40:26]
+  wire [63:0] _GEN_75 = is_trap_end ? mepc : 64'h0; // @[CSR.scala 174:27 CSR.scala 179:16]
+  wire [63:0] _GEN_77 = is_trap_begin ? _GEN_64 : _GEN_73; // @[CSR.scala 149:29]
+  wire [65:0] _GEN_81 = is_trap_begin ? _GEN_69 : {{2'd0}, _GEN_75}; // @[CSR.scala 149:29]
+  wire [63:0] _GEN_89 = ~is_trap_begin & ~is_trap_end ? _GEN_56 : _GEN_77; // @[CSR.scala 117:40]
+  wire [65:0] _GEN_94 = ~is_trap_begin & ~is_trap_end ? 66'h0 : _GEN_81; // @[CSR.scala 117:40]
+  wire [1:0] sstatus_hi_lo = mstatus[16:15]; // @[CSR.scala 194:42]
+  wire [1:0] sstatus_lo_hi = mstatus[14:13]; // @[CSR.scala 194:57]
   wire [14:0] sstatus_lo = {sstatus_lo_hi,13'h0}; // @[Cat.scala 30:58]
   wire [48:0] sstatus_hi = {mSD,46'h0,sstatus_hi_lo}; // @[Cat.scala 30:58]
   assign io_csr_to_id_csr_res = ~is_trap_begin & ~is_trap_end ? _GEN_21 : 64'h0; // @[CSR.scala 117:40]
   assign io_csr_to_id_csr_jump = is_trap_begin | is_trap_end; // @[CSR.scala 109:42]
-  assign io_csr_to_id_csr_target = _GEN_90[63:0]; // @[CSR.scala 181:27]
+  assign io_csr_to_id_csr_target = _GEN_94[63:0]; // @[CSR.scala 183:27]
   assign io_csr_to_lsu_rdata = io_csr_to_lsu_is_clint ? _GEN_9 : 64'h0; // @[CSR.scala 72:17]
-  assign io_mepc = mepc; // @[CSR.scala 184:11]
-  assign io_mcause = mcause; // @[CSR.scala 185:13]
-  assign io_mtvec = mtvec; // @[CSR.scala 186:12]
+  assign io_mepc = mepc; // @[CSR.scala 186:11]
+  assign io_mcause = mcause; // @[CSR.scala 187:13]
+  assign io_mtvec = mtvec; // @[CSR.scala 188:12]
   assign io_mstatus = {mSD,mstatus_i}; // @[Cat.scala 30:58]
-  assign io_mscratch = mscratch; // @[CSR.scala 191:15]
+  assign io_mscratch = mscratch; // @[CSR.scala 193:15]
   assign io_sstatus = {sstatus_hi,sstatus_lo}; // @[Cat.scala 30:58]
   assign io_intrNO = io_intrNO_REG ? intrNO : 32'h0; // @[CSR.scala 113:19]
   assign io_cause = io_cause_REG ? cause : 32'h0; // @[CSR.scala 114:18]
@@ -1929,7 +1929,7 @@ module CSR(
       end
     end else if (is_trap_begin) begin // @[CSR.scala 149:29]
       if (mie_hi_lo) begin // @[CSR.scala 155:18]
-        mepc <= io_csr_to_id_id_pc; // @[CSR.scala 159:12]
+        mepc <= io_csr_to_id_id_pc; // @[CSR.scala 161:12]
       end else if (_is_trap_begin_T) begin // @[CSR.scala 150:30]
         mepc <= io_csr_to_id_id_pc; // @[CSR.scala 153:12]
       end
@@ -1943,8 +1943,8 @@ module CSR(
         end
       end
     end else if (is_trap_begin) begin // @[CSR.scala 149:29]
-      if (mstatus[12:11] == 2'h3 & _is_trap_begin_T) begin // @[CSR.scala 167:67]
-        mcause <= 64'hb; // @[CSR.scala 168:14]
+      if (mstatus[12:11] == 2'h3 & _is_trap_begin_T) begin // @[CSR.scala 169:67]
+        mcause <= 64'hb; // @[CSR.scala 170:14]
       end else begin
         mcause <= _GEN_63;
       end
@@ -1961,7 +1961,7 @@ module CSR(
     if (reset) begin // @[CSR.scala 40:26]
       mstatus_i <= 63'h1800; // @[CSR.scala 40:26]
     end else begin
-      mstatus_i <= _GEN_86[62:0];
+      mstatus_i <= _GEN_89[62:0];
     end
     if (reset) begin // @[CSR.scala 45:25]
       mscratch <= 64'h0; // @[CSR.scala 45:25]
@@ -1995,6 +1995,12 @@ module CSR(
       end else begin
         mip <= _GEN_42;
       end
+    end else if (is_trap_begin) begin // @[CSR.scala 149:29]
+      if (mie_hi_lo) begin // @[CSR.scala 155:18]
+        mip <= 64'h0; // @[CSR.scala 159:11]
+      end else begin
+        mip <= _GEN_2;
+      end
     end else begin
       mip <= _GEN_2;
     end
@@ -2003,9 +2009,13 @@ module CSR(
     end else if (~is_trap_begin & ~is_trap_end) begin // @[CSR.scala 117:40]
       mtime <= _GEN_13;
     end else if (is_trap_begin) begin // @[CSR.scala 149:29]
-      mtime <= _GEN_13;
-    end else if (is_trap_end) begin // @[CSR.scala 172:27]
-      mtime <= _GEN_70;
+      if (mie_hi_lo) begin // @[CSR.scala 155:18]
+        mtime <= 64'h0; // @[CSR.scala 160:13]
+      end else begin
+        mtime <= _GEN_13;
+      end
+    end else if (is_trap_end) begin // @[CSR.scala 174:27]
+      mtime <= _GEN_72;
     end else begin
       mtime <= _GEN_13;
     end
