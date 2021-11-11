@@ -2101,9 +2101,10 @@ module Core(
   reg [31:0] _RAND_3;
   reg [63:0] _RAND_4;
   reg [31:0] _RAND_5;
-  reg [63:0] _RAND_6;
+  reg [31:0] _RAND_6;
   reg [63:0] _RAND_7;
   reg [63:0] _RAND_8;
+  reg [63:0] _RAND_9;
 `endif // RANDOMIZE_REG_INIT
   wire  fetch_clock; // @[Core.scala 13:21]
   wire  fetch_reset; // @[Core.scala 13:21]
@@ -2291,6 +2292,7 @@ module Core(
   reg  dt_ic_io_wen_REG; // @[Core.scala 61:26]
   reg [63:0] dt_ic_io_wdata_REG; // @[Core.scala 62:28]
   reg [4:0] dt_ic_io_wdest_REG; // @[Core.scala 63:28]
+  reg [31:0] dt_ae_io_cause_REG; // @[Core.scala 69:28]
   reg [63:0] dt_ae_io_exceptionPC_REG; // @[Core.scala 70:34]
   reg [63:0] cycle_cnt; // @[Core.scala 72:26]
   reg [63:0] instr_cnt; // @[Core.scala 73:26]
@@ -2574,7 +2576,7 @@ module Core(
   assign dt_ic_pc = dt_ic_io_pc_REG; // @[Core.scala 53:15]
   assign dt_ic_instr = dt_ic_io_instr_REG; // @[Core.scala 54:18]
   assign dt_ic_special = 8'h0;
-  assign dt_ic_skip = dt_ic_io_skip_REG | fetch_io_if_to_id_inst == 32'h7b; // @[Core.scala 55:136]
+  assign dt_ic_skip = dt_ic_io_skip_REG; // @[Core.scala 55:17]
   assign dt_ic_isRVC = 1'h0; // @[Core.scala 59:18]
   assign dt_ic_scFailed = 1'h0; // @[Core.scala 60:21]
   assign dt_ic_wen = dt_ic_io_wen_REG; // @[Core.scala 61:16]
@@ -2583,7 +2585,7 @@ module Core(
   assign dt_ae_clock = clock; // @[Core.scala 66:18]
   assign dt_ae_coreid = 8'h0; // @[Core.scala 67:19]
   assign dt_ae_intrNO = csr_io_intrNO; // @[Core.scala 68:19]
-  assign dt_ae_cause = csr_io_cause; // @[Core.scala 69:18]
+  assign dt_ae_cause = dt_ae_io_cause_REG; // @[Core.scala 69:18]
   assign dt_ae_exceptionPC = dt_ae_io_exceptionPC_REG; // @[Core.scala 70:24]
   assign dt_ae_exceptionInst = 32'h0;
   assign dt_te_clock = clock; // @[Core.scala 82:18]
@@ -2620,6 +2622,7 @@ module Core(
     dt_ic_io_wen_REG <= wb_io_rd_en; // @[Core.scala 61:26]
     dt_ic_io_wdata_REG <= wb_io_rd_data; // @[Core.scala 62:28]
     dt_ic_io_wdest_REG <= wb_io_rd_addr; // @[Core.scala 63:28]
+    dt_ae_io_cause_REG <= csr_io_cause; // @[Core.scala 69:28]
     dt_ae_io_exceptionPC_REG <= decode_io_id_to_csr_id_pc; // @[Core.scala 70:34]
     if (reset) begin // @[Core.scala 72:26]
       cycle_cnt <= 64'h0; // @[Core.scala 72:26]
@@ -2680,12 +2683,14 @@ initial begin
   dt_ic_io_wdata_REG = _RAND_4[63:0];
   _RAND_5 = {1{`RANDOM}};
   dt_ic_io_wdest_REG = _RAND_5[4:0];
-  _RAND_6 = {2{`RANDOM}};
-  dt_ae_io_exceptionPC_REG = _RAND_6[63:0];
+  _RAND_6 = {1{`RANDOM}};
+  dt_ae_io_cause_REG = _RAND_6[31:0];
   _RAND_7 = {2{`RANDOM}};
-  cycle_cnt = _RAND_7[63:0];
+  dt_ae_io_exceptionPC_REG = _RAND_7[63:0];
   _RAND_8 = {2{`RANDOM}};
-  instr_cnt = _RAND_8[63:0];
+  cycle_cnt = _RAND_8[63:0];
+  _RAND_9 = {2{`RANDOM}};
+  instr_cnt = _RAND_9[63:0];
 `endif // RANDOMIZE_REG_INIT
   `endif // RANDOMIZE
 end // initial
