@@ -669,6 +669,8 @@ module Decode(
   wire [63:0] _io_id_to_ex_out1_T_5 = ctr_signals_1[1] ? io_if_to_id_pc : 64'h0; // @[Mux.scala 27:72]
   wire [63:0] _io_id_to_ex_out2_T_4 = ctr_signals_2[0] ? io_rs2_data : 64'h0; // @[Mux.scala 27:72]
   wire [63:0] _io_id_to_ex_out2_T_5 = ctr_signals_2[1] ? imm : 64'h0; // @[Mux.scala 27:72]
+  wire  load = ctr_signals_7[0] | ctr_signals_7[1] | ctr_signals_7[2] | ctr_signals_7[3] | ctr_signals_7[4] |
+    ctr_signals_8[9] | ctr_signals_8[10]; // @[Mux.scala 27:72]
   wire  save = ctr_signals_7[5] | ctr_signals_7[6] | ctr_signals_7[7] | ctr_signals_8[11]; // @[Mux.scala 27:72]
   wire  is_br = bruop[2] | bruop[3] | bruop[4] | bruop[5] | bruop[6] | bruop[7]; // @[Mux.scala 27:72]
   wire [63:0] jal_target = io_if_to_id_pc + imm_j; // @[Decode.scala 244:25]
@@ -694,6 +696,7 @@ module Decode(
   wire [63:0] _pc_target_T_7 = _pc_target_T_2 | _pc_target_T_3; // @[Mux.scala 27:72]
   wire [63:0] _pc_target_T_8 = _pc_target_T_7 | _pc_target_T_4; // @[Mux.scala 27:72]
   wire [63:0] _pc_target_T_9 = _pc_target_T_8 | _pc_target_T_5; // @[Mux.scala 27:72]
+  wire  _io_id_to_ex_rf_w_T_3 = ~io_id_to_csr_csr_jump; // @[Decode.scala 272:44]
   wire  is_csr = ctr_signals_4 == 5'h10; // @[Decode.scala 289:26]
   wire  _is_zimm_T = ~is_csr; // @[Decode.scala 291:7]
   wire  _is_zimm_T_4 = csrop == 8'h4; // @[Decode.scala 295:14]
@@ -710,10 +713,9 @@ module Decode(
   assign io_id_to_ex_out2 = _io_id_to_ex_out2_T_4 | _io_id_to_ex_out2_T_5; // @[Mux.scala 27:72]
   assign io_id_to_ex_imm = _imm_T_18 | _imm_T_13; // @[Mux.scala 27:72]
   assign io_id_to_ex_dest = _ctr_signals_T_115 ? 5'h0 : rd; // @[Decode.scala 196:28]
-  assign io_id_to_ex_rf_w = ~save & ~is_br; // @[Decode.scala 272:31]
-  assign io_id_to_ex_load = ctr_signals_7[0] | ctr_signals_7[1] | ctr_signals_7[2] | ctr_signals_7[3] | ctr_signals_7[4]
-     | ctr_signals_8[9] | ctr_signals_8[10]; // @[Mux.scala 27:72]
-  assign io_id_to_ex_save = ctr_signals_7[5] | ctr_signals_7[6] | ctr_signals_7[7] | ctr_signals_8[11]; // @[Mux.scala 27:72]
+  assign io_id_to_ex_rf_w = ~save & ~is_br & ~io_id_to_csr_csr_jump; // @[Decode.scala 272:41]
+  assign io_id_to_ex_load = load & _io_id_to_ex_rf_w_T_3; // @[Decode.scala 273:30]
+  assign io_id_to_ex_save = save & _io_id_to_ex_rf_w_T_3; // @[Decode.scala 274:30]
   assign io_id_to_if_pc_target = _pc_target_T_9 | _pc_target_T_6; // @[Mux.scala 27:72]
   assign io_id_to_if_jump = bruop[0] | bruop[1] | io_id_to_csr_csr_jump | _jump_T_22; // @[Decode.scala 255:48]
   assign io_id_to_csr_csrop = _ctr_signals_T_1 ? 8'h0 : _ctr_signals_T_685; // @[Lookup.scala 33:37]
@@ -2113,10 +2115,9 @@ module Core(
   reg [31:0] _RAND_3;
   reg [63:0] _RAND_4;
   reg [31:0] _RAND_5;
-  reg [31:0] _RAND_6;
+  reg [63:0] _RAND_6;
   reg [63:0] _RAND_7;
   reg [63:0] _RAND_8;
-  reg [63:0] _RAND_9;
 `endif // RANDOMIZE_REG_INIT
   wire  fetch_clock; // @[Core.scala 13:21]
   wire  fetch_reset; // @[Core.scala 13:21]
@@ -2303,7 +2304,6 @@ module Core(
   reg  dt_ic_io_wen_REG; // @[Core.scala 61:26]
   reg [63:0] dt_ic_io_wdata_REG; // @[Core.scala 62:28]
   reg [4:0] dt_ic_io_wdest_REG; // @[Core.scala 63:28]
-  reg [31:0] dt_ae_io_intrNO_REG; // @[Core.scala 68:29]
   reg [63:0] dt_ae_io_exceptionPC_REG; // @[Core.scala 70:34]
   reg [63:0] cycle_cnt; // @[Core.scala 72:26]
   reg [63:0] instr_cnt; // @[Core.scala 73:26]
@@ -2594,7 +2594,7 @@ module Core(
   assign dt_ic_wdest = {{3'd0}, dt_ic_io_wdest_REG}; // @[Core.scala 63:18]
   assign dt_ae_clock = clock; // @[Core.scala 66:18]
   assign dt_ae_coreid = 8'h0; // @[Core.scala 67:19]
-  assign dt_ae_intrNO = dt_ae_io_intrNO_REG; // @[Core.scala 68:19]
+  assign dt_ae_intrNO = csr_io_intrNO; // @[Core.scala 68:19]
   assign dt_ae_cause = csr_io_cause; // @[Core.scala 69:18]
   assign dt_ae_exceptionPC = dt_ae_io_exceptionPC_REG; // @[Core.scala 70:24]
   assign dt_ae_exceptionInst = 32'h0;
@@ -2632,7 +2632,6 @@ module Core(
     dt_ic_io_wen_REG <= wb_io_rd_en; // @[Core.scala 61:26]
     dt_ic_io_wdata_REG <= wb_io_rd_data; // @[Core.scala 62:28]
     dt_ic_io_wdest_REG <= wb_io_rd_addr; // @[Core.scala 63:28]
-    dt_ae_io_intrNO_REG <= csr_io_intrNO; // @[Core.scala 68:29]
     dt_ae_io_exceptionPC_REG <= decode_io_id_to_csr_id_pc; // @[Core.scala 70:34]
     if (reset) begin // @[Core.scala 72:26]
       cycle_cnt <= 64'h0; // @[Core.scala 72:26]
@@ -2693,14 +2692,12 @@ initial begin
   dt_ic_io_wdata_REG = _RAND_4[63:0];
   _RAND_5 = {1{`RANDOM}};
   dt_ic_io_wdest_REG = _RAND_5[4:0];
-  _RAND_6 = {1{`RANDOM}};
-  dt_ae_io_intrNO_REG = _RAND_6[31:0];
+  _RAND_6 = {2{`RANDOM}};
+  dt_ae_io_exceptionPC_REG = _RAND_6[63:0];
   _RAND_7 = {2{`RANDOM}};
-  dt_ae_io_exceptionPC_REG = _RAND_7[63:0];
+  cycle_cnt = _RAND_7[63:0];
   _RAND_8 = {2{`RANDOM}};
-  cycle_cnt = _RAND_8[63:0];
-  _RAND_9 = {2{`RANDOM}};
-  instr_cnt = _RAND_9[63:0];
+  instr_cnt = _RAND_8[63:0];
 `endif // RANDOMIZE_REG_INIT
   `endif // RANDOMIZE
 end // initial
