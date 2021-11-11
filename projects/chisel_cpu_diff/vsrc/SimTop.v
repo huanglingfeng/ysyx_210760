@@ -2013,7 +2013,7 @@ module CSR(
       mtime <= _GEN_12;
     end
     if (reset) begin // @[CSR.scala 66:25]
-      mtimecmp <= 64'hffff; // @[CSR.scala 66:25]
+      mtimecmp <= 64'hff; // @[CSR.scala 66:25]
     end else if (io_csr_to_lsu_is_clint) begin // @[CSR.scala 73:17]
       if (!(io_csr_to_lsu_load)) begin // @[CSR.scala 74:15]
         if (io_csr_to_lsu_save) begin // @[CSR.scala 76:21]
