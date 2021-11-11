@@ -44,8 +44,7 @@ class CSR extends Module {
   
   val intrNO = Mux(mcause(63) === true.B,mcause(31,0),0.U(32.W))
   val cause = Mux(mcause(63) === false.B,mcause(31,0),0.U(32.W))
-  io.intrNO := intrNO
-  io.cause := cause
+  
 
   val mscratch = RegInit(UInt(64.W), 0.U)
 
@@ -109,6 +108,9 @@ class CSR extends Module {
   val is_trap_begin = (csrop === CSR_ECALL) || clk_int
   val is_trap_end = (csrop === CSR_MRET)
   io.csr_to_id.csr_jump := is_trap_begin || is_trap_end
+
+  io.intrNO := Mux(is_trap_begin,intrNO,0.U)
+  io.cause := Mux(is_trap_begin,cause,0.U)
 
   val csr_target = WireInit(0.U(64.W))
   when(!is_trap_begin && !is_trap_end) {

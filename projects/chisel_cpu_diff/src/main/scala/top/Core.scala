@@ -66,7 +66,7 @@ class Core extends Module {
   dt_ae.io.clock := clock
   dt_ae.io.coreid := 0.U
   dt_ae.io.intrNO := csr.io.intrNO
-  dt_ae.io.cause := RegNext(csr.io.cause)
+  dt_ae.io.cause := csr.io.cause
   dt_ae.io.exceptionPC := RegNext(decode.io.id_to_csr.id_pc)
 
   val cycle_cnt = RegInit(0.U(64.W))
@@ -102,7 +102,7 @@ class Core extends Module {
   dt_cs.io.mcause := csr.io.mcause
   dt_cs.io.scause := 0.U
   dt_cs.io.satp := 0.U
-  dt_cs.io.mip := csr.io.mip
+  dt_cs.io.mip := 0.U //实现了，但接0
   dt_cs.io.mie := csr.io.mie
   dt_cs.io.mscratch := csr.io.mscratch
   dt_cs.io.sscratch := 0.U
