@@ -1744,6 +1744,8 @@ module CSR(
   reg [63:0] _RAND_7;
   reg [63:0] _RAND_8;
   reg [63:0] _RAND_9;
+  reg [31:0] _RAND_10;
+  reg [31:0] _RAND_11;
 `endif // RANDOMIZE_REG_INIT
   reg [63:0] mcycle; // @[CSR.scala 33:23]
   wire [63:0] _mcycle_T_1 = mcycle + 64'h1; // @[CSR.scala 35:22]
@@ -1801,6 +1803,8 @@ module CSR(
   wire  _is_trap_begin_T = io_csr_to_id_csrop == 8'h7; // @[CSR.scala 108:30]
   wire  is_trap_begin = io_csr_to_id_csrop == 8'h7 | clk_int; // @[CSR.scala 108:45]
   wire  is_trap_end = io_csr_to_id_csrop == 8'h8; // @[CSR.scala 109:28]
+  reg  io_intrNO_REG; // @[CSR.scala 112:27]
+  reg  io_cause_REG; // @[CSR.scala 113:26]
   wire [63:0] _csr_mask_T = io_csr_to_id_is_zero ? 64'h0 : 64'hffffffffffffffff; // @[CSR.scala 120:22]
   wire [63:0] _csr_mask_T_1 = io_csr_to_id_is_zero ? 64'h0 : io_csr_to_id_src1; // @[CSR.scala 124:22]
   wire [63:0] _csr_data_i_T = ~io_csr_to_id_src1; // @[CSR.scala 127:21]
@@ -1906,8 +1910,8 @@ module CSR(
   assign io_mie = mie; // @[CSR.scala 189:10]
   assign io_mscratch = mscratch; // @[CSR.scala 190:15]
   assign io_sstatus = {sstatus_hi,sstatus_lo}; // @[Cat.scala 30:58]
-  assign io_intrNO = is_trap_begin ? intrNO : 32'h0; // @[CSR.scala 112:19]
-  assign io_cause = is_trap_begin ? cause : 32'h0; // @[CSR.scala 113:18]
+  assign io_intrNO = io_intrNO_REG ? intrNO : 32'h0; // @[CSR.scala 112:19]
+  assign io_cause = io_cause_REG ? cause : 32'h0; // @[CSR.scala 113:18]
   always @(posedge clock) begin
     if (reset) begin // @[CSR.scala 33:23]
       mcycle <= 64'h0; // @[CSR.scala 33:23]
@@ -2017,6 +2021,8 @@ module CSR(
         end
       end
     end
+    io_intrNO_REG <= io_csr_to_id_csrop == 8'h7 | clk_int; // @[CSR.scala 108:45]
+    io_cause_REG <= io_csr_to_id_csrop == 8'h7 | clk_int; // @[CSR.scala 108:45]
   end
 // Register and memory initialization
 `ifdef RANDOMIZE_GARBAGE_ASSIGN
@@ -2074,6 +2080,10 @@ initial begin
   mtime = _RAND_8[63:0];
   _RAND_9 = {2{`RANDOM}};
   mtimecmp = _RAND_9[63:0];
+  _RAND_10 = {1{`RANDOM}};
+  io_intrNO_REG = _RAND_10[0:0];
+  _RAND_11 = {1{`RANDOM}};
+  io_cause_REG = _RAND_11[0:0];
 `endif // RANDOMIZE_REG_INIT
   `endif // RANDOMIZE
 end // initial
