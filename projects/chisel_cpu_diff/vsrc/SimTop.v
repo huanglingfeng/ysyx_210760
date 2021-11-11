@@ -1875,7 +1875,7 @@ module CSR(
   wire [6:0] mie_lo = mie[6:0]; // @[CSR.scala 155:35]
   wire [63:0] _mie_T_4 = {mie_hi_hi,1'h1,mie_lo}; // @[Cat.scala 30:58]
   wire [63:0] _mepc_T_5 = io_csr_to_id_id_pc + 64'h4; // @[CSR.scala 156:21]
-  wire [63:0] _GEN_62 = clk_int ? 64'h4000000000000007 : _GEN_59; // @[CSR.scala 152:18 CSR.scala 153:14]
+  wire [63:0] _GEN_62 = clk_int ? 64'h8000000000000007 : _GEN_59; // @[CSR.scala 152:18 CSR.scala 153:14]
   wire [63:0] _GEN_63 = clk_int ? _lo_T_8 : _GEN_60; // @[CSR.scala 152:18 CSR.scala 154:17]
   wire [61:0] csr_target_hi = mtvec[63:2]; // @[CSR.scala 161:31]
   wire [63:0] _csr_target_T = {csr_target_hi,2'h0}; // @[Cat.scala 30:58]

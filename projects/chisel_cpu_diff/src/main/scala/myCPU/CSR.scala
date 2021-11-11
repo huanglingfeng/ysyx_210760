@@ -145,12 +145,12 @@ class CSR extends Module {
     }
   }.elsewhen(is_trap_begin) {
     when(csrop === CSR_ECALL){
-      mcause := Cat(false.B,"d11".U(62.W))
+      mcause := Cat(false.B,"d11".U(63.W))
       mstatus_i := Cat(mSD,mstatus(62,13),"b11".U(2.W),mstatus(10,8),mstatus(3),mstatus(6,4),0.U,mstatus(2,0))
       mepc := id_pc
     }
     when(clk_int){
-      mcause := Cat(true.B,"d7".U(62.W))
+      mcause := Cat(true.B,"d7".U(63.W))
       mstatus_i := Cat(mSD,mstatus(62,13),"b11".U(2.W),mstatus(10,8),mstatus(3),mstatus(6,4),0.U,mstatus(2,0))
       mie := Cat(mie(63,8),1.U,mie(6,0))
       mepc := id_pc + 4.U
