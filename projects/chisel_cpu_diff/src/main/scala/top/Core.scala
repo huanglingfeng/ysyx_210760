@@ -103,7 +103,7 @@ class Core extends Module {
   dt_cs.io.scause := 0.U
   dt_cs.io.satp := 0.U
   dt_cs.io.mip := 0.U //实现了，但接0
-  dt_cs.io.mie := csr.io.mie
+  dt_cs.io.mie := 0.U//csr.io.mie
   dt_cs.io.mscratch := csr.io.mscratch
   dt_cs.io.sscratch := 0.U
   dt_cs.io.mideleg := 0.U

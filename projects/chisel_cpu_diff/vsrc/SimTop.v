@@ -1727,7 +1727,6 @@ module CSR(
   output [63:0] io_mcause,
   output [63:0] io_mtvec,
   output [63:0] io_mstatus,
-  output [63:0] io_mie,
   output [63:0] io_mscratch,
   output [63:0] io_sstatus,
   output [31:0] io_intrNO,
@@ -1906,7 +1905,6 @@ module CSR(
   assign io_mcause = mcause; // @[CSR.scala 185:13]
   assign io_mtvec = mtvec; // @[CSR.scala 186:12]
   assign io_mstatus = {mSD,mstatus_i}; // @[Cat.scala 30:58]
-  assign io_mie = mie; // @[CSR.scala 190:10]
   assign io_mscratch = mscratch; // @[CSR.scala 191:15]
   assign io_sstatus = {sstatus_hi,sstatus_lo}; // @[Cat.scala 30:58]
   assign io_intrNO = io_intrNO_REG ? intrNO : 32'h0; // @[CSR.scala 113:19]
@@ -2241,7 +2239,6 @@ module Core(
   wire [63:0] csr_io_mcause; // @[Core.scala 42:19]
   wire [63:0] csr_io_mtvec; // @[Core.scala 42:19]
   wire [63:0] csr_io_mstatus; // @[Core.scala 42:19]
-  wire [63:0] csr_io_mie; // @[Core.scala 42:19]
   wire [63:0] csr_io_mscratch; // @[Core.scala 42:19]
   wire [63:0] csr_io_sstatus; // @[Core.scala 42:19]
   wire [31:0] csr_io_intrNO; // @[Core.scala 42:19]
@@ -2445,7 +2442,6 @@ module Core(
     .io_mcause(csr_io_mcause),
     .io_mtvec(csr_io_mtvec),
     .io_mstatus(csr_io_mstatus),
-    .io_mie(csr_io_mie),
     .io_mscratch(csr_io_mscratch),
     .io_sstatus(csr_io_sstatus),
     .io_intrNO(csr_io_intrNO),
@@ -2615,7 +2611,7 @@ module Core(
   assign dt_cs_scause = 64'h0; // @[Core.scala 103:19]
   assign dt_cs_satp = 64'h0; // @[Core.scala 104:17]
   assign dt_cs_mip = 64'h0; // @[Core.scala 105:16]
-  assign dt_cs_mie = csr_io_mie; // @[Core.scala 106:16]
+  assign dt_cs_mie = 64'h0; // @[Core.scala 106:16]
   assign dt_cs_mscratch = csr_io_mscratch; // @[Core.scala 107:21]
   assign dt_cs_sscratch = 64'h0; // @[Core.scala 108:21]
   assign dt_cs_mideleg = 64'h0; // @[Core.scala 109:20]
