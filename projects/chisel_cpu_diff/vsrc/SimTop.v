@@ -2285,8 +2285,8 @@ module Core(
   wire [63:0] dt_cs_medeleg; // @[Core.scala 90:21]
   reg [63:0] dt_ic_io_pc_REG; // @[Core.scala 53:25]
   reg [31:0] dt_ic_io_instr_REG; // @[Core.scala 54:28]
-  wire [31:0] _dt_ic_io_skip_T_2 = fetch_io_if_to_id_inst; // @[Core.scala 55:125]
   reg  dt_ic_io_skip_REG; // @[Core.scala 55:27]
+  wire [31:0] _dt_ic_io_skip_T_2 = fetch_io_if_to_id_inst; // @[Core.scala 55:127]
   reg  dt_ic_io_wen_REG; // @[Core.scala 61:26]
   reg [63:0] dt_ic_io_wdata_REG; // @[Core.scala 62:28]
   reg [4:0] dt_ic_io_wdest_REG; // @[Core.scala 63:28]
@@ -2572,7 +2572,7 @@ module Core(
   assign dt_ic_pc = dt_ic_io_pc_REG; // @[Core.scala 53:15]
   assign dt_ic_instr = dt_ic_io_instr_REG; // @[Core.scala 54:18]
   assign dt_ic_special = 8'h0;
-  assign dt_ic_skip = dt_ic_io_skip_REG; // @[Core.scala 55:17]
+  assign dt_ic_skip = dt_ic_io_skip_REG | 32'h73 == _dt_ic_io_skip_T_2; // @[Core.scala 55:100]
   assign dt_ic_isRVC = 1'h0; // @[Core.scala 59:18]
   assign dt_ic_scFailed = 1'h0; // @[Core.scala 60:21]
   assign dt_ic_wen = dt_ic_io_wen_REG; // @[Core.scala 61:16]
@@ -2614,7 +2614,7 @@ module Core(
   always @(posedge clock) begin
     dt_ic_io_pc_REG <= fetch_io_if_to_id_pc; // @[Core.scala 53:25]
     dt_ic_io_instr_REG <= fetch_io_if_to_id_inst; // @[Core.scala 54:28]
-    dt_ic_io_skip_REG <= fetch_io_if_to_id_inst == 32'h7b | lsu_io_lsu_to_csr_is_clint | 32'h73 == _dt_ic_io_skip_T_2; // @[Core.scala 55:99]
+    dt_ic_io_skip_REG <= fetch_io_if_to_id_inst == 32'h7b | lsu_io_lsu_to_csr_is_clint; // @[Core.scala 55:69]
     dt_ic_io_wen_REG <= wb_io_rd_en; // @[Core.scala 61:26]
     dt_ic_io_wdata_REG <= wb_io_rd_data; // @[Core.scala 62:28]
     dt_ic_io_wdest_REG <= wb_io_rd_addr; // @[Core.scala 63:28]
