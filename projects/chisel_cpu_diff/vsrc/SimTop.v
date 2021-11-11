@@ -1731,8 +1731,7 @@ module CSR(
   output [63:0] io_mip,
   output [63:0] io_mscratch,
   output [63:0] io_sstatus,
-  output [31:0] io_intrNO,
-  output [31:0] io_cause
+  output [31:0] io_intrNO
 );
 `ifdef RANDOMIZE_REG_INIT
   reg [63:0] _RAND_0;
@@ -1907,7 +1906,6 @@ module CSR(
   assign io_mscratch = mscratch; // @[CSR.scala 188:15]
   assign io_sstatus = {sstatus_hi,sstatus_lo}; // @[Cat.scala 30:58]
   assign io_intrNO = mcause[63] ? mcause[31:0] : 32'h0; // @[CSR.scala 45:19]
-  assign io_cause = ~mcause[63] ? mcause[31:0] : 32'h0; // @[CSR.scala 46:18]
   always @(posedge clock) begin
     if (reset) begin // @[CSR.scala 33:23]
       mcycle <= 64'h0; // @[CSR.scala 33:23]
@@ -2236,7 +2234,6 @@ module Core(
   wire [63:0] csr_io_mscratch; // @[Core.scala 42:19]
   wire [63:0] csr_io_sstatus; // @[Core.scala 42:19]
   wire [31:0] csr_io_intrNO; // @[Core.scala 42:19]
-  wire [31:0] csr_io_cause; // @[Core.scala 42:19]
   wire  dt_ic_clock; // @[Core.scala 48:21]
   wire [7:0] dt_ic_coreid; // @[Core.scala 48:21]
   wire [7:0] dt_ic_index; // @[Core.scala 48:21]
@@ -2438,8 +2435,7 @@ module Core(
     .io_mip(csr_io_mip),
     .io_mscratch(csr_io_mscratch),
     .io_sstatus(csr_io_sstatus),
-    .io_intrNO(csr_io_intrNO),
-    .io_cause(csr_io_cause)
+    .io_intrNO(csr_io_intrNO)
   );
   DifftestInstrCommit dt_ic ( // @[Core.scala 48:21]
     .clock(dt_ic_clock),
@@ -2580,7 +2576,7 @@ module Core(
   assign dt_ae_clock = clock; // @[Core.scala 66:18]
   assign dt_ae_coreid = 8'h0; // @[Core.scala 67:19]
   assign dt_ae_intrNO = csr_io_intrNO; // @[Core.scala 68:19]
-  assign dt_ae_cause = csr_io_cause; // @[Core.scala 69:18]
+  assign dt_ae_cause = 32'h0; // @[Core.scala 69:18]
   assign dt_ae_exceptionPC = decode_io_id_to_csr_id_pc; // @[Core.scala 70:24]
   assign dt_ae_exceptionInst = 32'h0;
   assign dt_te_clock = clock; // @[Core.scala 82:18]
