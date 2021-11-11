@@ -1731,7 +1731,8 @@ module CSR(
   output [63:0] io_mip,
   output [63:0] io_mscratch,
   output [63:0] io_sstatus,
-  output [31:0] io_intrNO
+  output [31:0] io_intrNO,
+  output [31:0] io_cause
 );
 `ifdef RANDOMIZE_REG_INIT
   reg [63:0] _RAND_0;
@@ -1906,6 +1907,7 @@ module CSR(
   assign io_mscratch = mscratch; // @[CSR.scala 188:15]
   assign io_sstatus = {sstatus_hi,sstatus_lo}; // @[Cat.scala 30:58]
   assign io_intrNO = mcause[63] ? mcause[31:0] : 32'h0; // @[CSR.scala 45:19]
+  assign io_cause = ~mcause[63] ? mcause[31:0] : 32'h0; // @[CSR.scala 46:18]
   always @(posedge clock) begin
     if (reset) begin // @[CSR.scala 33:23]
       mcycle <= 64'h0; // @[CSR.scala 33:23]
@@ -2234,6 +2236,7 @@ module Core(
   wire [63:0] csr_io_mscratch; // @[Core.scala 42:19]
   wire [63:0] csr_io_sstatus; // @[Core.scala 42:19]
   wire [31:0] csr_io_intrNO; // @[Core.scala 42:19]
+  wire [31:0] csr_io_cause; // @[Core.scala 42:19]
   wire  dt_ic_clock; // @[Core.scala 48:21]
   wire [7:0] dt_ic_coreid; // @[Core.scala 48:21]
   wire [7:0] dt_ic_index; // @[Core.scala 48:21]
@@ -2282,6 +2285,7 @@ module Core(
   wire [63:0] dt_cs_medeleg; // @[Core.scala 90:21]
   reg [63:0] dt_ic_io_pc_REG; // @[Core.scala 53:25]
   reg [31:0] dt_ic_io_instr_REG; // @[Core.scala 54:28]
+  wire [31:0] _dt_ic_io_skip_T_2 = fetch_io_if_to_id_inst; // @[Core.scala 55:125]
   reg  dt_ic_io_skip_REG; // @[Core.scala 55:27]
   reg  dt_ic_io_wen_REG; // @[Core.scala 61:26]
   reg [63:0] dt_ic_io_wdata_REG; // @[Core.scala 62:28]
@@ -2435,7 +2439,8 @@ module Core(
     .io_mip(csr_io_mip),
     .io_mscratch(csr_io_mscratch),
     .io_sstatus(csr_io_sstatus),
-    .io_intrNO(csr_io_intrNO)
+    .io_intrNO(csr_io_intrNO),
+    .io_cause(csr_io_cause)
   );
   DifftestInstrCommit dt_ic ( // @[Core.scala 48:21]
     .clock(dt_ic_clock),
@@ -2576,7 +2581,7 @@ module Core(
   assign dt_ae_clock = clock; // @[Core.scala 66:18]
   assign dt_ae_coreid = 8'h0; // @[Core.scala 67:19]
   assign dt_ae_intrNO = csr_io_intrNO; // @[Core.scala 68:19]
-  assign dt_ae_cause = 32'h0; // @[Core.scala 69:18]
+  assign dt_ae_cause = csr_io_cause; // @[Core.scala 69:18]
   assign dt_ae_exceptionPC = decode_io_id_to_csr_id_pc; // @[Core.scala 70:24]
   assign dt_ae_exceptionInst = 32'h0;
   assign dt_te_clock = clock; // @[Core.scala 82:18]
@@ -2609,7 +2614,7 @@ module Core(
   always @(posedge clock) begin
     dt_ic_io_pc_REG <= fetch_io_if_to_id_pc; // @[Core.scala 53:25]
     dt_ic_io_instr_REG <= fetch_io_if_to_id_inst; // @[Core.scala 54:28]
-    dt_ic_io_skip_REG <= fetch_io_if_to_id_inst == 32'h7b | lsu_io_lsu_to_csr_is_clint; // @[Core.scala 55:69]
+    dt_ic_io_skip_REG <= fetch_io_if_to_id_inst == 32'h7b | lsu_io_lsu_to_csr_is_clint | 32'h73 == _dt_ic_io_skip_T_2; // @[Core.scala 55:99]
     dt_ic_io_wen_REG <= wb_io_rd_en; // @[Core.scala 61:26]
     dt_ic_io_wdata_REG <= wb_io_rd_data; // @[Core.scala 62:28]
     dt_ic_io_wdest_REG <= wb_io_rd_addr; // @[Core.scala 63:28]
