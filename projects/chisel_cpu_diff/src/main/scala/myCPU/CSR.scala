@@ -63,9 +63,9 @@ class CSR extends Module {
   when(mtime >= mtimecmp){
     mip := Cat(mip(63,8),1.U,mip(6,0)) 
   }
-  when(true.B){
-    mie := Cat(mie(63,8),mip(7),mie(6,0))
-  }
+  // when(true.B){
+  //   mie := Cat(mie(63,8),mip(7),mie(6,0))
+  // }
   
   val clint_out = WireInit(0.U(64.W))
 
@@ -156,7 +156,7 @@ class CSR extends Module {
       mcause := Cat(true.B,"d7".U(63.W))
       mstatus_i := Cat(mSD,mstatus(62,13),"b11".U(2.W),mstatus(10,8),mstatus(3),mstatus(6,4),0.U,mstatus(2,0))
       //mie := Cat(mie(63,8),1.U,mie(6,0))
-      mip := 0.U
+      //mip := 0.U
       mtime := 0.U
       mepc := id_pc
     }
