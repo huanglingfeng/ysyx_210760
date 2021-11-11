@@ -2574,7 +2574,7 @@ module Core(
   assign dt_ic_pc = dt_ic_io_pc_REG; // @[Core.scala 53:15]
   assign dt_ic_instr = dt_ic_io_instr_REG; // @[Core.scala 54:18]
   assign dt_ic_special = 8'h0;
-  assign dt_ic_skip = dt_ic_io_skip_REG | fetch_io_if_to_id_inst == 32'h7b & csr_io_cause == 32'hb; // @[Core.scala 55:136]
+  assign dt_ic_skip = dt_ic_io_skip_REG | fetch_io_if_to_id_inst == 32'h7b; // @[Core.scala 55:136]
   assign dt_ic_isRVC = 1'h0; // @[Core.scala 59:18]
   assign dt_ic_scFailed = 1'h0; // @[Core.scala 60:21]
   assign dt_ic_wen = dt_ic_io_wen_REG; // @[Core.scala 61:16]
