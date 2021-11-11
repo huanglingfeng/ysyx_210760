@@ -108,7 +108,7 @@ class CSR extends Module {
 
   val is_trap_begin = (csrop === CSR_ECALL) || clk_int
   val is_trap_end = (csrop === CSR_MRET)
-  io.csr_to_id.jump := is_trap_begin || is_trap_end
+  io.csr_to_id.csr_jump := is_trap_begin || is_trap_end
 
   val csr_target = WireInit(0.U(64.W))
   when(!is_trap_begin && !is_trap_end) {

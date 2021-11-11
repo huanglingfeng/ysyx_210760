@@ -67,7 +67,7 @@ class Core extends Module {
   dt_ae.io.coreid := 0.U
   dt_ae.io.intrNO := csr.io.intrNO
   dt_ae.io.cause := csr.io.cause
-  dt_ae.io.exceptionPC := decode.id_to_csr.id_pc
+  dt_ae.io.exceptionPC := decode.io.id_to_csr.id_pc
 
   val cycle_cnt = RegInit(0.U(64.W))
   val instr_cnt = RegInit(0.U(64.W))
