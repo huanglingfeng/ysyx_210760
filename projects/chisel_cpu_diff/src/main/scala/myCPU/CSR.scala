@@ -60,9 +60,7 @@ class CSR extends Module {
     mtime := mtime + 1.U
   }
   val mtimecmp = RegInit(UInt(64.W),"h3".U)
-  when(mtime >= mtimecmp){
-    mip := Cat(mip(63,8),1.U,mip(6,0)) 
-  }
+    mip := Cat(mip(63,8),mtime >= mtimecmp,mip(6,0)) 
   // when(true.B){
   //   mie := Cat(mie(63,8),mip(7),mie(6,0))
   // }
