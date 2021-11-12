@@ -51,12 +51,17 @@ class CSR extends Module {
   val mepc_o = WireInit(UInt(64.W), 0.U)
   val mcause_o = WireInit(UInt(64.W), 0.U)
   val mtvec_o = WireInit(UInt(64.W), 0.U)
+
+  val mstatus_o_i = WireInit(UInt(63.W), 0.U)
   val mstatus_o = WireInit(UInt(64.W), 0.U)
+  val mSD_o = WireInit(Bool(),false.B)
+
   val mscratch_o = WireInit(UInt(64.W), 0.U)
   val mie_o = WireInit(0.U(64.W))
   val mip_o = WireInit(0.U(64.W))
   val mcycle_o = WireInit(0.U(64.W))
 
+  val sstatus_o = WireInit(0.U(64.W))
   //-----------------Clint------------------------------------------------//
   val is_clint = io.csr_to_lsu.is_clint
   val is_mtime = io.csr_to_lsu.is_mtime
@@ -164,7 +169,11 @@ class CSR extends Module {
       mtvec_o := (mtvec & ~csr_mask) | (csr_data_i & csr_mask)
     }.elsewhen(csr_addr === MSTATUS_N) {
       mstatus_i := (mstatus(62,0) & ~csr_mask(62,0)) | (csr_data_i(62,0) & csr_mask(62,0))
-      mstatus_o := Cat(mSD,((mstatus(62,0) & ~csr_mask(62,0)) | (csr_data_i(62,0) & csr_mask(62,0))))
+
+      mstatus_o_i := (mstatus(62,0) & ~csr_mask(62,0)) | (csr_data_i(62,0) & csr_mask(62,0))
+      mSD_o := (mstatus_o_i(16,15) === "b11".U || mstatus_o_i(14,13) === "b11".U)
+      mstatus_o := Cat(mSD_o,mstatus_o_i)
+      sstatus_o := Cat(mSD_o,0.U(46.W),mstatus_o(16,15),mstatus_o(14,13),0.U(13.W))
     }.elsewhen(csr_addr === MIP_N) {
       mip := (mip & ~csr_mask) | (csr_data_i & csr_mask)
       mip_o := (mip & ~csr_mask) | (csr_data_i & csr_mask)
@@ -184,7 +193,12 @@ class CSR extends Module {
       mepc := id_pc
 
       mcause_o := Cat(false.B,"d11".U(63.W))
-      mstatus_o := Cat(mSD,mstatus(62,13),"b11".U(2.W),mstatus(10,8),mstatus(3),mstatus(6,4),0.U,mstatus(2,0))
+
+      mstatus_o_i := Cat(   mstatus(62,13),"b11".U(2.W),mstatus(10,8),mstatus(3),mstatus(6,4),0.U,mstatus(2,0))
+      mSD_o := (mstatus_o_i(16,15) === "b11".U || mstatus_o_i(14,13) === "b11".U)
+      mstatus_o := Cat(mSD_o,mstatus_o_i)
+      sstatus_o := Cat(mSD_o,0.U(46.W),mstatus_o(16,15),mstatus_o(14,13),0.U(13.W))
+
       mepc_o := id_pc
     }
     when(clk_int){
@@ -196,7 +210,12 @@ class CSR extends Module {
       mepc := id_pc
 
       mcause_o := Cat(true.B,"d7".U(63.W))
-      mstatus_o := Cat(mSD,mstatus(62,13),"b11".U(2.W),mstatus(10,8),mstatus(3),mstatus(6,4),0.U,mstatus(2,0))
+
+      mstatus_o_i := Cat(   mstatus(62,13),"b11".U(2.W),mstatus(10,8),mstatus(3),mstatus(6,4),0.U,mstatus(2,0))
+      mSD_o := (mstatus_o_i(16,15) === "b11".U || mstatus_o_i(14,13) === "b11".U)
+      mstatus_o := Cat(mSD_o,mstatus_o_i)
+      sstatus_o := Cat(mSD_o,0.U(46.W),mstatus_o(16,15),mstatus_o(14,13),0.U(13.W))
+
       mepc_o := id_pc
     }
     when(mtvec(1, 0) === 0.U) {
@@ -211,7 +230,12 @@ class CSR extends Module {
   }.elsewhen(is_trap_end) {
     when(csrop === CSR_MRET){
       mstatus_i := Cat(   mstatus(62,13),"b00".U(2.W),mstatus(10,8),1.U,mstatus(6,4),mstatus(7),mstatus(2,0))
-      mstatus_o := Cat(mSD,mstatus(62,13),"b00".U(2.W),mstatus(10,8),1.U,mstatus(6,4),mstatus(7),mstatus(2,0))
+
+      mstatus_o_i := Cat(   mstatus(62,13),"b00".U(2.W),mstatus(10,8),1.U,mstatus(6,4),mstatus(7),mstatus(2,0))
+      mSD_o := (mstatus_o_i(16,15) === "b11".U || mstatus_o_i(14,13) === "b11".U)
+      mstatus_o := Cat(mSD_o,mstatus_o_i)
+      sstatus_o := Cat(mSD_o,0.U(46.W),mstatus_o(16,15),mstatus_o(14,13),0.U(13.W))
+
       // mtime := 0.U
     }
     csr_target := mepc
