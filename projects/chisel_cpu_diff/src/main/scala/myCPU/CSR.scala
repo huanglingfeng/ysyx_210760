@@ -254,5 +254,5 @@ class CSR extends Module {
   io.mie := Mux(is_csrop && csr_addr === MIE_N,mie_o,mie)
   io.mscratch := Mux(is_csrop && csr_addr === MSCRATCH_N,mscratch_o,mscratch)
   val sstatus = Cat(mSD,0.U(46.W),mstatus(16,15),mstatus(14,13),0.U(13.W))
-  io.sstatus := sstatus
+  io.sstatus := Mux((is_csrop && csr_addr === MSTATUS_N) || is_trap_begin || is_trap_end,sstatus_o,sstatus)
 }
