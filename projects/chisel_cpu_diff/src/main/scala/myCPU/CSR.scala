@@ -210,7 +210,8 @@ class CSR extends Module {
     // }                                               
   }.elsewhen(is_trap_end) {
     when(csrop === CSR_MRET){
-      mstatus_i := Cat(mSD,mstatus(62,13),"b00".U(2.W),mstatus(10,8),1.U,mstatus(6,4),mstatus(7),mstatus(2,0))
+      mstatus_i := Cat(   mstatus(62,13),"b00".U(2.W),mstatus(10,8),1.U,mstatus(6,4),mstatus(7),mstatus(2,0))
+      mstatus_o := Cat(mSD,mstatus(62,13),"b00".U(2.W),mstatus(10,8),1.U,mstatus(6,4),mstatus(7),mstatus(2,0))
       // mtime := 0.U
     }
     csr_target := mepc
@@ -224,7 +225,7 @@ class CSR extends Module {
   io.mcause := Mux((is_csrop && csr_addr === MCAUSE_N) || is_trap_begin,mcause_o,mcause)
   io.mtvec := Mux(is_csrop && csr_addr === MTVEC_N,mtvec_o,mtvec)
   
-  io.mstatus := Mux((is_csrop && csr_addr === MSTATUS_N) || is_trap_begin,mstatus_o,mstatus)
+  io.mstatus := Mux((is_csrop && csr_addr === MSTATUS_N) || is_trap_begin || is_trap_end,mstatus_o,mstatus)
   io.mip := Mux(is_csrop && csr_addr === MIP_N,mip_o,mip)
   io.mie := Mux(is_csrop && csr_addr === MIE_N,mie_o,mie)
   io.mscratch := Mux(is_csrop && csr_addr === MSCRATCH_N,mscratch_o,mscratch)
