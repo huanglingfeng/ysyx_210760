@@ -120,8 +120,8 @@ class CSR extends Module {
 
   val intrNO = Mux(mcause(63) === true.B,mcause(31,0),0.U(32.W))
   val cause = Mux(mcause(63) === false.B,mcause(31,0),0.U(32.W))
-  io.intrNO := Mux(RegNext(is_trap_begin),intrNO,0.U)
-  io.cause := Mux(RegNext(is_trap_begin),cause,0.U)
+  io.intrNO := Mux((is_trap_begin),intrNO,0.U)
+  io.cause := Mux((is_trap_begin),cause,0.U)
 
   val csr_target = WireInit(0.U(64.W))
   val is_csrop = is_rw || is_rs || is_rc
