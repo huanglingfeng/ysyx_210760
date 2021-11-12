@@ -269,9 +269,9 @@ class Decode extends Module {
     ))
 
     io.id_to_ex.imm := imm
-    io.id_to_ex.rf_w := !save && !is_br //&& !csr_jump
-    io.id_to_ex.load := load //&& !csr_jump
-    io.id_to_ex.save := save //&& !csr_jump
+    io.id_to_ex.rf_w := !save && !is_br && !csr_jump
+    io.id_to_ex.load := load && !csr_jump
+    io.id_to_ex.save := save && !csr_jump
     
     io.id_to_if.jump := jump
     io.id_to_if.pc_target := pc_target
