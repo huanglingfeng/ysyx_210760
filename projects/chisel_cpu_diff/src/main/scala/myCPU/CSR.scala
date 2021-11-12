@@ -180,16 +180,24 @@ class CSR extends Module {
   when(is_trap_begin) {
     when(csrop === CSR_ECALL){
       mcause := Cat(false.B,"d11".U(63.W))
-      mstatus_i := Cat(mSD,mstatus(62,13),"b11".U(2.W),mstatus(10,8),mstatus(3),mstatus(6,4),0.U,mstatus(2,0))
+      mstatus_i := Cat(   mstatus(62,13),"b11".U(2.W),mstatus(10,8),mstatus(3),mstatus(6,4),0.U,mstatus(2,0))
       mepc := id_pc
+
+      mcause_o := Cat(false.B,"d11".U(63.W))
+      mstatus_o := Cat(mSD,mstatus(62,13),"b11".U(2.W),mstatus(10,8),mstatus(3),mstatus(6,4),0.U,mstatus(2,0))
+      mepc_o := id_pc
     }
     when(clk_int){
       mcause := Cat(true.B,"d7".U(63.W))
-      mstatus_i := Cat(mSD,mstatus(62,13),"b11".U(2.W),mstatus(10,8),mstatus(3),mstatus(6,4),0.U,mstatus(2,0))
+      mstatus_i := Cat(   mstatus(62,13),"b11".U(2.W),mstatus(10,8),mstatus(3),mstatus(6,4),0.U,mstatus(2,0))
       //mie := Cat(mie(63,8),1.U,mie(6,0))
       mip := 0.U
       // mtime := 0.U
       mepc := id_pc
+
+      mcause_o := Cat(true.B,"d7".U(63.W))
+      mstatus_o := Cat(mSD,mstatus(62,13),"b11".U(2.W),mstatus(10,8),mstatus(3),mstatus(6,4),0.U,mstatus(2,0))
+      mepc_o := id_pc
     }
     when(mtvec(1, 0) === 0.U) {
       csr_target := mtvec
@@ -197,9 +205,9 @@ class CSR extends Module {
       csr_target := (Cat(mtvec(63, 2), 0.U(2.W)) + Cat(0.U, mcause(62, 0)) << 2)
     }
 
-    when(mstatus(12,11) === "b11".U(2.W) && (csrop === CSR_ECALL)){
-      mcause := "h0000_0000_0000_000b".U(64.W)
-    }
+    // when(mstatus(12,11) === "b11".U(2.W) && (csrop === CSR_ECALL)){
+    //   mcause := "h0000_0000_0000_000b".U(64.W)                             //重复设计?
+    // }                                               
   }.elsewhen(is_trap_end) {
     when(csrop === CSR_MRET){
       mstatus_i := Cat(mSD,mstatus(62,13),"b00".U(2.W),mstatus(10,8),1.U,mstatus(6,4),mstatus(7),mstatus(2,0))
@@ -212,11 +220,11 @@ class CSR extends Module {
   io.csr_to_id.csr_target := csr_target
 
   io.mcycle := Mux(is_csrop && csr_addr === MCYCLE_N,mcycle_o,mcycle)
-  io.mepc := Mux(is_csrop && csr_addr === MEPC_N,mepc_o,mepc)
-  io.mcause := Mux(is_csrop && csr_addr === MCAUSE_N,mcause_o,mcause)
+  io.mepc := Mux((is_csrop && csr_addr === MEPC_N) || is_trap_begin,mepc_o,mepc)
+  io.mcause := Mux((is_csrop && csr_addr === MCAUSE_N) || is_trap_begin,mcause_o,mcause)
   io.mtvec := Mux(is_csrop && csr_addr === MTVEC_N,mtvec_o,mtvec)
   
-  io.mstatus := Mux(is_csrop && csr_addr === MSTATUS_N,mstatus_o,mstatus)
+  io.mstatus := Mux((is_csrop && csr_addr === MSTATUS_N) || is_trap_begin,mstatus_o,mstatus)
   io.mip := Mux(is_csrop && csr_addr === MIP_N,mip_o,mip)
   io.mie := Mux(is_csrop && csr_addr === MIE_N,mie_o,mie)
   io.mscratch := Mux(is_csrop && csr_addr === MSCRATCH_N,mscratch_o,mscratch)
