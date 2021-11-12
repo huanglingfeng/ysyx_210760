@@ -114,65 +114,38 @@ class CSR extends Module {
   io.cause := Mux(RegNext(is_trap_begin),cause,0.U)
 
   val csr_target = WireInit(0.U(64.W))
-
+  
     when(is_rw) {
       csr_res := csr_data_o
       csr_data_i := csr_src
       csr_mask := Mux(is_zero, 0.U, "hffff_ffff_ffff_ffff".U(64.W))
-
-      mcycle := Mux(csr_addr === MCYCLE_N,(mcycle & ~csr_mask) | (csr_data_i & csr_mask),mcycle)
-      mepc := Mux(csr_addr === MEPC_N,(mepc & ~csr_mask) | (csr_data_i & csr_mask),mepc)
-      mcause := Mux(csr_addr === MCAUSE_N,(mcause & ~csr_mask) | (csr_data_i & csr_mask),mcause)
-      mtvec := Mux(csr_addr === MTVEC_N,(mtvec & ~csr_mask) | (csr_data_i & csr_mask),mtvec)
-      mstatus_i := Mux(csr_addr === MSTATUS_N,Cat(mSD,((mstatus(62,0) & ~csr_mask(62,0)) | (csr_data_i(62,0) & csr_mask(62,0)))),mstatus_i)
-      mip := Mux(csr_addr === MIP_N,(mip & ~csr_mask) | (csr_data_i & csr_mask),mip)
-      mie := Mux(csr_addr === MIE_N,(mie & ~csr_mask) | (csr_data_i & csr_mask),mie)
-      mscratch := Mux(csr_addr === MSCRATCH_N,(mscratch & ~csr_mask) | (csr_data_i & csr_mask),mscratch)
     }.elsewhen(is_rs) {
       csr_res := csr_data_o
       csr_data_i := csr_src
       csr_mask := Mux(is_zero, 0.U, csr_src)
-
-      mcycle := Mux(csr_addr === MCYCLE_N,(mcycle & ~csr_mask) | (csr_data_i & csr_mask),mcycle)
-      mepc := Mux(csr_addr === MEPC_N,(mepc & ~csr_mask) | (csr_data_i & csr_mask),mepc)
-      mcause := Mux(csr_addr === MCAUSE_N,(mcause & ~csr_mask) | (csr_data_i & csr_mask),mcause)
-      mtvec := Mux(csr_addr === MTVEC_N,(mtvec & ~csr_mask) | (csr_data_i & csr_mask),mtvec)
-      mstatus_i := Mux(csr_addr === MSTATUS_N,Cat(mSD,((mstatus(62,0) & ~csr_mask(62,0)) | (csr_data_i(62,0) & csr_mask(62,0)))),mstatus_i)
-      mip := Mux(csr_addr === MIP_N,(mip & ~csr_mask) | (csr_data_i & csr_mask),mip)
-      mie := Mux(csr_addr === MIE_N,(mie & ~csr_mask) | (csr_data_i & csr_mask),mie)
-      mscratch := Mux(csr_addr === MSCRATCH_N,(mscratch & ~csr_mask) | (csr_data_i & csr_mask),mscratch)
     }.elsewhen(is_rc) {
       csr_res := csr_data_o
       csr_data_i := ~csr_src
       csr_mask := Mux(is_zero, 0.U, csr_src)
-
-      mcycle := Mux(csr_addr === MCYCLE_N,(mcycle & ~csr_mask) | (csr_data_i & csr_mask),mcycle)
-      mepc := Mux(csr_addr === MEPC_N,(mepc & ~csr_mask) | (csr_data_i & csr_mask),mepc)
-      mcause := Mux(csr_addr === MCAUSE_N, (mcause & ~csr_mask) | (csr_data_i & csr_mask),mcause)
-      mtvec := Mux(csr_addr === MTVEC_N,(mtvec & ~csr_mask) | (csr_data_i & csr_mask),mtvec)
-      mstatus_i := Mux(csr_addr === MSTATUS_N,Cat(mSD,((mstatus(62,0) & ~csr_mask(62,0)) | (csr_data_i(62,0) & csr_mask(62,0)))),mstatus_i)
-      mip := Mux(csr_addr === MIP_N,(mip & ~csr_mask) | (csr_data_i & csr_mask),mip)
-      mie := Mux(csr_addr === MIE_N,(mie & ~csr_mask) | (csr_data_i & csr_mask),mie)
-      mscratch := Mux(csr_addr === MSCRATCH_N,(mscratch & ~csr_mask) | (csr_data_i & csr_mask),mscratch)
     }
 
-    // when(csr_addr === MCYCLE_N) {
-    //   mcycle := (mcycle & ~csr_mask) | (csr_data_i & csr_mask)
-    // }.elsewhen(csr_addr === MEPC_N) {
-    //   mepc := (mepc & ~csr_mask) | (csr_data_i & csr_mask)
-    // }.elsewhen(csr_addr === MCAUSE_N) {
-    //   mcause := (mcause & ~csr_mask) | (csr_data_i & csr_mask)
-    // }.elsewhen(csr_addr === MTVEC_N) {
-    //   mtvec := (mtvec & ~csr_mask) | (csr_data_i & csr_mask)
-    // }.elsewhen(csr_addr === MSTATUS_N) {
-    //   mstatus_i := Cat(mSD,((mstatus(62,0) & ~csr_mask(62,0)) | (csr_data_i(62,0) & csr_mask(62,0))))
-    // }.elsewhen(csr_addr === MIP_N) {
-    //   mip := (mip & ~csr_mask) | (csr_data_i & csr_mask)
-    // }.elsewhen(csr_addr === MIE_N) {
-    //   mie := (mie & ~csr_mask) | (csr_data_i & csr_mask)
-    // }.elsewhen(csr_addr === MSCRATCH_N){
-    //   mscratch := (mscratch & ~csr_mask) | (csr_data_i & csr_mask)
-    // }
+    when(csr_addr === MCYCLE_N) {
+      mcycle := (mcycle & ~csr_mask) | (csr_data_i & csr_mask)
+    }.elsewhen(csr_addr === MEPC_N) {
+      mepc := (mepc & ~csr_mask) | (csr_data_i & csr_mask)
+    }.elsewhen(csr_addr === MCAUSE_N) {
+      mcause := (mcause & ~csr_mask) | (csr_data_i & csr_mask)
+    }.elsewhen(csr_addr === MTVEC_N) {
+      mtvec := (mtvec & ~csr_mask) | (csr_data_i & csr_mask)
+    }.elsewhen(csr_addr === MSTATUS_N) {
+      mstatus_i := Cat(mSD,((mstatus(62,0) & ~csr_mask(62,0)) | (csr_data_i(62,0) & csr_mask(62,0))))
+    }.elsewhen(csr_addr === MIP_N) {
+      mip := (mip & ~csr_mask) | (csr_data_i & csr_mask)
+    }.elsewhen(csr_addr === MIE_N) {
+      mie := (mie & ~csr_mask) | (csr_data_i & csr_mask)
+    }.elsewhen(csr_addr === MSCRATCH_N){
+      mscratch := (mscratch & ~csr_mask) | (csr_data_i & csr_mask)
+    }
 
   when(is_trap_begin) {
     when(csrop === CSR_ECALL){
@@ -197,8 +170,6 @@ class CSR extends Module {
     when(mstatus(12,11) === "b11".U(2.W) && (csrop === CSR_ECALL)){
       mcause := "h0000_0000_0000_000b".U(64.W)
     }
-
-    
   }.elsewhen(is_trap_end) {
     when(csrop === CSR_MRET){
       mstatus_i := Cat(mSD,mstatus(62,13),"b00".U(2.W),mstatus(10,8),1.U,mstatus(6,4),mstatus(7),mstatus(2,0))
