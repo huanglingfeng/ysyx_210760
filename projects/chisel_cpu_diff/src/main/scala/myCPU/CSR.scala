@@ -91,7 +91,7 @@ class CSR extends Module {
     }
   }
   io.csr_to_lsu.rdata := clint_out
-  val clk_int = false.B   //(mip(7) === true.B)
+  val clk_int = (mip(7) === true.B)
   //------------------------------------------------------------//
 
   val csr_data_o = Mux1H(
