@@ -192,7 +192,7 @@ class CSR extends Module {
       mstatus_i := Cat(   mstatus(62,13),"b11".U(2.W),mstatus(10,8),mstatus(3),mstatus(6,4),0.U,mstatus(2,0))
       //mie := Cat(mie(63,8),1.U,mie(6,0))
       mip := 0.U
-      mtime := "h900".U
+      mtime := "h9f0".U
       mepc := id_pc
 
       mcause_o := Cat(true.B,"d7".U(63.W))
