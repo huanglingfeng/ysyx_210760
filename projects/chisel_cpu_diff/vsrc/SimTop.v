@@ -2051,7 +2051,7 @@ module CSR(
       mtime <= 64'h0; // @[CSR.scala 68:22]
     end else if (is_trap_begin) begin // @[CSR.scala 180:23]
       if (clk_int) begin // @[CSR.scala 190:18]
-        mtime <= 64'h9f0; // @[CSR.scala 195:13]
+        mtime <= 64'h970; // @[CSR.scala 195:13]
       end else begin
         mtime <= _GEN_12;
       end
