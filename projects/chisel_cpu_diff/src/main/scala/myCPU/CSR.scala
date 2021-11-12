@@ -236,7 +236,7 @@ class CSR extends Module {
       mstatus_o := Cat(mSD_o,mstatus_o_i)
       sstatus_o := Cat(mSD_o,0.U(46.W),mstatus_o(16,15),mstatus_o(14,13),0.U(13.W))
 
-      // mtime := 0.U
+      mtime := 0.U
     }
     csr_target := mepc
   }
