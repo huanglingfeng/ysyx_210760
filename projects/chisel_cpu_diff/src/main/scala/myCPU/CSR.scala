@@ -47,7 +47,17 @@ class CSR extends Module {
   val mie = RegInit(0.U(64.W))
   val mip = RegInit(0.U(64.W))
 
-  //-----------------Clint-------------------------------------//
+  //----------------为了配合nemu的csr相关指令行为加上的wire型csr输出----------//
+  val mepc_o = WireInit(UInt(64.W), 0.U)
+  val mcause_o = WireInit(UInt(64.W), 0.U)
+  val mtvec_o = WireInit(UInt(64.W), 0.U)
+  val mstatus_o = WireInit(UInt(64.W), 0.U)
+  val mscratch_o = WireInit(UInt(64.W), 0.U)
+  val mie_o = WireInit(0.U(64.W))
+  val mip_o = WireInit(0.U(64.W))
+  val mcycle_o = WireInit(0.U(64.W))
+
+  //-----------------Clint------------------------------------------------//
   val is_clint = io.csr_to_lsu.is_clint
   val is_mtime = io.csr_to_lsu.is_mtime
   val is_mtimecmp = io.csr_to_lsu.is_mtimecmp
@@ -114,7 +124,8 @@ class CSR extends Module {
   io.cause := Mux(RegNext(is_trap_begin),cause,0.U)
 
   val csr_target = WireInit(0.U(64.W))
-  
+  val is_csrop = is_rw || is_rs || is_rc
+  when(is_csrop){
     when(is_rw) {
       csr_res := csr_data_o
       csr_data_i := csr_src
@@ -131,21 +142,30 @@ class CSR extends Module {
 
     when(csr_addr === MCYCLE_N) {
       mcycle := (mcycle & ~csr_mask) | (csr_data_i & csr_mask)
+      mcycle_o := (mcycle & ~csr_mask) | (csr_data_i & csr_mask)
     }.elsewhen(csr_addr === MEPC_N) {
       mepc := (mepc & ~csr_mask) | (csr_data_i & csr_mask)
+      mepc_o := (mepc & ~csr_mask) | (csr_data_i & csr_mask)
     }.elsewhen(csr_addr === MCAUSE_N) {
       mcause := (mcause & ~csr_mask) | (csr_data_i & csr_mask)
+      mcause_o := (mcause & ~csr_mask) | (csr_data_i & csr_mask)
     }.elsewhen(csr_addr === MTVEC_N) {
       mtvec := (mtvec & ~csr_mask) | (csr_data_i & csr_mask)
+      mtvec_o := (mtvec & ~csr_mask) | (csr_data_i & csr_mask)
     }.elsewhen(csr_addr === MSTATUS_N) {
-      mstatus_i := Cat(mSD,((mstatus(62,0) & ~csr_mask(62,0)) | (csr_data_i(62,0) & csr_mask(62,0))))
+      mstatus_i := (mstatus(62,0) & ~csr_mask(62,0)) | (csr_data_i(62,0) & csr_mask(62,0))
+      mstatus_o := Cat(mSD,((mstatus(62,0) & ~csr_mask(62,0)) | (csr_data_i(62,0) & csr_mask(62,0))))
     }.elsewhen(csr_addr === MIP_N) {
       mip := (mip & ~csr_mask) | (csr_data_i & csr_mask)
+      mip_o := (mip & ~csr_mask) | (csr_data_i & csr_mask)
     }.elsewhen(csr_addr === MIE_N) {
       mie := (mie & ~csr_mask) | (csr_data_i & csr_mask)
+      mie_o := (mie & ~csr_mask) | (csr_data_i & csr_mask)
     }.elsewhen(csr_addr === MSCRATCH_N){
       mscratch := (mscratch & ~csr_mask) | (csr_data_i & csr_mask)
+      mscratch_o := (mscratch & ~csr_mask) | (csr_data_i & csr_mask)
     }
+  }
 
   when(is_trap_begin) {
     when(csrop === CSR_ECALL){
@@ -181,15 +201,15 @@ class CSR extends Module {
   io.csr_to_id.csr_res := csr_res
   io.csr_to_id.csr_target := csr_target
 
-  io.mcycle := mcycle
-  io.mepc := mepc
-  io.mcause := mcause
-  io.mtvec := mtvec
+  io.mcycle := Mux(is_csrop,mcycle_o,mcycle)
+  io.mepc := Mux(is_csrop,mepc_o,mepc)
+  io.mcause := Mux(is_csrop,mcause_o,mcause)
+  io.mtvec := Mux(is_csrop,mtvec_o,mtvec)
   
-  io.mstatus := mstatus
-  io.mip := mip
-  io.mie := mie
-  io.mscratch := mscratch
+  io.mstatus := Mux(is_csrop,mstatus_o,mstatus)
+  io.mip := Mux(is_csrop,mip_o,mip)
+  io.mie := Mux(is_csrop,mie_o,mie)
+  io.mscratch := Mux(is_csrop,mscratch_o,mscratch)
   val sstatus = Cat(mSD,0.U(46.W),mstatus(16,15),mstatus(14,13),0.U(13.W))
   io.sstatus := sstatus
 }
