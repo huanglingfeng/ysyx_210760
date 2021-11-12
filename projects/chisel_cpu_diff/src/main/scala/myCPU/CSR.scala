@@ -201,15 +201,15 @@ class CSR extends Module {
   io.csr_to_id.csr_res := csr_res
   io.csr_to_id.csr_target := csr_target
 
-  io.mcycle := Mux(is_csrop,mcycle_o,mcycle)
-  io.mepc := Mux(is_csrop,mepc_o,mepc)
-  io.mcause := Mux(is_csrop,mcause_o,mcause)
-  io.mtvec := Mux(is_csrop,mtvec_o,mtvec)
+  io.mcycle := Mux(is_csrop && csr_addr === MCYCLE_N,mcycle_o,mcycle)
+  io.mepc := Mux(is_csrop && csr_addr === MEPC_N,mepc_o,mepc)
+  io.mcause := Mux(is_csrop && csr_addr === MCAUSE_N,mcause_o,mcause)
+  io.mtvec := Mux(is_csrop && csr_addr === MTVEC_N,mtvec_o,mtvec)
   
-  io.mstatus := Mux(is_csrop,mstatus_o,mstatus)
-  io.mip := Mux(is_csrop,mip_o,mip)
-  io.mie := Mux(is_csrop,mie_o,mie)
-  io.mscratch := Mux(is_csrop,mscratch_o,mscratch)
+  io.mstatus := Mux(is_csrop && csr_addr === MSTATUS_N,mstatus_o,mstatus)
+  io.mip := Mux(is_csrop && csr_addr === MIP_N,mip_o,mip)
+  io.mie := Mux(is_csrop && csr_addr === MIE_N,mie_o,mie)
+  io.mscratch := Mux(is_csrop && csr_addr === MSCRATCH_N,mscratch_o,mscratch)
   val sstatus = Cat(mSD,0.U(46.W),mstatus(16,15),mstatus(14,13),0.U(13.W))
   io.sstatus := sstatus
 }
