@@ -2058,7 +2058,7 @@ module CSR(
       mtime <= _mtime_T_1;
     end
     if (reset) begin // @[CSR.scala 72:25]
-      mtimecmp <= 64'hbff; // @[CSR.scala 72:25]
+      mtimecmp <= 64'h1bff; // @[CSR.scala 72:25]
     end else if (io_csr_to_lsu_is_clint) begin // @[CSR.scala 82:17]
       if (!(io_csr_to_lsu_load)) begin // @[CSR.scala 83:15]
         if (io_csr_to_lsu_save) begin // @[CSR.scala 85:21]
