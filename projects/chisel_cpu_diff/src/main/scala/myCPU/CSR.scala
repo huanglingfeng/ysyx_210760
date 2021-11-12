@@ -118,10 +118,20 @@ class CSR extends Module {
   val is_trap_end = (csrop === CSR_MRET)
   io.csr_to_id.csr_jump := is_trap_begin || is_trap_end
 
-  val intrNO = Mux(mcause(63) === true.B,mcause(31,0),0.U(32.W))
-  val cause = Mux(mcause(63) === false.B,mcause(31,0),0.U(32.W))
-  io.intrNO := Mux((is_trap_begin),intrNO,0.U)
-  io.cause := Mux((is_trap_begin),cause,0.U)
+  val intrNO = Mux1H(
+    Seq(
+      !clk_int -> 0.U,
+      clk_int ->"h7".U(32.W)
+    )
+  )
+  val cause = Mux1H(
+    Seq(
+      !(csrop === CSR_ECALL) -> 0.U,
+      (csrop === CSR_ECALL) -> "hb".U(32.W)
+    )
+  )
+  io.intrNO := intrNO
+  io.cause := cause
 
   val csr_target = WireInit(0.U(64.W))
   val is_csrop = is_rw || is_rs || is_rc
