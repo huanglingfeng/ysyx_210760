@@ -131,7 +131,7 @@ class CSR extends Module {
     )
   )
   io.intrNO := intrNO
-  io.cause := RegNext(cause)
+  io.cause := cause
 
   val csr_target = WireInit(0.U(64.W))
   val is_csrop = is_rw || is_rs || is_rc
