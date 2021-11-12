@@ -1743,6 +1743,7 @@ module CSR(
   reg [63:0] _RAND_7;
   reg [63:0] _RAND_8;
   reg [63:0] _RAND_9;
+  reg [31:0] _RAND_10;
 `endif // RANDOMIZE_REG_INIT
   reg [63:0] mcycle; // @[CSR.scala 33:23]
   wire [63:0] _mcycle_T_1 = mcycle + 64'h1; // @[CSR.scala 35:22]
@@ -1793,6 +1794,7 @@ module CSR(
   wire  is_rc = io_csr_to_id_csrop == 8'h3 | io_csr_to_id_csrop == 8'h6; // @[CSR.scala 114:33]
   wire  is_trap_begin = io_csr_to_id_csrop == 8'h7; // @[CSR.scala 117:30]
   wire  is_trap_end = io_csr_to_id_csrop == 8'h8; // @[CSR.scala 118:28]
+  reg [31:0] io_cause_REG; // @[CSR.scala 134:22]
   wire  is_csrop = is_rw | is_rs | is_rc; // @[CSR.scala 137:33]
   wire [63:0] _csr_mask_T = io_csr_to_id_is_zero ? 64'h0 : 64'hffffffffffffffff; // @[CSR.scala 142:22]
   wire [63:0] _csr_mask_T_1 = io_csr_to_id_is_zero ? 64'h0 : io_csr_to_id_src1; // @[CSR.scala 146:22]
@@ -1932,7 +1934,7 @@ module CSR(
   assign io_mie = is_csrop & _csr_data_o_T_7 ? mie_o : mie; // @[CSR.scala 221:16]
   assign io_mscratch = is_csrop & _T_8 ? mscratch_o : mscratch; // @[CSR.scala 222:21]
   assign io_sstatus = {sstatus_hi,sstatus_lo}; // @[Cat.scala 30:58]
-  assign io_cause = is_trap_begin ? 32'hb : 32'h0; // @[Mux.scala 27:72]
+  assign io_cause = io_cause_REG; // @[CSR.scala 134:12]
   always @(posedge clock) begin
     if (reset) begin // @[CSR.scala 33:23]
       mcycle <= 64'h0; // @[CSR.scala 33:23]
@@ -2034,6 +2036,11 @@ module CSR(
         end
       end
     end
+    if (is_trap_begin) begin // @[Mux.scala 27:72]
+      io_cause_REG <= 32'hb;
+    end else begin
+      io_cause_REG <= 32'h0;
+    end
   end
 // Register and memory initialization
 `ifdef RANDOMIZE_GARBAGE_ASSIGN
@@ -2091,6 +2098,8 @@ initial begin
   mtime = _RAND_8[63:0];
   _RAND_9 = {2{`RANDOM}};
   mtimecmp = _RAND_9[63:0];
+  _RAND_10 = {1{`RANDOM}};
+  io_cause_REG = _RAND_10[31:0];
 `endif // RANDOMIZE_REG_INIT
   `endif // RANDOMIZE
 end // initial
