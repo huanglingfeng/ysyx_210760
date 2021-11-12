@@ -2086,7 +2086,7 @@ module CSR(
       mtime <= 64'h0; // @[CSR.scala 73:22]
     end else if (is_trap_begin) begin // @[CSR.scala 189:23]
       if (clk_int) begin // @[CSR.scala 204:18]
-        mtime <= 64'h970; // @[CSR.scala 209:13]
+        mtime <= 64'h0; // @[CSR.scala 209:13]
       end else begin
         mtime <= _GEN_12;
       end
@@ -2094,7 +2094,7 @@ module CSR(
       mtime <= _GEN_12;
     end
     if (reset) begin // @[CSR.scala 77:25]
-      mtimecmp <= 64'h9fff; // @[CSR.scala 77:25]
+      mtimecmp <= 64'hfff; // @[CSR.scala 77:25]
     end else if (io_csr_to_lsu_is_clint) begin // @[CSR.scala 87:17]
       if (!(io_csr_to_lsu_load)) begin // @[CSR.scala 88:15]
         if (io_csr_to_lsu_save) begin // @[CSR.scala 90:21]

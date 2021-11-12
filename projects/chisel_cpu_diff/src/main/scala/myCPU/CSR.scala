@@ -74,7 +74,7 @@ class CSR extends Module {
   when(true.B) {
     mtime := mtime + 1.U
   }
-  val mtimecmp = RegInit(UInt(64.W),"h9fff".U)
+  val mtimecmp = RegInit(UInt(64.W),"hfff".U)
   when(mtime >= mtimecmp){
     mip := Cat(mip(63,8),1.U,mip(6,0)) 
   }
@@ -206,7 +206,7 @@ class CSR extends Module {
       mstatus_i := Cat(   mstatus(62,13),"b11".U(2.W),mstatus(10,8),mstatus(3),mstatus(6,4),0.U,mstatus(2,0))
       //mie := Cat(mie(63,8),1.U,mie(6,0))
       mip := 0.U
-      mtime := "h970".U
+      mtime := "h0".U
       mepc := id_pc
 
       mcause_o := Cat(true.B,"d7".U(63.W))
