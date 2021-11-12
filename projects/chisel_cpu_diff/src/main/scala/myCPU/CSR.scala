@@ -114,7 +114,7 @@ class CSR extends Module {
   io.cause := Mux(RegNext(is_trap_begin),cause,0.U)
 
   val csr_target = WireInit(0.U(64.W))
-  when(!is_trap_begin && !is_trap_end) {
+  
     when(is_rw) {
       csr_res := csr_data_o
       csr_data_i := csr_src
@@ -146,7 +146,8 @@ class CSR extends Module {
     }.elsewhen(csr_addr === MSCRATCH_N){
       mscratch := (mscratch & ~csr_mask) | (csr_data_i & csr_mask)
     }
-  }.elsewhen(is_trap_begin) {
+
+  when(is_trap_begin) {
     when(csrop === CSR_ECALL){
       mcause := Cat(false.B,"d11".U(63.W))
       mstatus_i := Cat(mSD,mstatus(62,13),"b11".U(2.W),mstatus(10,8),mstatus(3),mstatus(6,4),0.U,mstatus(2,0))
