@@ -52,7 +52,8 @@ class Core extends Module {
   dt_ic.io.valid := true.B
   dt_ic.io.pc := RegNext(fetch.io.if_to_id.pc)
   dt_ic.io.instr := RegNext(fetch.io.if_to_id.inst)
-  dt_ic.io.skip := RegNext(fetch.io.if_to_id.inst === "h0000007b".U || lsu.io.lsu_to_csr.is_clint || fetch.io.if_to_id.inst === ECALL)
+  dt_ic.io.skip := RegNext(fetch.io.if_to_id.inst === "h0000007b".U || lsu.io.lsu_to_csr.is_clint || fetch.io.if_to_id.inst === ECALL
+  || csr.io.csr_to_id.csr_addr === MCYCLE_N)
   // || fetch.io.if_to_id.inst === CSRRW 
   // || fetch.io.if_to_id.inst === CSRRS || fetch.io.if_to_id.inst === CSRRC || fetch.io.if_to_id.inst === CSRRWI
   // || fetch.io.if_to_id.inst === CSRRSI || fetch.io.if_to_id.inst === CSRRCI)
