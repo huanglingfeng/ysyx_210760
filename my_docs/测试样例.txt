@@ -7,4 +7,6 @@
 查看波形
 ./build.sh -e chisel_cpu_diff -d -w
 
+./build.sh -e chisel_cpu_diff -d -b -s -a "-i custom-output/yield-test/amtest-yield-test.bin" -m "EMU_TRACE=1"
+./build.sh -e chisel_cpu_diff -d -b -s -a "-i custom-output/interrupt-test/amtest-interrupt-test.bin" -m "EMU_TRACE=1"
 ./build.sh -e chisel_cpu_diff -d -b -s -a "-i custom-output/rt-thread/rtthread.bin" -m "EMU_TRACE=1"
