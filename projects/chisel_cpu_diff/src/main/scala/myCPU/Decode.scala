@@ -260,13 +260,13 @@ class Decode extends Module {
         (bge &&  (rs1_data.asSInt() >= rs2_data.asSInt())) ||
         (bgeu && (rs1_data.asUInt() >= rs2_data.asUInt()))
     )
-    val pc_target = Mux1H(Seq(
+    val pc_target = Mux(csr_jump,csr_target,
+      Mux1H(Seq(
       is_jal -> jal_target,
       is_jalr -> jalr_target,
-      csr_jump -> csr_target,
       is_br -> br_target,
       (is_br && !jump) -> "h8000_0000".U(64.W) 
-    ))
+    )))
 
     io.id_to_ex.imm := imm
     io.id_to_ex.rf_w := !save && !is_br && !csr_jump
