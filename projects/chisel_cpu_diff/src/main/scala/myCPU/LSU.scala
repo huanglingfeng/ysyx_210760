@@ -2,26 +2,13 @@ import chisel3._
 import chisel3.util._
 import Consts._
 
-class LSU_TO_WB_BUS extends Bundle {
-  val lsu_res = Output(UInt(64.W))
-
-  val dest = Output(UInt(5.W))
-  val rf_w = Output(Bool())
-}
-
-class LSU_TO_CSR_BUS extends Bundle{
-  val is_clint = Output(Bool())
-  val is_mtime = Output(Bool())
-  val is_mtimecmp = Output(Bool())
-  val load = Output(Bool())
-  val save = Output(Bool())
-  val wdata = Output(UInt(64.W))
-
-  val rdata = Input(UInt(64.W))
-}
-
 class LSU extends Module {
   val io = IO(new Bundle {
+    val wb_valid = Input(Bool())
+    val ls_valid = Input(Bool())
+    val ls_allowin = Output(Bool())
+    val ls_to_wb_valid = Output(Bool())
+
     val ex_to_lsu = Flipped(new EX_TO_LSU_BUS)
     val lsu_to_wb = new LSU_TO_WB_BUS
     
@@ -29,6 +16,19 @@ class LSU extends Module {
 
     val dmem = new RamIO
   })
+  //------------流水线控制逻辑------------------------------//
+  val ls_valid = io.ls_valid
+  val ls_ready_go = true.B
+  val ls_allowin = Wire(Bool())
+  val ls_to_wb_valid = Wire(Bool())
+
+  ls_allowin := !ls_valid || (ls_ready_go && io.wb_allowin)
+  ls_to_wb_valid := ls_valid && ls_ready_go
+
+  io.ls_allowin := ls_allowin
+  io.ls_to_wb_valid := ls_to_wb_valid
+
+  //-------------------------------------------------------//
 
   val alu_res = io.ex_to_lsu.alu_res
   val src1 = io.ex_to_lsu.src1

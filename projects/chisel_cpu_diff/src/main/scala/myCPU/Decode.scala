@@ -3,43 +3,13 @@ import chisel3.util._
 import Instructions._
 import Consts._
 
-class ID_TO_IF_BUS extends Bundle{
-  val pc_target=Output(UInt(64.W))
-  val jump = Output(Bool())
-}
-class ID_TO_EX_BUS extends Bundle{
-  val aluop = Output(UInt(11.W))
-  val lsuop = Output(UInt(8.W))
-  val rv64op = Output(UInt(12.W))
-  
-  val is_csr = Output(Bool())
-  val csr_res = Output(UInt(64.W))
-  
-  val out1  = Output(UInt(64.W))
-  val out2  = Output(UInt(64.W))
-
-  val imm = Output(UInt(64.W))
-  
-  val dest  = Output(UInt(5.W))
-  val rf_w  = Output(Bool())
-  val load = Output(Bool())
-  val save = Output(Bool())
-
-}
-class ID_TO_CSR_BUS extends Bundle{
-  val csrop = Output(UInt(SEL_CSR_WIDTH.W))
-  val csr_addr = Output(UInt(12.W))
-  val src1 = Output(UInt(64.W))
-  val is_zero = Output(Bool())
-  val id_pc = Output(UInt(64.W))
-  
-  val csr_res = Input(UInt(64.W))
-
-  val csr_jump = Input(Bool())
-  val csr_target = Input(UInt(64.W))
-}
 class Decode extends Module {
   val io = IO(new Bundle {
+    val es_valid = Input(Bool())
+    val ds_valid = Input(Bool())
+    val ds_allowin = Output(Bool())
+    val ds_to_es_valid = Output(Bool())
+
     val if_to_id=Flipped(new IF_TO_ID_BUS)
     val id_to_ex=new ID_TO_EX_BUS
     val id_to_if= new ID_TO_IF_BUS
@@ -52,6 +22,20 @@ class Decode extends Module {
     val rs2_data = Input(UInt(64.W))
 
   })
+
+  //------------流水线控制逻辑------------------------------//
+  val ds_valid = io.ds_valid
+  val ds_ready_go = true.B
+  val ds_allowin = Wire(Bool())
+  val ds_to_es_valid = Wire(Bool())
+
+  ds_allowin := !ds_valid || (ds_ready_go && io.es_allowin)
+  ds_to_es_valid := ds_valid && ds_ready_go
+
+  io.ds_allowin := ds_allowin
+  io.ds_to_es_valid := ds_to_es_valid
+
+  //-------------------------------------------------------//
 
   val inst   = io.if_to_id.inst
   val pc     = io.if_to_id.pc

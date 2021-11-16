@@ -2,31 +2,31 @@ import chisel3._
 import chisel3.util._
 import Consts._
 
-class EX_TO_LSU_BUS extends Bundle {
-  val is_csr = Output(Bool())
-  val csr_res = Output(UInt(64.W))
-
-  val alu_res = Output(UInt(64.W))
-
-  val src1 = Output(UInt(64.W))
-  val src2 = Output(UInt(64.W))
-  val imm = Output(UInt(64.W))
-
-  val lsuop = Output(UInt(8.W))
-  val rv64op = Output(UInt(12.W))
-  val dest = Output(UInt(5.W))
-  val rf_w = Output(Bool())
-  val load = Output(Bool())
-  val save = Output(Bool())
-}
-
 class Execution extends Module {
   val io = IO(new Bundle {
+    val ls_valid = Input(Bool())
+    val es_valid = Input(Bool())
+    val es_allowin = Output(Bool())
+    val es_to_ls_valid = Output(Bool())
 
     val id_to_ex = Flipped(new ID_TO_EX_BUS)
     val ex_to_lsu = new EX_TO_LSU_BUS
 
   })
+
+  //------------流水线控制逻辑------------------------------//
+  val es_valid = io.es_valid
+  val es_ready_go = true.B
+  val es_allowin = Wire(Bool())
+  val es_to_ls_valid = Wire(Bool())
+
+  es_allowin := !es_valid || (es_ready_go && io.ls_allowin)
+  es_to_ls_valid := es_valid && es_ready_go
+
+  io.es_allowin := es_allowin
+  io.ds_to_es_valid := ds_to_es_valid
+
+  //-------------------------------------------------------//
   val aluop = io.id_to_ex.aluop
   val rv64op = io.id_to_ex.rv64op
   val src1_64 = io.id_to_ex.out1

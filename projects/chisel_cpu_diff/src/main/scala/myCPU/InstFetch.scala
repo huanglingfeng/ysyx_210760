@@ -1,16 +1,32 @@
 import chisel3._
 import chisel3.util._
-class IF_TO_ID_BUS extends Bundle {
-  val pc = Output(UInt(64.W))
-  val inst = Output(UInt(32.W))
-}
+
 class InstFetch extends Module {
   val io = IO(new Bundle {
+    val ds_allowin = Input(Bool())
+    val fs_to_ds_valid = Output(Bool())
+
     val imem = new RomIO
     val if_to_id = new IF_TO_ID_BUS
     val id_to_if = Flipped(new ID_TO_IF_BUS)
   })
 
+  //------------流水线控制逻辑------------------------------//
+  val to_fs_valid = WireInit(false.B)
+  when(true.B){
+    to_fs_valid := true.B
+  }
+  val fs_ready_go = true.B
+
+  val fs_allowin = Wire(Bool())
+  val fs_valid = RegEnable(to_fs_valid,true.B,fs_allowin)
+  val fs_to_ds_valid = Wire(Bool())
+
+  fs_allowin := !fs_valid || (fs_ready_go && io.ds_allowin)
+  fs_to_ds_valid := fs_valid && fs_ready_go
+  io.fs_to_ds_valid := fs_to_ds_valid
+
+  //-------------------------------------------------------//
   val pc_en = RegInit(false.B)
   pc_en := true.B
 
