@@ -8,6 +8,8 @@ class WB extends Module {
 
     val lsu_to_wb = Flipped(new LSU_TO_WB_BUS)
 
+    val wb_fwd = new WB_TO_ID_BUS
+
     val rd_addr = Output(UInt(5.W))
     val rd_data = Output(UInt(64.W))
     val rd_en = Output(Bool())
@@ -23,7 +25,14 @@ class WB extends Module {
 
   //-------------------------------------------------------//
 
-  io.rd_addr := Mux(wb_valid,io.lsu_to_wb.dest,0.U)
-  io.rd_data := io.lsu_to_wb.lsu_res
-  io.rd_en := Mux(wb_valid,io.lsu_to_wb.rf_w,false.B)
+  val rd_addr := Mux(wb_valid,io.lsu_to_wb.dest,0.U)
+  io.rd_addr := rd_addr
+  val rd_data := io.lsu_to_wb.lsu_res
+  io.rd_data := rd_data
+  val rd_en := Mux(wb_valid,io.lsu_to_wb.rf_w,false.B)
+  io.rd_en := rd_en
+
+  io.wb_fwd.rf_w := rd_en
+  io.wb_fwd.dst := rd_addr
+  io.wb_fwd.wb_res := rd_data
 }

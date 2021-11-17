@@ -4,7 +4,7 @@ import Consts._
 
 class Execution extends Module {
   val io = IO(new Bundle {
-    val ls_valid = Input(Bool())
+    val ls_allowin = Input(Bool())
     val es_valid = Input(Bool())
     val es_allowin = Output(Bool())
     val es_to_ls_valid = Output(Bool())
@@ -171,7 +171,9 @@ class Execution extends Module {
 
   io.ex_to_lsu.alu_res := alu_res
 
-  ex_fwd.rf_w := 
+  io.ex_fwd.rf_w := rf_w
+  io.ex_fwd.dst := dest
+  io.ex_fwd.alu_res := Mux(io.id_to_ex.is_csr,io.id_to_ex.csr_res,alu_res)
 
 }
 

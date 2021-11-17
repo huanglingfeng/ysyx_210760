@@ -1,7 +1,7 @@
 import chisel3._
 import chisel3.util._
 
-class er extends Module {
+class ER extends Module {
   val io = IO(new Bundle {
     val ds_to_es_valid = Input(Bool())
     val es_valid = Output(Bool())

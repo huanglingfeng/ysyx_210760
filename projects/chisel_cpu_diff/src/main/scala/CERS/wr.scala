@@ -1,7 +1,7 @@
 import chisel3._
 import chisel3.util._
 
-class wr extends Module {
+class WR extends Module {
   val io = IO(new Bundle {
     val ls_to_ws_valid = Input(Bool())
     val ws_valid = Output(Bool())

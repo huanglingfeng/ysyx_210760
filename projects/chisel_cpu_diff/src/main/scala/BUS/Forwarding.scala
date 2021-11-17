@@ -14,7 +14,7 @@ class LSU_TO_ID_BUS extends Bundle{
 }
 
 class WB_TO_ID_BUS extends Bundle{
-    val rd_en = Output(Bool())
-    val rd_addr = Output(UInt(5.W))
-    val rd_data = Output(UInt(64.W))
+    val rf_w = Output(Bool())
+    val dst = Output(UInt(5.W))
+    val wb_res = Output(UInt(64.W))
 }

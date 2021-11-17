@@ -5,7 +5,7 @@ import Consts._
 
 class Decode extends Module {
   val io = IO(new Bundle {
-    val es_valid = Input(Bool())
+    val es_allowin = Input(Bool())
     val ds_valid = Input(Bool())
     val ds_allowin = Output(Bool())
     val ds_to_es_valid = Output(Bool())
@@ -20,6 +20,10 @@ class Decode extends Module {
     val rs1_data = Input(UInt(64.W))
     val rs2_addr = Output(UInt(5.W))
     val rs2_data = Input(UInt(64.W))
+
+    val fwd_ex = Flipped(new EX_TO_ID_BUS)
+    val fwd_lsu = Flipped(new LSU_TO_ID_BUS)
+    val fwd_wb = Flipped(new WB_TO_ID_BUS)
 
   })
 
@@ -143,8 +147,11 @@ class Decode extends Module {
     val is_putch = Wire(Bool())
     is_putch := (inst === PUTCH)
 
-    io.rs1_addr := Mux(is_putch,"d10".U,rs1)
-    io.rs2_addr := rs2
+    val rs1_addr := Mux(is_putch,"d10".U,rs1)
+    io.rs1_addr := rs1_addr
+    val rs2_addr := rs2
+    io.rs2_addr := rs2_addr
+
     val rs1_en = true.B
     val rs2_en = true.B
 
@@ -162,8 +169,34 @@ class Decode extends Module {
       id_imm(5) -> imm_4
     ))
 
-    val rs1_data = Mux(rs1_en,io.rs1_data,0.U)
-    val rs2_data = Mux(rs2_en,io.rs2_data,0.U)
+    val eq1_e = (io.fwd_ex.dst  === rs1_addr)
+    val eq1_l = (io.fwd_lsu.dst === rs1_addr)
+    val eq1_w = (io.fwd_wb.dst  === rs1_addr)
+
+    val eq2_e = (io.fwd_ex.dst  === rs2_addr)
+    val eq2_l = (io.fwd_lsu.dst === rs2_addr)
+    val eq2_w = (io.fwd_wb.dst  === rs2_addr)
+
+    val rs1_data = Mux1H(
+      Seq(
+        (!rs1_en && (!eq1_e && !eq1_l && !eq1_w)) -> 0.U(64.W),
+        eq1_e   -> io.fwd_ex.alu_res,
+        (eq1_l && !eq1_e) -> io.fwd_lsu.lsu_res,
+        (eq1_w && !eq1_l && !eq1_e) -> io.fwd_wb.wb_res,
+        (rs1_en && (!eq1_e && !eq1_l && !eq1_w)) -> rs1_data
+      )
+    )
+
+    val rs2_data = Mux1H(
+      Seq(
+        (!rs2_en && (!eq2_e && !eq2_l && !eq2_w)) -> 0.U(64.W),
+        eq2_e   -> io.fwd_ex.alu_res,
+        (eq2_l && !eq2_e) -> io.fwd_lsu.lsu_res,
+        (eq2_w && !eq2_l && !eq2_e) -> io.fwd_wb.wb_res,
+        (rs2_en && (!eq2_e && !eq2_l && !eq2_w)) -> rs2_data
+      )
+    )
+    
     
     io.id_to_ex.out1 := Mux1H(Seq(
       (id_out1 === 0.U) -> 0.U,

@@ -4,7 +4,7 @@ import Consts._
 
 class LSU extends Module {
   val io = IO(new Bundle {
-    val wb_valid = Input(Bool())
+    val wb_allowin = Input(Bool())
     val ls_valid = Input(Bool())
     val ls_allowin = Output(Bool())
     val ls_to_wb_valid = Output(Bool())
@@ -13,6 +13,8 @@ class LSU extends Module {
     val lsu_to_wb = new LSU_TO_WB_BUS
     
     val lsu_to_csr = new LSU_TO_CSR_BUS
+
+    val lsu_fwd = new LSU_TO_ID_BUS
 
     val dmem = new RamIO
   })
@@ -164,9 +166,17 @@ class LSU extends Module {
     )
   )
 
-  io.lsu_to_wb.lsu_res := Mux(is_csr,csr_res,Mux(is_clint,clint_rdata,lsu_res))
-  io.lsu_to_wb.dest := Mux(save, 0.U, io.ex_to_lsu.dest)
-  io.lsu_to_wb.rf_w := Mux(save, false.B, io.ex_to_lsu.rf_w)
+  val lsu_res_final := Mux(is_csr,csr_res,Mux(is_clint,clint_rdata,lsu_res))
+  io.lsu_to_wb.lsu_res := lsu_res_final
+
+  val dest := Mux(save, 0.U, io.ex_to_lsu.dest)
+  io.lsu_to_wb.dest := dest
+  val rf_w := Mux(save, false.B, io.ex_to_lsu.rf_w)
+  io.lsu_to_wb.rf_w := rf_w
+
+  io.lsu_fwd.rf_w := rf_w
+  io.lsu_fwd.dst := dest
+  io.lsu_fwd.lsu_res := lsu_res_final
 
   //--------------lsu <> clint----------------------------//
   io.lsu_to_csr.is_clint := is_clint

@@ -1,7 +1,7 @@
 import chisel3._
 import chisel3.util._
 
-class lsr extends Module {
+class LSR extends Module {
   val io = IO(new Bundle {
     val es_to_ls_valid = Input(Bool())
     val ls_valid = Output(Bool())

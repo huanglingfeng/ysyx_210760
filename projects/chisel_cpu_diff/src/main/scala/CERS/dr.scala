@@ -1,7 +1,7 @@
 import chisel3._
 import chisel3.util._
 
-class dr extends Module {
+class DR extends Module {
   val io = IO(new Bundle {
     val fs_to_ds_valid = Input(Bool())
     val ds_valid = Output(Bool())
