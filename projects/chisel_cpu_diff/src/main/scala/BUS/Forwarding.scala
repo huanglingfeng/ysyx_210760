@@ -1,7 +1,7 @@
 import chisel3._
 import chisel3.util._
 
-class EXU_TO_ID_BUS extends Bundle{
+class EX_TO_ID_BUS extends Bundle{
     val rf_w = Output(Bool())
     val dst = Output(UInt(5.W))
     val alu_res = Output(UInt(64.W))

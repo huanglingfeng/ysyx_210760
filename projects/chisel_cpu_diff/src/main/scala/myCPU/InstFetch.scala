@@ -12,10 +12,8 @@ class InstFetch extends Module {
   })
 
   //------------流水线控制逻辑------------------------------//
-  val to_fs_valid = WireInit(false.B)
-  when(true.B){
-    to_fs_valid := true.B
-  }
+  val to_fs_valid = ~(Module.reset).asBool()
+
   val fs_ready_go = true.B
 
   val fs_allowin = Wire(Bool())

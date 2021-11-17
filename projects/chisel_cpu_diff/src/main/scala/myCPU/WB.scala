@@ -23,7 +23,7 @@ class WB extends Module {
 
   //-------------------------------------------------------//
 
-  io.rd_addr := io.lsu_to_wb.dest
+  io.rd_addr := Mux(wb_valid,io.lsu_to_wb.dest,0.U)
   io.rd_data := io.lsu_to_wb.lsu_res
-  io.rd_en := io.lsu_to_wb.rf_w
+  io.rd_en := Mux(wb_valid,io.lsu_to_wb.rf_w,false.B)
 }

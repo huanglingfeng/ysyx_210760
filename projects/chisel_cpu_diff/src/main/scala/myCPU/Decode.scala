@@ -236,14 +236,14 @@ class Decode extends Module {
     val bltu = bruop(6)
     val bgeu = bruop(7)
 
-    val jump = (is_jal || is_jalr || csr_jump) || (
+    val jump = ((is_jal || is_jalr || csr_jump) || (
         (bne &&  (rs1_data =/= rs2_data)) ||
         (beq &&  (rs1_data === rs2_data)) ||
         (blt &&  (rs1_data.asSInt() < rs2_data.asSInt())) ||
         (bltu && (rs1_data.asUInt() < rs2_data.asUInt())) ||
         (bge &&  (rs1_data.asSInt() >= rs2_data.asSInt())) ||
         (bgeu && (rs1_data.asUInt() >= rs2_data.asUInt()))
-    )
+    )) && ds_valid
     val pc_target = Mux(csr_jump,csr_target,
       Mux1H(Seq(
       is_jal -> jal_target,
@@ -282,9 +282,9 @@ class Decode extends Module {
     ))
     io.id_to_csr.csrop := csrop
     io.id_to_csr.src1 := Mux(is_zimm,Cat(Fill(59,0.U),rs1(4,0)),rs1_data)
-    io.id_to_csr.csr_addr := Mux(is_csr,inst(31,20),0.U)
+    io.id_to_csr.csr_addr := Mux(is_csr && ds_valid,inst(31,20),0.U)
     io.id_to_csr.is_zero := ((rs1 === 0.U) || !is_csr)
 
-    io.id_to_ex.is_csr := (optype === OPTYPE_CSR)
+    io.id_to_ex.is_csr := is_csr
     io.id_to_ex.csr_res := io.id_to_csr.csr_res
 }

@@ -36,8 +36,8 @@ class LSU extends Module {
   val imm = io.ex_to_lsu.imm
   val lsuop = io.ex_to_lsu.lsuop
   val rv64op = io.ex_to_lsu.rv64op
-  val load = io.ex_to_lsu.load
-  val save = io.ex_to_lsu.save
+  val load = Mux(ls_valid,io.ex_to_lsu.load,false.B)
+  val save = Mux(ls_valid,io.ex_to_lsu.save,false.B)
   
   val is_csr = io.ex_to_lsu.is_csr
   val csr_res = io.ex_to_lsu.csr_res

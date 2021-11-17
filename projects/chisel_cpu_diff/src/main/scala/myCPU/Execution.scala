@@ -11,6 +11,8 @@ class Execution extends Module {
 
     val id_to_ex = Flipped(new ID_TO_EX_BUS)
     val ex_to_lsu = new EX_TO_LSU_BUS
+    
+    val ex_fwd = new EX_TO_ID_BUS
 
   })
 
@@ -35,8 +37,11 @@ class Execution extends Module {
 
   io.ex_to_lsu.lsuop := io.id_to_ex.lsuop
   io.ex_to_lsu.rv64op := io.id_to_ex.rv64op
-  io.ex_to_lsu.dest := io.id_to_ex.dest
-  io.ex_to_lsu.rf_w := io.id_to_ex.rf_w
+  val dest := io.id_to_ex.dest
+  io.ex_to_lsu.dest := dest
+  val rf_w := io.id_to_ex.rf_w
+  io.ex_to_lsu.rf_w := rf_w
+
   io.ex_to_lsu.load := io.id_to_ex.load
   io.ex_to_lsu.save := io.id_to_ex.save
 
@@ -165,6 +170,8 @@ class Execution extends Module {
     Mux(is_w, Cat(Fill(32, alu_res_32(31)), alu_res_32(31,0)), alu_res_64)
 
   io.ex_to_lsu.alu_res := alu_res
+
+  ex_fwd.rf_w := 
 
 }
 
