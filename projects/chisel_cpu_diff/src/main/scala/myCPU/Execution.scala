@@ -37,9 +37,9 @@ class Execution extends Module {
 
   io.ex_to_lsu.lsuop := io.id_to_ex.lsuop
   io.ex_to_lsu.rv64op := io.id_to_ex.rv64op
-  val dest := io.id_to_ex.dest
+  val dest = io.id_to_ex.dest
   io.ex_to_lsu.dest := dest
-  val rf_w := io.id_to_ex.rf_w
+  val rf_w = io.id_to_ex.rf_w
   io.ex_to_lsu.rf_w := rf_w
 
   io.ex_to_lsu.load := io.id_to_ex.load

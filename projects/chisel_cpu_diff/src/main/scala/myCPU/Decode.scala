@@ -147,9 +147,9 @@ class Decode extends Module {
     val is_putch = Wire(Bool())
     is_putch := (inst === PUTCH)
 
-    val rs1_addr := Mux(is_putch,"d10".U,rs1)
+    val rs1_addr = Mux(is_putch, "d10".U ,rs1)
     io.rs1_addr := rs1_addr
-    val rs2_addr := rs2
+    val rs2_addr = rs2
     io.rs2_addr := rs2_addr
 
     val rs1_en = true.B

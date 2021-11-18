@@ -25,11 +25,11 @@ class WB extends Module {
 
   //-------------------------------------------------------//
 
-  val rd_addr := Mux(wb_valid,io.lsu_to_wb.dest,0.U)
+  val rd_addr = Mux(wb_valid,io.lsu_to_wb.dest,0.U)
   io.rd_addr := rd_addr
-  val rd_data := io.lsu_to_wb.lsu_res
+  val rd_data = io.lsu_to_wb.lsu_res
   io.rd_data := rd_data
-  val rd_en := Mux(wb_valid,io.lsu_to_wb.rf_w,false.B)
+  val rd_en = Mux(wb_valid,io.lsu_to_wb.rf_w,false.B)
   io.rd_en := rd_en
 
   io.wb_fwd.rf_w := rd_en

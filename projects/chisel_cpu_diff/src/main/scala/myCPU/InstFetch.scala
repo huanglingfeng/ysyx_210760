@@ -1,5 +1,6 @@
 import chisel3._
 import chisel3.util._
+import Instructions._
 
 class InstFetch extends Module {
   val io = IO(new Bundle {
@@ -29,11 +30,20 @@ class InstFetch extends Module {
   pc_en := true.B
 
   val pc = RegInit("h0000_0000_7FFF_FFFC".U(64.W))
-  pc := Mux(io.id_to_if.jump, io.id_to_if.pc_target, pc + 4.U)
+  val jump = io.id_to_if.jump
+  pc := Mux(jump, io.id_to_if.pc_target, pc + 4.U)
 
   io.imem.en := true.B
   io.imem.addr := pc.asUInt()
 
   io.if_to_id.pc := Mux(pc_en, pc, 0.U)
-  io.if_to_id.inst := Mux(pc_en, io.imem.rdata(31, 0), 0.U)
+  // io.if_to_id.inst := Mux(pc_en, io.imem.rdata(31, 0), 0.U)
+  
+  io.if_to_id.inst := Mux1H(
+    Seq(
+      !pc_en -> 0.U,
+      (pc_en && jump) -> NOP,
+      (pc_en && !jump) -> io.imem.rdata(31, 0)
+    )
+  )
 }
