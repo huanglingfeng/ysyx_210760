@@ -1,6 +1,7 @@
 import chisel3._
 import chisel3.util._
-
+import Instructions._
+import Consts._
 //IFU
 class IF_TO_ID_BUS extends Bundle {
   val pc = Output(UInt(64.W))

@@ -17,11 +17,11 @@ class Core extends Module {
   val decode = Module(new Decode)
 
   // fetch.io.if_to_id <> decode.io.if_to_id
-  // decode.io.id_to_if <> fetch.io.id_to_if
+  decode.io.id_to_if <> fetch.io.id_to_if
   val er = Module(new ER)
   val ex = Module(new Execution)
   // decode.io.id_to_ex <> ex.io.id_to_ex
-  val lsr = Module(new LSR)
+  val lr = Module(new LR)
   val lsu = Module(new LSU)
   // ex.io.ex_to_lsu <> lsu.io.ex_to_lsu
   lsu.io.dmem <> io.dmem
@@ -45,6 +45,20 @@ class Core extends Module {
   val csr = Module(new CSR)
   decode.io.id_to_csr <> csr.io.csr_to_id
   lsu.io.lsu_to_csr <> csr.io.csr_to_lsu
+
+  /*-----------流水线总线连接---------------*/
+  fetch.io.if_to_id <> dr.io.if_to_dr
+  dr.io.dr_to_id <> decode.io.if_to_id
+
+  decode.io.id_to_ex <> er.io.id_to_er
+  er.io.er_to_ex <> ex.io.id_to_ex
+
+  ex.io.ex_to_lsu <> lr.io.ex_to_lr
+  lr.io.lr_to_lsu <> lsu.io.ex_to_lsu
+
+  lsu.io.lsu_to_wb <> wr.io.lsu_to_wr
+  wr.io.wr_to_wb <> wb.io.lsu_to_wb
+
   /*----------流水线控制逻辑-------------------*/
   fetch.io.ds_allowin := decode.io.ds_allowin
   dr.io.fs_to_ds_valid := fetch.io.fs_to_ds_valid
@@ -62,7 +76,7 @@ class Core extends Module {
   lsu.io.ls_valid := lr.io.ls_valid
 
   lsu.io.ws_allowin := wb.io.ws_allowin
-  wr.io.es_to_ws_valid := lsu.io.es_to_ws_valid
+  wr.io.ls_to_ws_valid := lsu.io.ls_to_ws_valid
   wr.io.ws_allowin := wb.io.ws_allowin
   wb.io.ws_valid := wr.io.ws_valid
 

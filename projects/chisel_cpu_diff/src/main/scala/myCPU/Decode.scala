@@ -183,7 +183,7 @@ class Decode extends Module {
         eq1_e   -> io.fwd_ex.alu_res,
         (eq1_l && !eq1_e) -> io.fwd_lsu.lsu_res,
         (eq1_w && !eq1_l && !eq1_e) -> io.fwd_wb.wb_res,
-        (rs1_en && (!eq1_e && !eq1_l && !eq1_w)) -> rs1_data
+        (rs1_en && (!eq1_e && !eq1_l && !eq1_w)) -> io.rs1_data
       )
     )
 
@@ -193,7 +193,7 @@ class Decode extends Module {
         eq2_e   -> io.fwd_ex.alu_res,
         (eq2_l && !eq2_e) -> io.fwd_lsu.lsu_res,
         (eq2_w && !eq2_l && !eq2_e) -> io.fwd_wb.wb_res,
-        (rs2_en && (!eq2_e && !eq2_l && !eq2_w)) -> rs2_data
+        (rs2_en && (!eq2_e && !eq2_l && !eq2_w)) -> io.rs2_data
       )
     )
     

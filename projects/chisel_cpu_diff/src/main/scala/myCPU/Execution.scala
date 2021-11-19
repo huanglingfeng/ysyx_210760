@@ -26,8 +26,8 @@ class Execution extends Module {
   es_to_ls_valid := es_valid && es_ready_go
 
   io.es_allowin := es_allowin
-  io.ds_to_es_valid := ds_to_es_valid
-
+  io.es_to_ls_valid := es_to_ls_valid
+  
   //-------------------------------------------------------//
   val aluop = io.id_to_ex.aluop
   val rv64op = io.id_to_ex.rv64op

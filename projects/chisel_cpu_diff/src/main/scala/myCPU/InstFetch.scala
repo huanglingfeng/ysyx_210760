@@ -1,6 +1,7 @@
 import chisel3._
 import chisel3.util._
 import Instructions._
+import Consts._
 
 class InstFetch extends Module {
   val io = IO(new Bundle {
@@ -38,7 +39,7 @@ class InstFetch extends Module {
 
   io.if_to_id.pc := Mux(pc_en, pc, 0.U)
   // io.if_to_id.inst := Mux(pc_en, io.imem.rdata(31, 0), 0.U)
-  
+
   io.if_to_id.inst := Mux1H(
     Seq(
       !pc_en -> 0.U,
