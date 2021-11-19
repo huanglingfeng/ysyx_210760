@@ -95,7 +95,7 @@ class Core extends Module {
   dt_ic.io.instr := RegNext(RegNext(RegNext(RegNext(RegNext(fetch.io.if_to_id.inst)))))
   dt_ic.io.skip := RegNext(RegNext(RegNext(RegNext(
     RegNext(fetch.io.if_to_id.inst === "h0000007b".U || lsu.io.lsu_to_csr.is_clint || fetch.io.if_to_id.inst === ECALL
-    || csr.io.csr_to_id.csr_addr === MCYCLE_N) || decode.io.id_to_if.jump
+    || csr.io.csr_to_id.csr_addr === MCYCLE_N) || RegNext(decode.io.id_to_if.jump)
     ))))
   // || fetch.io.if_to_id.inst === CSRRW 
   // || fetch.io.if_to_id.inst === CSRRS || fetch.io.if_to_id.inst === CSRRC || fetch.io.if_to_id.inst === CSRRWI
