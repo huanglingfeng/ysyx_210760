@@ -90,18 +90,12 @@ class Core extends Module {
   dt_ic.io.clock := clock
   dt_ic.io.coreid := 0.U
   dt_ic.io.index := 0.U
-  dt_ic.io.valid := RegNext(RegNext(RegNext(RegNext(
-    (! RegNext(decode.io.id_to_if.jump))
-  ))))
-  dt_ic.io.pc := RegNext(RegNext(RegNext(RegNext(RegNext(fetch.io.if_to_id.pc)))))
-  dt_ic.io.instr := RegNext(RegNext(RegNext(RegNext(RegNext(fetch.io.if_to_id.inst)))))
-  dt_ic.io.skip := RegNext(RegNext(RegNext(RegNext(
-    RegNext(fetch.io.if_to_id.inst === "h0000007b".U || lsu.io.lsu_to_csr.is_clint || fetch.io.if_to_id.inst === ECALL
-    || csr.io.csr_to_id.csr_addr === MCYCLE_N)
-    ))))
-  // || fetch.io.if_to_id.inst === CSRRW 
-  // || fetch.io.if_to_id.inst === CSRRS || fetch.io.if_to_id.inst === CSRRC || fetch.io.if_to_id.inst === CSRRWI
-  // || fetch.io.if_to_id.inst === CSRRSI || fetch.io.if_to_id.inst === CSRRCI)
+  dt_ic.io.valid := true.B
+  dt_ic.io.pc := RegNext(wb.io.pc)
+  dt_ic.io.instr := RegNext(wb.io.inst)
+  dt_ic.io.skip := RegNext(wb.io.inst === "h0000007b".U || RegNext(lsu.io.lsu_to_csr.is_clint) || wb.io.inst === ECALL
+    || RegNext(RegNext(RegNext(csr.io.csr_to_id.csr_addr === MCYCLE_N)))
+    )
   dt_ic.io.isRVC := false.B
   dt_ic.io.scFailed := false.B
   dt_ic.io.wen := RegNext(wb.io.rd_en)
@@ -113,7 +107,7 @@ class Core extends Module {
   dt_ae.io.coreid := 0.U
   dt_ae.io.intrNO := RegNext(csr.io.intrNO)
   dt_ae.io.cause := RegNext(csr.io.cause)
-  dt_ae.io.exceptionPC := RegNext(decode.io.id_to_csr.id_pc)
+  dt_ae.io.exceptionPC := RegNext(wb.io.pc)
 
   val cycle_cnt = RegInit(0.U(64.W))
   val instr_cnt = RegInit(0.U(64.W))

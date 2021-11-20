@@ -5,6 +5,7 @@ object Consts {
 //----------------------Decode consts---------------------//
   val Y = true.B
   val N = false.B
+  val NOP = "b000000000000_00000_000_00000_0010011".U(64.W) //伪指令,addi x0,x0,0
 
   val SEL_ID_OUT1_WIDTH = 2
   val OUT1_X = "b00".U(SEL_ID_OUT1_WIDTH.W)

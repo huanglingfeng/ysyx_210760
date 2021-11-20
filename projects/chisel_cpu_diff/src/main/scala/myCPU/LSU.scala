@@ -17,7 +17,12 @@ class LSU extends Module {
     val lsu_fwd = new LSU_TO_ID_BUS
 
     val dmem = new RamIO
+
+    val flush = Input(Bool())
+    
   })
+  val pc = io.ex_to_lsu.pc
+  val inst = Mux(io.flush,NOP,io.ex_to_lsu.inst)
   //------------流水线控制逻辑------------------------------//
   val ls_valid = io.ls_valid
   val ls_ready_go = true.B
@@ -38,11 +43,8 @@ class LSU extends Module {
   val imm = io.ex_to_lsu.imm
   val lsuop = io.ex_to_lsu.lsuop
   val rv64op = io.ex_to_lsu.rv64op
-  val load = Mux(ls_valid,io.ex_to_lsu.load,false.B)
-  val save = Mux(ls_valid,io.ex_to_lsu.save,false.B)
-  
-  val is_csr = io.ex_to_lsu.is_csr
-  val csr_res = io.ex_to_lsu.csr_res
+  val load = Mux(ls_valid && (inst != NOP),io.ex_to_lsu.load,false.B)
+  val save = Mux(ls_valid && (inst != NOP),io.ex_to_lsu.save,false.B)
 
   val i_lb = lsuop(0)
   val i_lh = lsuop(1)
@@ -166,7 +168,7 @@ class LSU extends Module {
     )
   )
 
-  val lsu_res_final = Mux(is_csr,csr_res,Mux(is_clint,clint_rdata,lsu_res))
+  val lsu_res_final = Mux(is_clint,clint_rdata,lsu_res)
   io.lsu_to_wb.lsu_res := lsu_res_final
 
   val dest = Mux(save, 0.U, io.ex_to_lsu.dest)
@@ -174,9 +176,11 @@ class LSU extends Module {
   val rf_w = Mux(save, false.B, io.ex_to_lsu.rf_w)
   io.lsu_to_wb.rf_w := rf_w
 
+  val is_csr = io.ex_to_lsu.is_csr
   io.lsu_fwd.rf_w := rf_w
   io.lsu_fwd.dst := dest
   io.lsu_fwd.lsu_res := lsu_res_final
+  io.lsu_fwd.is_csr := is_csr
 
   //--------------lsu <> clint----------------------------//
   io.lsu_to_csr.is_clint := is_clint
@@ -185,4 +189,13 @@ class LSU extends Module {
   io.lsu_to_csr.load := load
   io.lsu_to_csr.save := save
   io.lsu_to_csr.wdata := clint_wdata
+
+  io.lsu_to_wb.pc := pc
+  io.lsu_to_wb.inst := inst
+
+  io.lsu_to_wb.is_csr := is_csr
+  io.lsu_to_wb.csrop := io.ex_to_lsu.csrop
+  io.lsu_to_wb.csr_addr := io.ex_to_lsu.csr_addr
+  io.lsu_to_wb.src1 := io.ex_to_lsu.src1
+  io.lsu_to_wb.is_zero := io.ex_to_lsu.is_zero
 }

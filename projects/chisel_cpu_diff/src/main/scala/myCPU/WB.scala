@@ -7,13 +7,21 @@ class WB extends Module {
     val ws_allowin = Output(Bool())
 
     val lsu_to_wb = Flipped(new LSU_TO_WB_BUS)
+    val wb_to_csr = new WB_TO_CSR_BUS
 
     val wb_fwd = new WB_TO_ID_BUS
 
     val rd_addr = Output(UInt(5.W))
     val rd_data = Output(UInt(64.W))
     val rd_en = Output(Bool())
+
+    val pc = Output(UInt(64.W))
+    val inst = Output(UInt(32.W))
   })
+  val pc = io.lsu_to_wb.pc
+  val inst = io.lsu_to_wb.inst
+  val is_csr = io.lsu_to_wb.is_csr
+
   //------------流水线控制逻辑------------------------------//
   val ws_valid = io.ws_valid
   val wb_ready_go = true.B
@@ -24,15 +32,25 @@ class WB extends Module {
   io.ws_allowin := ws_allowin
 
   //-------------------------------------------------------//
+  val csr_res = io.wb_to_csr.csr_res
 
-  val rd_addr = Mux(ws_valid,io.lsu_to_wb.dest,0.U)
+  val rd_addr = Mux(ws_valid &&(inst != NOP),io.lsu_to_wb.dest,0.U)
   io.rd_addr := rd_addr
-  val rd_data = io.lsu_to_wb.lsu_res
+  val rd_data = Mux(is_csr,csr_res,io.lsu_to_wb.lsu_res)
   io.rd_data := rd_data
-  val rd_en = Mux(ws_valid,io.lsu_to_wb.rf_w,false.B)
+  val rd_en = Mux(ws_valid && (inst != NOP),io.lsu_to_wb.rf_w,false.B)
   io.rd_en := rd_en
 
   io.wb_fwd.rf_w := rd_en
   io.wb_fwd.dst := rd_addr
   io.wb_fwd.wb_res := rd_data
+
+  io.pc := pc
+  io.inst := inst
+
+  
+  io.wb_to_csr.csrop := io.lsu_to_wb.csrop
+  io.wb_to_csr.csr_addr := io.lsu_to_wb.csr_addr
+  io.wb_to_csr.src1 := io.lsu_to_wb.src1
+  io.wb_to_csr.is_zero := io.lsu_to_wb.is_zero
 }

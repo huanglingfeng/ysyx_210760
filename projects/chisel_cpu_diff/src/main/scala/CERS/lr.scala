@@ -1,5 +1,7 @@
 import chisel3._
 import chisel3.util._
+import Instructions._
+import Consts._
 
 class LR extends Module {
   val io = IO(new Bundle {
@@ -30,4 +32,11 @@ class LR extends Module {
   io.lr_to_lsu.load := RegEnable(io.ex_to_lr.load, false.B ,judg)
   io.lr_to_lsu.save := RegEnable(io.ex_to_lr.save, false.B ,judg)
 
+  io.lr_to_lsu.pc := RegEnable(io.ex_to_lr.pc, 0.U ,judg)
+  io.lr_to_lsu.inst := RegEnable(io.ex_to_lr.inst, 0.U ,judg)
+
+  io.lr_to_lsu.csrop := RegEnable(io.ex_to_lr.csrop, 0.U ,judg)
+  io.lr_to_lsu.csr_addr := RegEnable(io.ex_to_lr.csr_addr, 0.U ,judg)
+  io.lr_to_lsu.src1 := RegEnable(io.ex_to_lr.src1, 0.U ,judg)
+  io.lr_to_lsu.is_zero := RegEnable(io.ex_to_lr.is_zero, false.B ,judg)
 }

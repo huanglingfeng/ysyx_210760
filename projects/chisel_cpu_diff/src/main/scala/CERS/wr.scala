@@ -1,5 +1,7 @@
 import chisel3._
 import chisel3.util._
+import Instructions._
+import Consts._
 
 class WR extends Module {
   val io = IO(new Bundle {
@@ -18,4 +20,13 @@ class WR extends Module {
 
   io.wr_to_wb.dest := RegEnable(io.lsu_to_wr.dest, 0.U ,judg)
   io.wr_to_wb.rf_w := RegEnable(io.lsu_to_wr.rf_w, false.B ,judg)
+
+  io.wr_to_wb.pc := RegEnable(io.lsu_to_wr.pc, 0.U ,judg)
+  io.wr_to_wb.inst := RegEnable(io.lsu_to_wr.inst, 0.U ,judg)
+
+  io.wr_to_wb.is_csr := RegEnable(io.lsu_to_wr.is_csr, false.B ,judg)
+  io.wr_to_wb.csrop := RegEnable(io.lsu_to_wr.csrop, 0.U ,judg)
+  io.wr_to_wb.csr_addr := RegEnable(io.lsu_to_wr.csr_addr, 0.U ,judg)
+  io.wr_to_wb.src1 := RegEnable(io.lsu_to_wr.src1, 0.U ,judg)
+  io.wr_to_wb.is_zero := RegEnable(io.lsu_to_wr.is_zero, false.B ,judg)
 }

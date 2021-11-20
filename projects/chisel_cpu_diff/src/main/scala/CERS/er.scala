@@ -1,5 +1,7 @@
 import chisel3._
 import chisel3.util._
+import Instructions._
+import Consts._
 
 class ER extends Module {
   val io = IO(new Bundle {
@@ -9,6 +11,7 @@ class ER extends Module {
 
     val id_to_er = Flipped(new ID_TO_EX_BUS)
     val er_to_ex = (new ID_TO_EX_BUS)
+
   })
   
   val judg = io.ds_to_es_valid && io.es_allowin
@@ -30,5 +33,14 @@ class ER extends Module {
   io.er_to_ex.rf_w := RegEnable(io.id_to_er.rf_w, false.B ,judg)
   io.er_to_ex.load := RegEnable(io.id_to_er.load, false.B ,judg)
   io.er_to_ex.save := RegEnable(io.id_to_er.save, false.B ,judg)
+
+  io.er_to_ex.pc := RegEnable(io.id_to_er.pc, 0.U ,judg)
+  io.er_to_ex.inst := RegEnable(io.id_to_er.inst, 0.U ,judg)
+
+  io.er_to_ex.csrop := RegEnable(io.id_to_er.csrop, 0.U ,judg)
+  io.er_to_ex.csr_addr := RegEnable(io.id_to_er.csr_addr, 0.U ,judg)
+  io.er_to_ex.src1 := RegEnable(io.id_to_er.src1, 0.U ,judg)
+  io.er_to_ex.is_zero := RegEnable(io.id_to_er.is_zero, false.B ,judg)
+  io.er_to_ex.id_pc := RegEnable(io.id_to_er.id_pc, 0.U ,judg)
 
 }

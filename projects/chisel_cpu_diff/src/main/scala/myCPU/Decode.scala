@@ -14,7 +14,7 @@ class Decode extends Module {
     val id_to_ex=new ID_TO_EX_BUS
     val id_to_if= new ID_TO_IF_BUS
 
-    val id_to_csr = new ID_TO_CSR_BUS
+    val csr_to_id = Flipped(new CSR_TO_ID)
 
     val rs1_addr = Output(UInt(5.W))
     val rs1_data = Input(UInt(64.W))
@@ -25,11 +25,13 @@ class Decode extends Module {
     val fwd_lsu = Flipped(new LSU_TO_ID_BUS)
     val fwd_wb = Flipped(new WB_TO_ID_BUS)
 
+    val intr_flush = Output(Bool()) //向后传递的流水线冲刷信号
+
   })
 
   //------------流水线控制逻辑------------------------------//
   val ds_valid = io.ds_valid
-  val ds_ready_go = true.B
+  val ds_ready_go = Wire(Bool())
   val ds_allowin = Wire(Bool())
   val ds_to_es_valid = Wire(Bool())
 
@@ -44,14 +46,11 @@ class Decode extends Module {
   val inst   = io.if_to_id.inst
   val pc     = io.if_to_id.pc
 
-  io.id_to_csr.id_pc := pc
-
   val rd     = inst(11,7)
   val funct3 = inst(14,12)
   val rs1    = inst(19,15)
   val rs2    = inst(24,20)
   val funct7 = inst(31,25)
-
   
   val imm_i = Cat(Fill(53, inst(31)), inst(30, 20))
   val imm_s = Cat(Fill(53,inst(31)),inst(30,25),inst(11,7))
@@ -155,8 +154,8 @@ class Decode extends Module {
     val rs1_en = true.B
     val rs2_en = true.B
 
-    val csr_jump = io.id_to_csr.csr_jump
-    val csr_target = io.id_to_csr.csr_target
+    val csr_jump = io.csr_to_id.csr_jump
+    val csr_target = io.csr_to_id.csr_target
 
     val imm = Mux1H(Seq(
       (id_imm === 0.U) -> 0.U,
@@ -169,18 +168,20 @@ class Decode extends Module {
       id_imm(5) -> imm_4
     ))
 
-    val eq1_e = (io.fwd_ex.dst  === rs1_addr)
-    val eq1_l = (io.fwd_lsu.dst === rs1_addr)
-    val eq1_w = (io.fwd_wb.dst  === rs1_addr)
+    val eq1_e = (io.fwd_ex.dst  === rs1_addr && (io.fwd_ex.dst != 0.U))
+    val eq1_l = (io.fwd_lsu.dst === rs1_addr && (io.fwd_lsu.dst != 0.U))
+    val eq1_w = (io.fwd_wb.dst  === rs1_addr && (io.fwd_wb.dst != 0.U))
 
-    val eq2_e = (io.fwd_ex.dst  === rs2_addr)
-    val eq2_l = (io.fwd_lsu.dst === rs2_addr)
-    val eq2_w = (io.fwd_wb.dst  === rs2_addr)
+    val eq2_e = (io.fwd_ex.dst  === rs2_addr && (io.fwd_ex.dst != 0.U))
+    val eq2_l = (io.fwd_lsu.dst === rs2_addr && (io.fwd_lsu.dst != 0.U))
+    val eq2_w = (io.fwd_wb.dst  === rs2_addr && (io.fwd_wb.dst != 0.U))
+
+    ds_ready_go := !((io.fwb_ex.is_csr && (eq1_e || eq2_e)) || (io.fwb.lsu.is_csr && (eq1_l || eq2_l)))
 
     val rs1_data = Mux1H(
       Seq(
         (!rs1_en && (!eq1_e && !eq1_l && !eq1_w)) -> 0.U(64.W),
-        eq1_e   -> io.fwd_ex.alu_res,
+         eq1_e  -> io.fwd_ex.alu_res,
         (eq1_l && !eq1_e) -> io.fwd_lsu.lsu_res,
         (eq1_w && !eq1_l && !eq1_e) -> io.fwd_wb.wb_res,
         (rs1_en && (!eq1_e && !eq1_l && !eq1_w)) -> io.rs1_data
@@ -313,11 +314,16 @@ class Decode extends Module {
       (csrop === CSR_RSI) -> true.B,
       (csrop === CSR_RCI) -> true.B
     ))
-    io.id_to_csr.csrop := csrop
-    io.id_to_csr.src1 := Mux(is_zimm,Cat(Fill(59,0.U),rs1(4,0)),rs1_data)
-    io.id_to_csr.csr_addr := Mux(is_csr && ds_valid,inst(31,20),0.U)
-    io.id_to_csr.is_zero := ((rs1 === 0.U) || !is_csr)
-
+    
     io.id_to_ex.is_csr := is_csr
-    io.id_to_ex.csr_res := io.id_to_csr.csr_res
+    io.id_to_ex.csrop := csrop
+    io.id_to_ex.src1 := Mux(is_zimm,Cat(Fill(59,0.U),rs1(4,0)),rs1_data)
+    io.id_to_ex.csr_addr := Mux(is_csr && ds_valid,inst(31,20),0.U)
+    io.id_to_ex.is_zero := ((rs1 === 0.U) || !is_csr)
+
+    io.id_to_ex.pc := pc
+    io.id_to_ex.inst := Mux(io.intr_flush ,NOP,inst)
+
+    io.intr_flush := csr_jump
+
 }

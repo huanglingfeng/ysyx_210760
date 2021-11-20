@@ -4,7 +4,8 @@ import Consts._
 
 class CSR extends Module {
   val io = IO(new Bundle {
-    val csr_to_id = Flipped(new ID_TO_CSR_BUS)
+    val wb_to_csr = Flipped(new WB_TO_CSR_BUS)
+    val csr_to_id = new CSR_TO_ID_BUS
     val csr_to_lsu = Flipped(new LSU_TO_CSR_BUS)
 
     val mcycle = Output(UInt(64.W))
@@ -22,11 +23,11 @@ class CSR extends Module {
     val cause = Output(UInt(32.W))
 
   })
-  val csrop = io.csr_to_id.csrop
-  val csr_addr = io.csr_to_id.csr_addr
-  val src1 = io.csr_to_id.src1
-  val is_zero = io.csr_to_id.is_zero
-  val id_pc = io.csr_to_id.id_pc
+  val csrop = io.wb_to_csr.csrop
+  val csr_addr = io.wb_to_csr.csr_addr
+  val src1 = io.wb_to_csr.src1
+  val is_zero = io.wb_to_csr.is_zero
+  val id_pc = io.wb_to_csr.id_pc
 
   val csr_res = WireInit(UInt(64.W), 0.U)
 
@@ -242,7 +243,7 @@ class CSR extends Module {
     csr_target := mepc
   }
 
-  io.csr_to_id.csr_res := csr_res
+  io.wb_to_csr.csr_res := csr_res
   io.csr_to_id.csr_target := csr_target
 
   io.mcycle := Mux(is_csrop && csr_addr === MCYCLE_N,mcycle_o,mcycle)
