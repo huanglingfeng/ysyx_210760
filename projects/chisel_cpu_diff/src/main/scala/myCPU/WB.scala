@@ -19,9 +19,11 @@ class WB extends Module {
     val pc = Output(UInt(64.W))
     val inst = Output(UInt(32.W))
     val is_nop = Output(Bool())
+
+    val flush = Input(Bool())
   })
   val pc = io.lsu_to_wb.pc
-  val inst = io.lsu_to_wb.inst
+  val inst = Mux(io.flush,NOP,io.lsu_to_wb.inst)
   val is_csr = io.lsu_to_wb.is_csr
 
   //------------流水线控制逻辑------------------------------//
@@ -49,7 +51,7 @@ class WB extends Module {
 
   io.pc := pc
   io.inst := inst
-  io.is_nop := io.lsu_to_wb.is_nop
+  io.is_nop := Mux(io.flush,NOP,io.lsu_to_wb.is_nop)
   
   io.wb_to_csr.csrop := io.lsu_to_wb.csrop
   io.wb_to_csr.csr_addr := io.lsu_to_wb.csr_addr
