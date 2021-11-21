@@ -22,6 +22,8 @@ class CSR extends Module {
     val intrNO = Output(UInt(32.W))
     val cause = Output(UInt(32.W))
 
+    val clkintr_flush = Output(Bool())
+
   })
   val csrop = io.wb_to_csr.csrop
   val csr_addr = io.wb_to_csr.csr_addr
@@ -96,6 +98,7 @@ class CSR extends Module {
   }
   io.csr_to_lsu.rdata := clint_out
   val clk_int = (mip(7) === true.B)
+  io.clkintr_flush := clk_int
   //------------------------------------------------------------//
 
   val csr_data_o = Mux1H(

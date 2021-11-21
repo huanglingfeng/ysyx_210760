@@ -88,7 +88,7 @@ class Core extends Module {
 
   ex.io.flush := decode.io.intr_flush
   lsu.io.flush := decode.io.intr_flush
-  wb.io.flush := decode.io.intr_flush
+  wb.io.flush := csr.io.clkintr_flush
   /* ----- Difftest ------------------------------ */
 
   val dt_ic = Module(new DifftestInstrCommit)
