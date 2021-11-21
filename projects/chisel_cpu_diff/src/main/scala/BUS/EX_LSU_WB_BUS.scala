@@ -58,6 +58,8 @@ class LSU_TO_CSR_BUS extends Bundle{
 }
 
 class WB_TO_CSR_BUS extends Bundle{
+  val is_nop = Output(Bool())
+
   val csrop = Output(UInt(SEL_CSR_WIDTH.W))
   val csr_addr = Output(UInt(12.W))
   val csr_src = Output(UInt(64.W))

@@ -28,7 +28,7 @@ class LSU extends Module {
   val ls_allowin = Wire(Bool())
   val ls_to_ws_valid = Wire(Bool())
 
-  ls_allowin :=  Mux(io.flush,true.B,!ls_valid || (ls_ready_go && io.ws_allowin))
+  ls_allowin := !ls_valid || (ls_ready_go && io.ws_allowin)
   ls_to_ws_valid := ls_valid && ls_ready_go
 
   io.ls_allowin := ls_allowin

@@ -31,7 +31,7 @@ class WB extends Module {
   val wb_ready_go = true.B
   val ws_allowin = Wire(Bool())
 
-  ws_allowin :=  Mux(io.flush,true.B,!ws_valid || wb_ready_go)
+  ws_allowin := !ws_valid || wb_ready_go
   
   io.ws_allowin := ws_allowin
 
@@ -52,6 +52,8 @@ class WB extends Module {
   io.pc := pc
   io.inst := inst
   io.is_nop := Mux(io.flush,NOP,io.lsu_to_wb.is_nop)
+
+  io.wb_to_csr.is_nop := io.lsu_to_wb.is_nop
   
   io.wb_to_csr.csrop := io.lsu_to_wb.csrop
   io.wb_to_csr.csr_addr := io.lsu_to_wb.csr_addr

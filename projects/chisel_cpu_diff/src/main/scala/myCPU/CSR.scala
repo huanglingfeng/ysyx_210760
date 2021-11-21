@@ -25,6 +25,8 @@ class CSR extends Module {
     val clkintr_flush = Output(Bool())
 
   })
+  val is_nop = io.wb_to_csr.is_nop
+
   val csrop = io.wb_to_csr.csrop
   val csr_addr = io.wb_to_csr.csr_addr
   val csr_src = io.wb_to_csr.csr_src
@@ -97,7 +99,7 @@ class CSR extends Module {
     }
   }
   io.csr_to_lsu.rdata := clint_out
-  val clk_int = (mip(7) === true.B)
+  val clk_int = Mux(is_nop,false.B,(mip(7) === true.B))
   io.clkintr_flush := clk_int
   //------------------------------------------------------------//
 
