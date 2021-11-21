@@ -35,7 +35,7 @@ class ER extends Module {
   io.er_to_ex.load := RegEnable(io.id_to_er.load, false.B ,judg)
   io.er_to_ex.save := RegEnable(io.id_to_er.save, false.B ,judg)
 
-  io.er_to_ex.pc := RegEnable(io.id_to_er.pc, 0.U ,judg)
+  io.er_to_ex.pc := RegEnable(io.id_to_er.pc, 0.U ,io.es_allowin)
   io.er_to_ex.inst := RegEnable(io.id_to_er.inst, 0.U ,io.es_allowin)
 
   io.er_to_ex.csrop := RegEnable(io.id_to_er.csrop, 0.U ,judg)

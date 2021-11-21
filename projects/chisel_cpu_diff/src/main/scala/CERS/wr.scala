@@ -23,7 +23,7 @@ class WR extends Module {
   io.wr_to_wb.dest := RegEnable(io.lsu_to_wr.dest, 0.U ,judg)
   io.wr_to_wb.rf_w := RegEnable(io.lsu_to_wr.rf_w, false.B ,judg)
 
-  io.wr_to_wb.pc := RegEnable(io.lsu_to_wr.pc, 0.U ,judg)
+  io.wr_to_wb.pc := RegEnable(io.lsu_to_wr.pc, 0.U ,io.ws_allowin)
   io.wr_to_wb.inst := RegEnable(io.lsu_to_wr.inst, 0.U ,io.ws_allowin)
 
   io.wr_to_wb.is_csr := RegEnable(io.lsu_to_wr.is_csr, false.B ,judg)

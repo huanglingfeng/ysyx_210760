@@ -33,7 +33,7 @@ class LR extends Module {
   io.lr_to_lsu.load := RegEnable(io.ex_to_lr.load, false.B ,judg)
   io.lr_to_lsu.save := RegEnable(io.ex_to_lr.save, false.B ,judg)
 
-  io.lr_to_lsu.pc := RegEnable(io.ex_to_lr.pc, 0.U ,judg)
+  io.lr_to_lsu.pc := RegEnable(io.ex_to_lr.pc, 0.U , io.ls_allowin)
   io.lr_to_lsu.inst := RegEnable(io.ex_to_lr.inst, 0.U ,io.ls_allowin)
 
   io.lr_to_lsu.csrop := RegEnable(io.ex_to_lr.csrop, 0.U ,judg)

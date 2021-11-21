@@ -30,7 +30,7 @@ class Decode extends Module {
   })
 
   //------------流水线控制逻辑------------------------------//
-  val ds_valid = Mux(io.intr_flush,true.B,io.ds_valid)
+  val ds_valid = io.ds_valid
   val ds_ready_go = Wire(Bool())
   val ds_allowin = Wire(Bool())
   val ds_to_es_valid = Wire(Bool())
