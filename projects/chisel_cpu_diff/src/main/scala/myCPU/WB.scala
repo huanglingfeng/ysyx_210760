@@ -55,7 +55,7 @@ class WB extends Module {
 
   io.wb_to_csr.is_nop := io.lsu_to_wb.is_nop
   
-  io.wb_to_csr.csrop := io.lsu_to_wb.csrop
+  io.wb_to_csr.csrop := Mux(inst === NOP,0.U,io.lsu_to_wb.csrop)
   io.wb_to_csr.csr_addr := io.lsu_to_wb.csr_addr
   io.wb_to_csr.csr_src := io.lsu_to_wb.csr_src
   io.wb_to_csr.is_zero := io.lsu_to_wb.is_zero

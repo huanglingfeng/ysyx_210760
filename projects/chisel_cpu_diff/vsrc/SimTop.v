@@ -2155,7 +2155,7 @@ module WB(
   wire  rd_en = _rd_addr_T_1 & io_lsu_to_wb_rf_w; // @[WB.scala 45:18]
   wire [63:0] _io_is_nop_T = io_flush ? 64'h13 : {{63'd0}, io_lsu_to_wb_is_nop}; // @[WB.scala 54:19]
   assign io_wb_to_csr_is_nop = io_lsu_to_wb_is_nop; // @[WB.scala 56:23]
-  assign io_wb_to_csr_csrop = io_lsu_to_wb_csrop; // @[WB.scala 58:22]
+  assign io_wb_to_csr_csrop = inst == 64'h13 ? 8'h0 : io_lsu_to_wb_csrop; // @[WB.scala 58:28]
   assign io_wb_to_csr_csr_addr = io_lsu_to_wb_csr_addr; // @[WB.scala 59:25]
   assign io_wb_to_csr_csr_src = io_lsu_to_wb_csr_src; // @[WB.scala 60:24]
   assign io_wb_to_csr_is_zero = io_lsu_to_wb_is_zero; // @[WB.scala 61:24]
