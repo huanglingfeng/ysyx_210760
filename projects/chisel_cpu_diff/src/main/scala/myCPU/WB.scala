@@ -46,7 +46,7 @@ class WB extends Module {
   io.rd_en := rd_en
 
   io.wb_fwd.rf_w := Mux(!ws_valid,false.B,rd_en)
-  io.wb_fwd.dst := rd_addr
+  io.wb_fwd.dst := rd_addr 
   io.wb_fwd.wb_res := rd_data
 
   io.pc := pc
