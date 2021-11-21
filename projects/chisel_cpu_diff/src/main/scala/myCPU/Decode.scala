@@ -156,7 +156,6 @@ class Decode extends Module {
 
     val csr_jump = io.csr_to_id.csr_jump
     val csr_target = io.csr_to_id.csr_target
-    io.id_to_if.csr_jump := csr_jump
 
     val imm = Mux1H(Seq(
       (id_imm === 0.U) -> 0.U,
@@ -179,7 +178,7 @@ class Decode extends Module {
 
     val e_load = (io.fwd_ex.load && (eq1_e || eq2_e))
 
-    ds_ready_go := !((io.fwd_ex.is_csr && (eq1_e || eq2_e)) || (io.fwd_lsu.is_csr && (eq1_l || eq2_l)) || e_load)
+    ds_ready_go := (!((io.fwd_ex.is_csr && (eq1_e || eq2_e)) || (io.fwd_lsu.is_csr && (eq1_l || eq2_l)) || e_load)) || csr_jump
 
     val rs1_data = Mux1H(
       Seq(

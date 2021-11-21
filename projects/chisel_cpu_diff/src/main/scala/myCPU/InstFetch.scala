@@ -29,7 +29,7 @@ class InstFetch extends Module {
   //-------------------------------------------------------//
   val pc_en = RegInit(false.B)
   pc_en := true.B
-  val ce = (to_fs_valid && fs_allowin) || io.id_to_if.csr_jump
+  val ce = to_fs_valid && fs_allowin
 
   val pc = RegInit("h0000_0000_7FFF_FFFC".U(64.W))
   val jump = io.id_to_if.jump

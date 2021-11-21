@@ -9,8 +9,7 @@ module InstFetch(
   output [63:0] io_if_to_id_pc,
   output [31:0] io_if_to_id_inst,
   input  [63:0] io_id_to_if_pc_target,
-  input         io_id_to_if_jump,
-  input         io_id_to_if_csr_jump
+  input         io_id_to_if_jump
 );
 `ifdef RANDOMIZE_REG_INIT
   reg [31:0] _RAND_0;
@@ -23,7 +22,7 @@ module InstFetch(
   wire  fs_allowin = ~fs_valid | io_ds_allowin; // @[InstFetch.scala 25:27]
   wire  _GEN_0 = fs_allowin ? to_fs_valid : fs_valid; // @[Reg.scala 28:19 Reg.scala 28:23 Reg.scala 27:20]
   reg  pc_en; // @[InstFetch.scala 30:22]
-  wire  ce = to_fs_valid & fs_allowin | io_id_to_if_csr_jump; // @[InstFetch.scala 32:40]
+  wire  ce = to_fs_valid & fs_allowin; // @[InstFetch.scala 32:24]
   reg [63:0] pc; // @[InstFetch.scala 34:19]
   wire [63:0] _nextpc_T_1 = pc + 64'h4; // @[InstFetch.scala 36:52]
   wire [31:0] imem_data = io_imem_rdata[31:0]; // @[InstFetch.scala 45:32]
@@ -231,7 +230,6 @@ module Decode(
   output        io_id_to_ex_is_zero,
   output [63:0] io_id_to_if_pc_target,
   output        io_id_to_if_jump,
-  output        io_id_to_if_csr_jump,
   input         io_csr_to_id_csr_jump,
   input  [63:0] io_csr_to_id_csr_target,
   output [4:0]  io_rs1_addr,
@@ -255,16 +253,17 @@ module Decode(
   wire  is_putch = 32'h7b == io_if_to_id_inst; // @[Decode.scala 147:23]
   wire [4:0] rs1 = io_if_to_id_inst[19:15]; // @[Decode.scala 51:20]
   wire [4:0] rs1_addr = is_putch ? 5'ha : rs1; // @[Decode.scala 149:23]
-  wire  _eq1_e_T_1 = io_fwd_ex_dst != 5'h0; // @[Decode.scala 172:64]
-  wire  eq1_e = io_fwd_ex_dst == rs1_addr & io_fwd_ex_dst != 5'h0 & io_fwd_ex_rf_w; // @[Decode.scala 172:73]
+  wire  _eq1_e_T_1 = io_fwd_ex_dst != 5'h0; // @[Decode.scala 171:64]
+  wire  eq1_e = io_fwd_ex_dst == rs1_addr & io_fwd_ex_dst != 5'h0 & io_fwd_ex_rf_w; // @[Decode.scala 171:73]
   wire [4:0] rs2 = io_if_to_id_inst[24:20]; // @[Decode.scala 52:20]
-  wire  eq2_e = io_fwd_ex_dst == rs2 & _eq1_e_T_1 & io_fwd_ex_rf_w; // @[Decode.scala 176:73]
-  wire  _ds_ready_go_T = eq1_e | eq2_e; // @[Decode.scala 182:50]
-  wire  _eq1_l_T_1 = io_fwd_lsu_dst != 5'h0; // @[Decode.scala 173:65]
-  wire  eq1_l = io_fwd_lsu_dst == rs1_addr & io_fwd_lsu_dst != 5'h0 & io_fwd_lsu_rf_w; // @[Decode.scala 173:74]
-  wire  eq2_l = io_fwd_lsu_dst == rs2 & _eq1_l_T_1 & io_fwd_lsu_rf_w; // @[Decode.scala 177:74]
-  wire  e_load = io_fwd_ex_load & _ds_ready_go_T; // @[Decode.scala 180:34]
-  wire  ds_ready_go = ~(io_fwd_ex_is_csr & (eq1_e | eq2_e) | io_fwd_lsu_is_csr & (eq1_l | eq2_l) | e_load); // @[Decode.scala 182:20]
+  wire  eq2_e = io_fwd_ex_dst == rs2 & _eq1_e_T_1 & io_fwd_ex_rf_w; // @[Decode.scala 175:73]
+  wire  _ds_ready_go_T = eq1_e | eq2_e; // @[Decode.scala 181:51]
+  wire  _eq1_l_T_1 = io_fwd_lsu_dst != 5'h0; // @[Decode.scala 172:65]
+  wire  eq1_l = io_fwd_lsu_dst == rs1_addr & io_fwd_lsu_dst != 5'h0 & io_fwd_lsu_rf_w; // @[Decode.scala 172:74]
+  wire  eq2_l = io_fwd_lsu_dst == rs2 & _eq1_l_T_1 & io_fwd_lsu_rf_w; // @[Decode.scala 176:74]
+  wire  e_load = io_fwd_ex_load & _ds_ready_go_T; // @[Decode.scala 179:34]
+  wire  ds_ready_go = ~(io_fwd_ex_is_csr & (eq1_e | eq2_e) | io_fwd_lsu_is_csr & (eq1_l | eq2_l) | e_load) |
+    io_csr_to_id_csr_jump; // @[Decode.scala 181:117]
   wire  ds_to_es_valid = io_ds_valid & ds_ready_go; // @[Decode.scala 39:30]
   wire [4:0] rd = io_if_to_id_inst[11:7]; // @[Decode.scala 49:20]
   wire [52:0] imm_i_hi = io_if_to_id_inst[31] ? 53'h1fffffffffffff : 53'h0; // @[Bitwise.scala 72:12]
@@ -817,14 +816,14 @@ module Decode(
   wire [63:0] _imm_T_17 = _imm_T_16 | _imm_T_11; // @[Mux.scala 27:72]
   wire [63:0] _imm_T_18 = _imm_T_17 | _imm_T_12; // @[Mux.scala 27:72]
   wire [63:0] imm = _imm_T_18 | _imm_T_13; // @[Mux.scala 27:72]
-  wire  _eq1_w_T_1 = io_fwd_wb_dst != 5'h0; // @[Decode.scala 174:64]
-  wire  eq1_w = io_fwd_wb_dst == rs1_addr & io_fwd_wb_dst != 5'h0 & io_fwd_wb_rf_w; // @[Decode.scala 174:73]
-  wire  eq2_w = io_fwd_wb_dst == rs2 & _eq1_w_T_1 & io_fwd_wb_rf_w; // @[Decode.scala 178:73]
-  wire  _rs1_data_T_1 = ~eq1_e; // @[Decode.scala 186:22]
-  wire  _rs1_data_T_2 = ~eq1_l; // @[Decode.scala 186:32]
-  wire  _rs1_data_T_5 = ~eq1_e & ~eq1_l & ~eq1_w; // @[Decode.scala 186:39]
-  wire  _rs1_data_T_8 = eq1_l & _rs1_data_T_1; // @[Decode.scala 188:16]
-  wire  _rs1_data_T_12 = eq1_w & _rs1_data_T_2 & _rs1_data_T_1; // @[Decode.scala 189:26]
+  wire  _eq1_w_T_1 = io_fwd_wb_dst != 5'h0; // @[Decode.scala 173:64]
+  wire  eq1_w = io_fwd_wb_dst == rs1_addr & io_fwd_wb_dst != 5'h0 & io_fwd_wb_rf_w; // @[Decode.scala 173:73]
+  wire  eq2_w = io_fwd_wb_dst == rs2 & _eq1_w_T_1 & io_fwd_wb_rf_w; // @[Decode.scala 177:73]
+  wire  _rs1_data_T_1 = ~eq1_e; // @[Decode.scala 185:22]
+  wire  _rs1_data_T_2 = ~eq1_l; // @[Decode.scala 185:32]
+  wire  _rs1_data_T_5 = ~eq1_e & ~eq1_l & ~eq1_w; // @[Decode.scala 185:39]
+  wire  _rs1_data_T_8 = eq1_l & _rs1_data_T_1; // @[Decode.scala 187:16]
+  wire  _rs1_data_T_12 = eq1_w & _rs1_data_T_2 & _rs1_data_T_1; // @[Decode.scala 188:26]
   wire [63:0] _rs1_data_T_20 = eq1_e ? io_fwd_ex_alu_res : 64'h0; // @[Mux.scala 27:72]
   wire [63:0] _rs1_data_T_21 = _rs1_data_T_8 ? io_fwd_lsu_lsu_res : 64'h0; // @[Mux.scala 27:72]
   wire [63:0] _rs1_data_T_22 = _rs1_data_T_12 ? io_fwd_wb_wb_res : 64'h0; // @[Mux.scala 27:72]
@@ -832,11 +831,11 @@ module Decode(
   wire [63:0] _rs1_data_T_25 = _rs1_data_T_20 | _rs1_data_T_21; // @[Mux.scala 27:72]
   wire [63:0] _rs1_data_T_26 = _rs1_data_T_25 | _rs1_data_T_22; // @[Mux.scala 27:72]
   wire [63:0] rs1_data = _rs1_data_T_26 | _rs1_data_T_23; // @[Mux.scala 27:72]
-  wire  _rs2_data_T_1 = ~eq2_e; // @[Decode.scala 196:22]
-  wire  _rs2_data_T_2 = ~eq2_l; // @[Decode.scala 196:32]
-  wire  _rs2_data_T_5 = ~eq2_e & ~eq2_l & ~eq2_w; // @[Decode.scala 196:39]
-  wire  _rs2_data_T_8 = eq2_l & _rs2_data_T_1; // @[Decode.scala 198:16]
-  wire  _rs2_data_T_12 = eq2_w & _rs2_data_T_2 & _rs2_data_T_1; // @[Decode.scala 199:26]
+  wire  _rs2_data_T_1 = ~eq2_e; // @[Decode.scala 195:22]
+  wire  _rs2_data_T_2 = ~eq2_l; // @[Decode.scala 195:32]
+  wire  _rs2_data_T_5 = ~eq2_e & ~eq2_l & ~eq2_w; // @[Decode.scala 195:39]
+  wire  _rs2_data_T_8 = eq2_l & _rs2_data_T_1; // @[Decode.scala 197:16]
+  wire  _rs2_data_T_12 = eq2_w & _rs2_data_T_2 & _rs2_data_T_1; // @[Decode.scala 198:26]
   wire [63:0] _rs2_data_T_20 = eq2_e ? io_fwd_ex_alu_res : 64'h0; // @[Mux.scala 27:72]
   wire [63:0] _rs2_data_T_21 = _rs2_data_T_8 ? io_fwd_lsu_lsu_res : 64'h0; // @[Mux.scala 27:72]
   wire [63:0] _rs2_data_T_22 = _rs2_data_T_12 ? io_fwd_wb_wb_res : 64'h0; // @[Mux.scala 27:72]
@@ -852,24 +851,24 @@ module Decode(
     ctr_signals_8[9] | ctr_signals_8[10]; // @[Mux.scala 27:72]
   wire  save = ctr_signals_7[5] | ctr_signals_7[6] | ctr_signals_7[7] | ctr_signals_8[11]; // @[Mux.scala 27:72]
   wire  is_br = bruop[2] | bruop[3] | bruop[4] | bruop[5] | bruop[6] | bruop[7]; // @[Mux.scala 27:72]
-  wire [63:0] jal_target = io_if_to_id_pc + imm_j; // @[Decode.scala 265:25]
-  wire [63:0] jalr_target = rs1_data + imm_i; // @[Decode.scala 266:32]
-  wire [63:0] br_target = io_if_to_id_pc + imm_b; // @[Decode.scala 267:24]
-  wire  _jump_T_5 = bruop[3] & rs1_data == rs2_data; // @[Decode.scala 278:14]
-  wire  _jump_T_6 = bruop[2] & rs1_data != rs2_data | _jump_T_5; // @[Decode.scala 277:43]
-  wire [63:0] _jump_T_7 = _rs1_data_T_26 | _rs1_data_T_23; // @[Decode.scala 279:34]
-  wire [63:0] _jump_T_8 = _rs2_data_T_26 | _rs2_data_T_23; // @[Decode.scala 279:54]
-  wire  _jump_T_10 = bruop[4] & $signed(_jump_T_7) < $signed(_jump_T_8); // @[Decode.scala 279:14]
-  wire  _jump_T_11 = _jump_T_6 | _jump_T_10; // @[Decode.scala 278:43]
-  wire  _jump_T_13 = bruop[6] & rs1_data < rs2_data; // @[Decode.scala 280:15]
-  wire  _jump_T_14 = _jump_T_11 | _jump_T_13; // @[Decode.scala 279:59]
-  wire  _jump_T_18 = bruop[5] & $signed(_jump_T_7) >= $signed(_jump_T_8); // @[Decode.scala 281:14]
-  wire  _jump_T_19 = _jump_T_14 | _jump_T_18; // @[Decode.scala 280:59]
-  wire  _jump_T_21 = bruop[7] & rs1_data >= rs2_data; // @[Decode.scala 282:15]
-  wire  _jump_T_22 = _jump_T_19 | _jump_T_21; // @[Decode.scala 281:60]
-  wire  _jump_T_23 = bruop[0] | bruop[1] | io_csr_to_id_csr_jump | _jump_T_22; // @[Decode.scala 276:49]
-  wire  jump = _jump_T_23 & io_ds_valid; // @[Decode.scala 283:8]
-  wire  _pc_target_T_1 = is_br & ~jump; // @[Decode.scala 289:14]
+  wire [63:0] jal_target = io_if_to_id_pc + imm_j; // @[Decode.scala 264:25]
+  wire [63:0] jalr_target = rs1_data + imm_i; // @[Decode.scala 265:32]
+  wire [63:0] br_target = io_if_to_id_pc + imm_b; // @[Decode.scala 266:24]
+  wire  _jump_T_5 = bruop[3] & rs1_data == rs2_data; // @[Decode.scala 277:14]
+  wire  _jump_T_6 = bruop[2] & rs1_data != rs2_data | _jump_T_5; // @[Decode.scala 276:43]
+  wire [63:0] _jump_T_7 = _rs1_data_T_26 | _rs1_data_T_23; // @[Decode.scala 278:34]
+  wire [63:0] _jump_T_8 = _rs2_data_T_26 | _rs2_data_T_23; // @[Decode.scala 278:54]
+  wire  _jump_T_10 = bruop[4] & $signed(_jump_T_7) < $signed(_jump_T_8); // @[Decode.scala 278:14]
+  wire  _jump_T_11 = _jump_T_6 | _jump_T_10; // @[Decode.scala 277:43]
+  wire  _jump_T_13 = bruop[6] & rs1_data < rs2_data; // @[Decode.scala 279:15]
+  wire  _jump_T_14 = _jump_T_11 | _jump_T_13; // @[Decode.scala 278:59]
+  wire  _jump_T_18 = bruop[5] & $signed(_jump_T_7) >= $signed(_jump_T_8); // @[Decode.scala 280:14]
+  wire  _jump_T_19 = _jump_T_14 | _jump_T_18; // @[Decode.scala 279:59]
+  wire  _jump_T_21 = bruop[7] & rs1_data >= rs2_data; // @[Decode.scala 281:15]
+  wire  _jump_T_22 = _jump_T_19 | _jump_T_21; // @[Decode.scala 280:60]
+  wire  _jump_T_23 = bruop[0] | bruop[1] | io_csr_to_id_csr_jump | _jump_T_22; // @[Decode.scala 275:49]
+  wire  jump = _jump_T_23 & io_ds_valid; // @[Decode.scala 282:8]
+  wire  _pc_target_T_1 = is_br & ~jump; // @[Decode.scala 288:14]
   wire [63:0] _pc_target_T_2 = bruop[0] ? jal_target : 64'h0; // @[Mux.scala 27:72]
   wire [63:0] _pc_target_T_3 = bruop[1] ? jalr_target : 64'h0; // @[Mux.scala 27:72]
   wire [63:0] _pc_target_T_4 = is_br ? br_target : 64'h0; // @[Mux.scala 27:72]
@@ -877,49 +876,48 @@ module Decode(
   wire [63:0] _pc_target_T_6 = _pc_target_T_2 | _pc_target_T_3; // @[Mux.scala 27:72]
   wire [63:0] _pc_target_T_7 = _pc_target_T_6 | _pc_target_T_4; // @[Mux.scala 27:72]
   wire [63:0] _pc_target_T_8 = _pc_target_T_7 | _pc_target_T_5; // @[Mux.scala 27:72]
-  wire  _io_id_to_ex_rf_w_T_3 = ~io_csr_to_id_csr_jump; // @[Decode.scala 293:44]
-  wire  is_csr = ctr_signals_4 == 5'h10; // @[Decode.scala 310:26]
-  wire  _is_zimm_T = ~is_csr; // @[Decode.scala 312:7]
-  wire  _is_zimm_T_4 = csrop == 8'h4; // @[Decode.scala 316:14]
-  wire  _is_zimm_T_5 = csrop == 8'h5; // @[Decode.scala 317:14]
-  wire  _is_zimm_T_6 = csrop == 8'h6; // @[Decode.scala 318:14]
+  wire  _io_id_to_ex_rf_w_T_3 = ~io_csr_to_id_csr_jump; // @[Decode.scala 292:44]
+  wire  is_csr = ctr_signals_4 == 5'h10; // @[Decode.scala 309:26]
+  wire  _is_zimm_T = ~is_csr; // @[Decode.scala 311:7]
+  wire  _is_zimm_T_4 = csrop == 8'h4; // @[Decode.scala 315:14]
+  wire  _is_zimm_T_5 = csrop == 8'h5; // @[Decode.scala 316:14]
+  wire  _is_zimm_T_6 = csrop == 8'h6; // @[Decode.scala 317:14]
   wire  is_zimm = _is_zimm_T_4 | _is_zimm_T_5 | _is_zimm_T_6; // @[Mux.scala 27:72]
   wire [63:0] _io_id_to_ex_csr_src_T = {59'h0,rs1}; // @[Cat.scala 30:58]
-  wire  _io_id_to_ex_inst_T_1 = io_intr_flush | ~ds_to_es_valid; // @[Decode.scala 328:43]
-  wire [63:0] _io_id_to_ex_inst_T_2 = io_intr_flush | ~ds_to_es_valid ? 64'h13 : {{32'd0}, io_if_to_id_inst}; // @[Decode.scala 328:28]
+  wire  _io_id_to_ex_inst_T_1 = io_intr_flush | ~ds_to_es_valid; // @[Decode.scala 327:43]
+  wire [63:0] _io_id_to_ex_inst_T_2 = io_intr_flush | ~ds_to_es_valid ? 64'h13 : {{32'd0}, io_if_to_id_inst}; // @[Decode.scala 327:28]
   assign io_ds_allowin = ~io_ds_valid | ds_ready_go; // @[Decode.scala 38:27]
   assign io_ds_to_es_valid = io_ds_valid & ds_ready_go; // @[Decode.scala 39:30]
-  assign io_id_to_ex_is_nop = _io_id_to_ex_inst_T_1 | io_if_to_id_is_nop; // @[Decode.scala 332:30]
+  assign io_id_to_ex_is_nop = _io_id_to_ex_inst_T_1 | io_if_to_id_is_nop; // @[Decode.scala 331:30]
   assign io_id_to_ex_aluop = _ctr_signals_T_1 ? 11'h1 : _ctr_signals_T_457; // @[Lookup.scala 33:37]
   assign io_id_to_ex_lsuop = _ctr_signals_T_1 ? 8'h0 : _ctr_signals_T_571; // @[Lookup.scala 33:37]
   assign io_id_to_ex_rv64op = _ctr_signals_T_1 ? 12'h0 : _ctr_signals_T_628; // @[Lookup.scala 33:37]
   assign io_id_to_ex_out1 = _io_id_to_ex_out1_T_4 | _io_id_to_ex_out1_T_5; // @[Mux.scala 27:72]
   assign io_id_to_ex_out2 = _io_id_to_ex_out2_T_4 | _io_id_to_ex_out2_T_5; // @[Mux.scala 27:72]
   assign io_id_to_ex_imm = _imm_T_18 | _imm_T_13; // @[Mux.scala 27:72]
-  assign io_id_to_ex_dest = is_putch ? 5'h0 : rd; // @[Decode.scala 217:28]
-  assign io_id_to_ex_rf_w = ~save & ~is_br & ~io_csr_to_id_csr_jump; // @[Decode.scala 293:41]
-  assign io_id_to_ex_load = load & _io_id_to_ex_rf_w_T_3; // @[Decode.scala 294:30]
-  assign io_id_to_ex_save = save & _io_id_to_ex_rf_w_T_3; // @[Decode.scala 295:30]
-  assign io_id_to_ex_pc = io_if_to_id_pc; // @[Decode.scala 327:20]
-  assign io_id_to_ex_inst = _io_id_to_ex_inst_T_2[31:0]; // @[Decode.scala 328:22]
-  assign io_id_to_ex_is_csr = ctr_signals_4 == 5'h10; // @[Decode.scala 310:26]
+  assign io_id_to_ex_dest = is_putch ? 5'h0 : rd; // @[Decode.scala 216:28]
+  assign io_id_to_ex_rf_w = ~save & ~is_br & ~io_csr_to_id_csr_jump; // @[Decode.scala 292:41]
+  assign io_id_to_ex_load = load & _io_id_to_ex_rf_w_T_3; // @[Decode.scala 293:30]
+  assign io_id_to_ex_save = save & _io_id_to_ex_rf_w_T_3; // @[Decode.scala 294:30]
+  assign io_id_to_ex_pc = io_if_to_id_pc; // @[Decode.scala 326:20]
+  assign io_id_to_ex_inst = _io_id_to_ex_inst_T_2[31:0]; // @[Decode.scala 327:22]
+  assign io_id_to_ex_is_csr = ctr_signals_4 == 5'h10; // @[Decode.scala 309:26]
   assign io_id_to_ex_csrop = _ctr_signals_T_1 ? 8'h0 : _ctr_signals_T_685; // @[Lookup.scala 33:37]
-  assign io_id_to_ex_csr_addr = is_csr & io_ds_valid ? io_if_to_id_inst[31:20] : 12'h0; // @[Decode.scala 324:32]
-  assign io_id_to_ex_csr_src = is_zimm ? _io_id_to_ex_csr_src_T : rs1_data; // @[Decode.scala 323:31]
-  assign io_id_to_ex_is_zero = rs1 == 5'h0 | _is_zimm_T; // @[Decode.scala 325:43]
-  assign io_id_to_if_pc_target = io_csr_to_id_csr_jump ? io_csr_to_id_csr_target : _pc_target_T_8; // @[Decode.scala 284:24]
-  assign io_id_to_if_jump = _jump_T_23 & io_ds_valid; // @[Decode.scala 283:8]
-  assign io_id_to_if_csr_jump = io_csr_to_id_csr_jump; // @[Decode.scala 159:26]
+  assign io_id_to_ex_csr_addr = is_csr & io_ds_valid ? io_if_to_id_inst[31:20] : 12'h0; // @[Decode.scala 323:32]
+  assign io_id_to_ex_csr_src = is_zimm ? _io_id_to_ex_csr_src_T : rs1_data; // @[Decode.scala 322:31]
+  assign io_id_to_ex_is_zero = rs1 == 5'h0 | _is_zimm_T; // @[Decode.scala 324:43]
+  assign io_id_to_if_pc_target = io_csr_to_id_csr_jump ? io_csr_to_id_csr_target : _pc_target_T_8; // @[Decode.scala 283:24]
+  assign io_id_to_if_jump = _jump_T_23 & io_ds_valid; // @[Decode.scala 282:8]
   assign io_rs1_addr = is_putch ? 5'ha : rs1; // @[Decode.scala 149:23]
   assign io_rs2_addr = io_if_to_id_inst[24:20]; // @[Decode.scala 52:20]
-  assign io_intr_flush = io_csr_to_id_csr_jump; // @[Decode.scala 330:19]
+  assign io_intr_flush = io_csr_to_id_csr_jump; // @[Decode.scala 329:19]
   always @(posedge clock) begin
     `ifndef SYNTHESIS
     `ifdef PRINTF_COND
       if (`PRINTF_COND) begin
     `endif
         if (is_putch & ~reset) begin
-          $fwrite(32'h80000002,"%c",rs1_data); // @[Decode.scala 306:13]
+          $fwrite(32'h80000002,"%c",rs1_data); // @[Decode.scala 305:13]
         end
     `ifdef PRINTF_COND
       end
@@ -3259,7 +3257,6 @@ module Core(
   wire [31:0] fetch_io_if_to_id_inst; // @[Core.scala 13:21]
   wire [63:0] fetch_io_id_to_if_pc_target; // @[Core.scala 13:21]
   wire  fetch_io_id_to_if_jump; // @[Core.scala 13:21]
-  wire  fetch_io_id_to_if_csr_jump; // @[Core.scala 13:21]
   wire  dr_clock; // @[Core.scala 16:18]
   wire  dr_reset; // @[Core.scala 16:18]
   wire  dr_io_fs_to_ds_valid; // @[Core.scala 16:18]
@@ -3299,7 +3296,6 @@ module Core(
   wire  decode_io_id_to_ex_is_zero; // @[Core.scala 17:22]
   wire [63:0] decode_io_id_to_if_pc_target; // @[Core.scala 17:22]
   wire  decode_io_id_to_if_jump; // @[Core.scala 17:22]
-  wire  decode_io_id_to_if_csr_jump; // @[Core.scala 17:22]
   wire  decode_io_csr_to_id_csr_jump; // @[Core.scala 17:22]
   wire [63:0] decode_io_csr_to_id_csr_target; // @[Core.scala 17:22]
   wire [4:0] decode_io_rs1_addr; // @[Core.scala 17:22]
@@ -3665,8 +3661,7 @@ module Core(
     .io_if_to_id_pc(fetch_io_if_to_id_pc),
     .io_if_to_id_inst(fetch_io_if_to_id_inst),
     .io_id_to_if_pc_target(fetch_io_id_to_if_pc_target),
-    .io_id_to_if_jump(fetch_io_id_to_if_jump),
-    .io_id_to_if_csr_jump(fetch_io_id_to_if_csr_jump)
+    .io_id_to_if_jump(fetch_io_id_to_if_jump)
   );
   DR dr ( // @[Core.scala 16:18]
     .clock(dr_clock),
@@ -3710,7 +3705,6 @@ module Core(
     .io_id_to_ex_is_zero(decode_io_id_to_ex_is_zero),
     .io_id_to_if_pc_target(decode_io_id_to_if_pc_target),
     .io_id_to_if_jump(decode_io_id_to_if_jump),
-    .io_id_to_if_csr_jump(decode_io_id_to_if_csr_jump),
     .io_csr_to_id_csr_jump(decode_io_csr_to_id_csr_jump),
     .io_csr_to_id_csr_target(decode_io_csr_to_id_csr_target),
     .io_rs1_addr(decode_io_rs1_addr),
@@ -4077,7 +4071,6 @@ module Core(
   assign fetch_io_imem_rdata = io_imem_rdata; // @[Core.scala 14:17]
   assign fetch_io_id_to_if_pc_target = decode_io_id_to_if_pc_target; // @[Core.scala 20:22]
   assign fetch_io_id_to_if_jump = decode_io_id_to_if_jump; // @[Core.scala 20:22]
-  assign fetch_io_id_to_if_csr_jump = decode_io_id_to_if_csr_jump; // @[Core.scala 20:22]
   assign dr_clock = clock;
   assign dr_reset = reset;
   assign dr_io_fs_to_ds_valid = fetch_io_fs_to_ds_valid; // @[Core.scala 65:24]

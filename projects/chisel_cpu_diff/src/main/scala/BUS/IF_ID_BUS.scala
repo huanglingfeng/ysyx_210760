@@ -14,7 +14,6 @@ class IF_TO_ID_BUS extends Bundle {
 class ID_TO_IF_BUS extends Bundle{
   val pc_target=Output(UInt(64.W))
   val jump = Output(Bool())
-  val csr_jump = Output(Bool())
 }
 
 class ID_TO_EX_BUS extends Bundle{
