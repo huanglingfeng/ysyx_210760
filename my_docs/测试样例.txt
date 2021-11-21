@@ -12,8 +12,8 @@ benchmark
 ./build.sh -e chisel_cpu_diff -d -b -s -a "-i custom-output/benchmark/dhrystone/dhrystone.bin" -m "EMU_TRACE=1"
 ./build.sh -e chisel_cpu_diff -d -b -s -a "-i custom-output/benchmark/microbench/microbench-huge.bin" -m "EMU_TRACE=1"
 ./build.sh -e chisel_cpu_diff -d -b -s -a "-i custom-output/benchmark/microbench/microbench-ref.bin" -m "EMU_TRACE=1"
-./build.sh -e chisel_cpu_diff -d -b -s -a "-i custom-output/benchmark/microbench/microbench-test" -m "EMU_TRACE=1"
-./build.sh -e chisel_cpu_diff -d -b -s -a "-i custom-output/benchmark/microbench/microbench-train" -m "EMU_TRACE=1"
+./build.sh -e chisel_cpu_diff -d -b -s -a "-i custom-output/benchmark/microbench/microbench-test.bin" -m "EMU_TRACE=1"
+./build.sh -e chisel_cpu_diff -d -b -s -a "-i custom-output/benchmark/microbench/microbench-train.bin" -m "EMU_TRACE=1"
 
 中断三连
 ./build.sh -e chisel_cpu_diff -d -b -s -a "-i custom-output/yield-test/amtest-yield-test.bin" -m "EMU_TRACE=1"
