@@ -94,10 +94,10 @@ class Core extends Module {
   dt_ic.io.clock := clock
   dt_ic.io.coreid := 0.U
   dt_ic.io.index := 0.U
-  dt_ic.io.valid := !RegNext(wb.io.is_nop)
+  dt_ic.io.valid := !RegNext(wb.io.is_nop || wb.io.inst === ECALL)
   dt_ic.io.pc := RegNext(wb.io.pc)
   dt_ic.io.instr := RegNext(wb.io.inst)
-  dt_ic.io.skip := RegNext(wb.io.inst === "h0000007b".U || RegNext(lsu.io.lsu_to_csr.is_clint) || wb.io.inst === ECALL
+  dt_ic.io.skip := RegNext(wb.io.inst === "h0000007b".U || RegNext(lsu.io.lsu_to_csr.is_clint) 
     || (wb.io.wb_to_csr.csr_addr === MCYCLE_N)
     )
   dt_ic.io.isRVC := false.B
