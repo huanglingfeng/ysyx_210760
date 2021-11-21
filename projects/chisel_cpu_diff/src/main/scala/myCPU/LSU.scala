@@ -23,7 +23,7 @@ class LSU extends Module {
   })
   
   //------------流水线控制逻辑------------------------------//
-  val ls_valid = io.ls_valid
+  val ls_valid = Mux(io.flush,true.B,io.ls_valid)
   val ls_ready_go = true.B
   val ls_allowin = Wire(Bool())
   val ls_to_ws_valid = Wire(Bool())

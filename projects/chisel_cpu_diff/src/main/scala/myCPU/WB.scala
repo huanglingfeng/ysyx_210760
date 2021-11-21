@@ -27,7 +27,7 @@ class WB extends Module {
   val is_csr = io.lsu_to_wb.is_csr
 
   //------------流水线控制逻辑------------------------------//
-  val ws_valid = io.ws_valid
+  val ws_valid = Mux(io.flush,true.B,io.ws_valid)
   val wb_ready_go = true.B
   val ws_allowin = Wire(Bool())
 

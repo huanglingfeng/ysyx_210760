@@ -19,7 +19,7 @@ class Execution extends Module {
   })
 
   //------------流水线控制逻辑------------------------------//
-  val es_valid = io.es_valid
+  val es_valid = Mux(io.flush,true.B,io.es_valid)
   val es_ready_go = true.B
   val es_allowin = Wire(Bool())
   val es_to_ls_valid = Wire(Bool())
