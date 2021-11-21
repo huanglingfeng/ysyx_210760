@@ -1246,7 +1246,7 @@ module Execution(
   output        io_ex_fwd_load,
   input         io_flush
 );
-  wire  _es_allowin_T = ~io_es_valid; // @[Execution.scala 27:17]
+  wire  _es_allowin_T = ~io_es_valid; // @[Execution.scala 27:37]
   wire  is_w = io_id_to_ex_rv64op[0] | io_id_to_ex_rv64op[1] | io_id_to_ex_rv64op[2] | io_id_to_ex_rv64op[3] |
     io_id_to_ex_rv64op[4] | io_id_to_ex_rv64op[5] | io_id_to_ex_rv64op[6] | io_id_to_ex_rv64op[7] | io_id_to_ex_rv64op[8
     ]; // @[Mux.scala 27:72]
@@ -1697,7 +1697,7 @@ module LSU(
   output        io_dmem_wen,
   input         io_flush
 );
-  wire  _ls_allowin_T = ~io_ls_valid; // @[LSU.scala 31:17]
+  wire  _ls_allowin_T = ~io_ls_valid; // @[LSU.scala 31:38]
   wire  _inst_T_1 = io_flush | _ls_allowin_T; // @[LSU.scala 40:27]
   wire [63:0] inst = io_flush | _ls_allowin_T ? 64'h13 : {{32'd0}, io_ex_to_lsu_inst}; // @[LSU.scala 40:17]
   wire  _load_T_1 = io_ls_valid & inst != 64'h13; // @[LSU.scala 48:27]
@@ -2149,7 +2149,7 @@ module WB(
   input         io_flush
 );
   wire [63:0] inst = io_flush ? 64'h13 : {{32'd0}, io_lsu_to_wb_inst}; // @[WB.scala 26:17]
-  wire  _ws_allowin_T = ~io_ws_valid; // @[WB.scala 34:17]
+  wire  _ws_allowin_T = ~io_ws_valid; // @[WB.scala 34:38]
   wire  _rd_addr_T_1 = io_ws_valid & inst != 64'h13; // @[WB.scala 41:30]
   wire  rd_en = _rd_addr_T_1 & io_lsu_to_wb_rf_w; // @[WB.scala 45:18]
   wire [63:0] _io_is_nop_T = io_flush ? 64'h13 : {{63'd0}, io_lsu_to_wb_is_nop}; // @[WB.scala 54:19]

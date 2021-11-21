@@ -24,7 +24,7 @@ class Execution extends Module {
   val es_allowin = Wire(Bool())
   val es_to_ls_valid = Wire(Bool())
 
-  es_allowin := !es_valid || (es_ready_go && io.ls_allowin)
+  es_allowin := Mux(io.flush,true.B,!es_valid || (es_ready_go && io.ls_allowin))
   es_to_ls_valid := es_valid && es_ready_go
 
   io.es_allowin := es_allowin

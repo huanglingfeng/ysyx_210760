@@ -31,7 +31,7 @@ class WB extends Module {
   val wb_ready_go = true.B
   val ws_allowin = Wire(Bool())
 
-  ws_allowin := !ws_valid || wb_ready_go
+  ws_allowin :=  Mux(io.flush,true.B,!ws_valid || wb_ready_go)
   
   io.ws_allowin := ws_allowin
 
