@@ -7,6 +7,7 @@ class EX_TO_ID_BUS extends Bundle{
     val dst = Output(UInt(5.W))
     val alu_res = Output(UInt(64.W))
     val is_csr = Output(Bool())
+    val load = Output(Bool())
 }
 
 class LSU_TO_ID_BUS extends Bundle{

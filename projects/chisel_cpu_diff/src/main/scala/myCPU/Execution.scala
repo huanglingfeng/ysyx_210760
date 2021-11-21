@@ -44,12 +44,12 @@ class Execution extends Module {
   val rf_w = io.id_to_ex.rf_w
   io.ex_to_lsu.rf_w := rf_w
 
-  io.ex_to_lsu.load := io.id_to_ex.load
+  val load = io.id_to_ex.load
+  io.ex_to_lsu.load := load
   io.ex_to_lsu.save := io.id_to_ex.save
 
   val is_csr = io.id_to_ex.is_csr
   io.ex_to_lsu.is_csr := is_csr
-  io.ex_to_lsu.csr_res := io.id_to_ex.csr_res
   
   io.ex_to_lsu.src1 := src1_64
   io.ex_to_lsu.src2 := src2_64
@@ -174,22 +174,24 @@ class Execution extends Module {
 
   io.ex_to_lsu.alu_res := alu_res
 
-  io.ex_fwd.rf_w := rf_w
+  io.ex_fwd.rf_w := Mux(!es_valid,false.B,rf_w)
   io.ex_fwd.dst := dest
   io.ex_fwd.alu_res := alu_res
-  io.ex_fwd.is_csr := is_csr
+  io.ex_fwd.is_csr := Mux(!es_valid,false.B,is_csr)
+  io.ex_fwd.load := Mux(!es_valid,false.B,load)
 
   val pc = io.id_to_ex.pc
   val inst = io.id_to_ex.inst
   io.ex_to_lsu.pc := pc
-  io.ex_to_lsu.inst := Mux(io.flush,NOP,inst)
+  io.ex_to_lsu.inst := Mux(io.flush || !es_to_ls_valid,NOP,inst)
 
   io.ex_to_lsu.is_csr := io.id_to_ex.is_csr
   io.ex_to_lsu.csrop := io.id_to_ex.csrop
   io.ex_to_lsu.csr_addr := io.id_to_ex.csr_addr
-  io.ex_to_lsu.src1 := io.id_to_ex.src1
+  io.ex_to_lsu.csr_src := io.id_to_ex.csr_src
   io.ex_to_lsu.is_zero := io.id_to_ex.is_zero
 
+  io.ex_to_lsu.is_nop := Mux(io.flush || !es_to_ls_valid,true.B,io.id_to_ex.is_nop)
 }
 
 

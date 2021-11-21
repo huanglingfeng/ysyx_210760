@@ -25,9 +25,9 @@ class CSR extends Module {
   })
   val csrop = io.wb_to_csr.csrop
   val csr_addr = io.wb_to_csr.csr_addr
-  val src1 = io.wb_to_csr.src1
+  val csr_src = io.wb_to_csr.csr_src
   val is_zero = io.wb_to_csr.is_zero
-  val id_pc = io.wb_to_csr.id_pc
+  val pc = io.wb_to_csr.pc
 
   val csr_res = WireInit(UInt(64.W), 0.U)
 
@@ -63,7 +63,7 @@ class CSR extends Module {
   val mcycle_o = WireInit(0.U(64.W))
 
   val sstatus_o = WireInit(0.U(64.W))
-  //-----------------Clint------------------------------------------------//
+  //-----------------Clint------------------------------------------------// 
   val is_clint = io.csr_to_lsu.is_clint
   val is_mtime = io.csr_to_lsu.is_mtime
   val is_mtimecmp = io.csr_to_lsu.is_mtimecmp
@@ -72,18 +72,15 @@ class CSR extends Module {
   val wdata = io.csr_to_lsu.wdata
 
   val mtime = RegInit(0.U(64.W))
-  when(true.B) {
-    mtime := mtime + 1.U
-  }
+  // when(true.B) {
+  //   mtime := mtime + 1.U
+  // }
   val mtimecmp = RegInit(UInt(64.W),"hf8ff".U)
   when(mtime >= mtimecmp){
     mip := Cat(mip(63,8),1.U,mip(6,0)) 
     mtime := 0.U
   }
-  // when(true.B){
-  //   mie := Cat(mie(63,8),mip(7),mie(6,0))
-  // }
-  
+
   val clint_out = WireInit(0.U(64.W))
 
   when(is_clint){
@@ -113,7 +110,7 @@ class CSR extends Module {
       (csr_addr === MIE_N) -> mie
     )
   )
-  val csr_src = src1
+
   val csr_data_i = WireInit(0.U(64.W))
   val csr_mask = WireInit(0.U(64.W)) //屏蔽信号，0屏蔽
   val is_rw = (csrop === CSR_RW || csrop === CSR_RWI)
@@ -192,7 +189,7 @@ class CSR extends Module {
     when(csrop === CSR_ECALL){
       mcause := Cat(false.B,"d11".U(63.W))
       mstatus_i := Cat(   mstatus(62,13),"b11".U(2.W),mstatus(10,8),mstatus(3),mstatus(6,4),0.U,mstatus(2,0))
-      mepc := id_pc
+      mepc := pc
 
       mcause_o := Cat(false.B,"d11".U(63.W))
 
@@ -201,7 +198,7 @@ class CSR extends Module {
       mstatus_o := Cat(mSD_o,mstatus_o_i)
       sstatus_o := Cat(mSD_o,0.U(46.W),mstatus_o(16,15),mstatus_o(14,13),0.U(13.W))
 
-      mepc_o := id_pc
+      mepc_o := pc
     }
     when(clk_int){
       mcause := Cat(true.B,"d7".U(63.W))
@@ -209,7 +206,7 @@ class CSR extends Module {
       //mie := Cat(mie(63,8),1.U,mie(6,0))
       mip := 0.U
       // mtime := "h0".U
-      mepc := id_pc
+      mepc := pc
 
       mcause_o := Cat(true.B,"d7".U(63.W))
 
@@ -218,7 +215,7 @@ class CSR extends Module {
       mstatus_o := Cat(mSD_o,mstatus_o_i)
       sstatus_o := Cat(mSD_o,0.U(46.W),mstatus_o(16,15),mstatus_o(14,13),0.U(13.W))
 
-      mepc_o := id_pc
+      mepc_o := pc
     }
     when(mtvec(1, 0) === 0.U) {
       csr_target := mtvec

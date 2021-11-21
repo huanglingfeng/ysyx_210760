@@ -29,10 +29,12 @@ class InstFetch extends Module {
   //-------------------------------------------------------//
   val pc_en = RegInit(false.B)
   pc_en := true.B
+  val ce = to_fs_valid && fs_allowin
 
   val pc = RegInit("h0000_0000_7FFF_FFFC".U(64.W))
   val jump = io.id_to_if.jump
-  pc := Mux(jump, io.id_to_if.pc_target, pc + 4.U)
+  val nextpc = Mux(jump, io.id_to_if.pc_target, pc + 4.U)
+  when(ce){pc := nextpc}
 
   io.imem.en := true.B
   io.imem.addr := pc.asUInt()
@@ -40,11 +42,16 @@ class InstFetch extends Module {
   io.if_to_id.pc := Mux(pc_en, pc, 0.U)
   // io.if_to_id.inst := Mux(pc_en, io.imem.rdata(31, 0), 0.U)
 
-  io.if_to_id.inst := Mux1H(
+  val imem_data = io.imem.rdata(31, 0)
+  io.if_to_id.is_nop := (pc_en && jump) || !fs_to_ds_valid
+
+  io.if_to_id.inst := Mux(!fs_to_ds_valid,NOP,
+  Mux1H(
     Seq(
       !pc_en -> 0.U,
       (pc_en && jump) -> NOP,
-      (pc_en && !jump) -> io.imem.rdata(31, 0)
+      (pc_en && !jump) -> imem_data
     )
-  )
+  ))
+
 }

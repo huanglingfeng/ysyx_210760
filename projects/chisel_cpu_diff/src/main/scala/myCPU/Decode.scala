@@ -14,7 +14,7 @@ class Decode extends Module {
     val id_to_ex=new ID_TO_EX_BUS
     val id_to_if= new ID_TO_IF_BUS
 
-    val csr_to_id = Flipped(new CSR_TO_ID)
+    val csr_to_id = Flipped(new CSR_TO_ID_BUS)
 
     val rs1_addr = Output(UInt(5.W))
     val rs1_data = Input(UInt(64.W))
@@ -168,15 +168,17 @@ class Decode extends Module {
       id_imm(5) -> imm_4
     ))
 
-    val eq1_e = (io.fwd_ex.dst  === rs1_addr && (io.fwd_ex.dst != 0.U))
-    val eq1_l = (io.fwd_lsu.dst === rs1_addr && (io.fwd_lsu.dst != 0.U))
-    val eq1_w = (io.fwd_wb.dst  === rs1_addr && (io.fwd_wb.dst != 0.U))
+    val eq1_e = (io.fwd_ex.dst  === rs1_addr && (io.fwd_ex.dst =/= 0.U) && io.fwd_ex.rf_w)
+    val eq1_l = (io.fwd_lsu.dst === rs1_addr && (io.fwd_lsu.dst =/= 0.U) && io.fwd_lsu.rf_w)
+    val eq1_w = (io.fwd_wb.dst  === rs1_addr && (io.fwd_wb.dst =/= 0.U) && io.fwd_wb.rf_w)
 
-    val eq2_e = (io.fwd_ex.dst  === rs2_addr && (io.fwd_ex.dst != 0.U))
-    val eq2_l = (io.fwd_lsu.dst === rs2_addr && (io.fwd_lsu.dst != 0.U))
-    val eq2_w = (io.fwd_wb.dst  === rs2_addr && (io.fwd_wb.dst != 0.U))
+    val eq2_e = (io.fwd_ex.dst  === rs2_addr && (io.fwd_ex.dst =/= 0.U) && io.fwd_ex.rf_w)
+    val eq2_l = (io.fwd_lsu.dst === rs2_addr && (io.fwd_lsu.dst =/= 0.U) && io.fwd_lsu.rf_w)
+    val eq2_w = (io.fwd_wb.dst  === rs2_addr && (io.fwd_wb.dst =/= 0.U) && io.fwd_wb.rf_w)
 
-    ds_ready_go := !((io.fwb_ex.is_csr && (eq1_e || eq2_e)) || (io.fwb.lsu.is_csr && (eq1_l || eq2_l)))
+    val e_load = (io.fwd_ex.load && (eq1_e || eq2_e))
+
+    ds_ready_go := !((io.fwd_ex.is_csr && (eq1_e || eq2_e)) || (io.fwd_lsu.is_csr && (eq1_l || eq2_l)) || e_load)
 
     val rs1_data = Mux1H(
       Seq(
@@ -317,13 +319,14 @@ class Decode extends Module {
     
     io.id_to_ex.is_csr := is_csr
     io.id_to_ex.csrop := csrop
-    io.id_to_ex.src1 := Mux(is_zimm,Cat(Fill(59,0.U),rs1(4,0)),rs1_data)
+    io.id_to_ex.csr_src := Mux(is_zimm,Cat(Fill(59,0.U),rs1(4,0)),rs1_data)
     io.id_to_ex.csr_addr := Mux(is_csr && ds_valid,inst(31,20),0.U)
     io.id_to_ex.is_zero := ((rs1 === 0.U) || !is_csr)
 
     io.id_to_ex.pc := pc
-    io.id_to_ex.inst := Mux(io.intr_flush ,NOP,inst)
+    io.id_to_ex.inst := Mux(io.intr_flush || !ds_to_es_valid,NOP,inst)
 
     io.intr_flush := csr_jump
 
+    io.id_to_ex.is_nop := Mux(io.intr_flush || !ds_to_es_valid ,true.B,io.if_to_id.is_nop)
 }

@@ -16,8 +16,9 @@ class LR extends Module {
   val judg = io.es_to_ls_valid && io.ls_allowin
   io.ls_valid := RegEnable(io.es_to_ls_valid,true.B, io.ls_allowin)
   // RegEnable(io.ex_to_lr,0.U, judg) <> io.lr_to_lsu
+  io.lr_to_lsu.is_nop := RegEnable(io.ex_to_lr.is_nop, false.B ,io.ls_allowin)
+  
   io.lr_to_lsu.is_csr := RegEnable(io.ex_to_lr.is_csr, false.B ,judg)
-  io.lr_to_lsu.csr_res := RegEnable(io.ex_to_lr.csr_res, 0.U ,judg)
 
   io.lr_to_lsu.alu_res := RegEnable(io.ex_to_lr.alu_res, 0.U ,judg)
 
@@ -33,10 +34,10 @@ class LR extends Module {
   io.lr_to_lsu.save := RegEnable(io.ex_to_lr.save, false.B ,judg)
 
   io.lr_to_lsu.pc := RegEnable(io.ex_to_lr.pc, 0.U ,judg)
-  io.lr_to_lsu.inst := RegEnable(io.ex_to_lr.inst, 0.U ,judg)
+  io.lr_to_lsu.inst := RegEnable(io.ex_to_lr.inst, 0.U ,io.ls_allowin)
 
   io.lr_to_lsu.csrop := RegEnable(io.ex_to_lr.csrop, 0.U ,judg)
   io.lr_to_lsu.csr_addr := RegEnable(io.ex_to_lr.csr_addr, 0.U ,judg)
-  io.lr_to_lsu.src1 := RegEnable(io.ex_to_lr.src1, 0.U ,judg)
+  io.lr_to_lsu.csr_src := RegEnable(io.ex_to_lr.csr_src, 0.U ,judg)
   io.lr_to_lsu.is_zero := RegEnable(io.ex_to_lr.is_zero, false.B ,judg)
 }

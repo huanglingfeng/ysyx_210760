@@ -43,8 +43,9 @@ class Core extends Module {
   rf.io.rd_en := wb.io.rd_en
 
   val csr = Module(new CSR)
-  decode.io.id_to_csr <> csr.io.csr_to_id
+  csr.io.csr_to_id <> decode.io.csr_to_id 
   lsu.io.lsu_to_csr <> csr.io.csr_to_lsu
+  wb.io.wb_to_csr <> csr.io.wb_to_csr
 
   /*-----------流水线总线连接---------------*/
   fetch.io.if_to_id <> dr.io.if_to_dr
@@ -84,17 +85,20 @@ class Core extends Module {
   decode.io.fwd_ex  <> ex.io.ex_fwd
   decode.io.fwd_lsu <> lsu.io.lsu_fwd
   decode.io.fwd_wb  <> wb.io.wb_fwd
+
+  ex.io.flush := decode.io.intr_flush
+  lsu.io.flush := decode.io.intr_flush
   /* ----- Difftest ------------------------------ */
 
   val dt_ic = Module(new DifftestInstrCommit)
   dt_ic.io.clock := clock
   dt_ic.io.coreid := 0.U
   dt_ic.io.index := 0.U
-  dt_ic.io.valid := true.B
+  dt_ic.io.valid := !RegNext(wb.io.is_nop)
   dt_ic.io.pc := RegNext(wb.io.pc)
   dt_ic.io.instr := RegNext(wb.io.inst)
   dt_ic.io.skip := RegNext(wb.io.inst === "h0000007b".U || RegNext(lsu.io.lsu_to_csr.is_clint) || wb.io.inst === ECALL
-    || RegNext(RegNext(RegNext(csr.io.csr_to_id.csr_addr === MCYCLE_N)))
+    || (wb.io.wb_to_csr.csr_addr === MCYCLE_N)
     )
   dt_ic.io.isRVC := false.B
   dt_ic.io.scFailed := false.B
@@ -121,9 +125,9 @@ class Core extends Module {
   val dt_te = Module(new DifftestTrapEvent)
   dt_te.io.clock := clock
   dt_te.io.coreid := 0.U
-  dt_te.io.valid := (fetch.io.if_to_id.inst === "h0000006b".U)
+  dt_te.io.valid := (wb.io.inst === "h0000006b".U)
   dt_te.io.code := rf_a0(2, 0)
-  dt_te.io.pc := fetch.io.if_to_id.pc
+  dt_te.io.pc := wb.io.pc
   dt_te.io.cycleCnt := cycle_cnt
   dt_te.io.instrCnt := instr_cnt
 
