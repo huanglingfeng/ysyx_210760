@@ -156,6 +156,7 @@ class Decode extends Module {
 
     val csr_jump = io.csr_to_id.csr_jump
     val csr_target = io.csr_to_id.csr_target
+    io.id_to_if.csr_jump := csr_jump
 
     val imm = Mux1H(Seq(
       (id_imm === 0.U) -> 0.U,

@@ -120,7 +120,6 @@ class CSR extends Module {
   val is_rs = (csrop === CSR_RS || csrop === CSR_RSI)
   val is_rc = (csrop === CSR_RC || csrop === CSR_RCI)
 
-
   val is_trap_begin = (csrop === CSR_ECALL) || clk_int
   val is_trap_end = (csrop === CSR_MRET)
   io.csr_to_id.csr_jump := is_trap_begin || is_trap_end
@@ -225,10 +224,7 @@ class CSR extends Module {
     }.elsewhen(mtvec(1, 0) === 1.U) {
       csr_target := (Cat(mtvec(63, 2), 0.U(2.W)) + Cat(0.U, mcause(62, 0)) << 2)
     }
-
-    // when(mstatus(12,11) === "b11".U(2.W) && (csrop === CSR_ECALL)){
-    //   mcause := "h0000_0000_0000_000b".U(64.W)                             //重复设计?
-    // }                                               
+                               
   }.elsewhen(is_trap_end) {
     when(csrop === CSR_MRET){
       mstatus_i := Cat(   mstatus(62,13),"b00".U(2.W),mstatus(10,8),1.U,mstatus(6,4),mstatus(7),mstatus(2,0))
