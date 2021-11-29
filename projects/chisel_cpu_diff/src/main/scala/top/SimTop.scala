@@ -1,12 +1,15 @@
 import chisel3._
 import chisel3.util._
 import difftest._
+import Consts._
 
 class SimTop extends Module {
   val io = IO(new Bundle {
     val logCtrl = new LogCtrlIO
     val perfInfo = new PerfInfoIO
     val uart = new UARTIO
+
+    val memAXI_0 = new AXI_BUS
   })
 
   val core = Module(new Core)

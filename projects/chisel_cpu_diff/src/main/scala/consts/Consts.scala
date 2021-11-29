@@ -105,4 +105,22 @@ object Consts {
   val MIP_N      = "h344".U(12.W)
   val MIE_N      = "h304".U(12.W)
   val MSCRATCH_N = "h340".U(12.W)
+
+//-----------------axi consts---------------------------//
+  val AXI_ADDR_WIDTH = 64
+  val AXI_DATA_WIDTH = 64
+  val AXI_ID_WIDTH = 4
+  val AXI_USER_WIDTH = 1
+
+  val SIZE_B = "b00".U(2.W)
+  val SIZE_H = "b01".U(2.W)
+  val SIZE_W = "b10".U(2.W)
+  val SIZE_D = "b11".U(2.W)
+  
+  val REQ_READ  = "b0".U(1.W)
+  val REQ_WRITE = "b1".U(1.W)
+
+  val RW_DATA_WIDTH = 64
+  val RW_ADDR_WIDTH = 64
+
 }
