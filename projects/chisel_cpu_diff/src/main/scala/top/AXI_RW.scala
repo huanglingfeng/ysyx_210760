@@ -28,8 +28,8 @@ class AXI_RW extends Module{
     val ar_hs = (io.axi.ar.ready_i & io.axi.ar.valid_o)
     val r_hs  = (io.axi.r.ready_o & io.axi.r.valid_i)
 
-    val w_done = (w_hs & axi.w.last_o)
-    val r_done = (r_hs & axi.r.last_i)
+    val w_done = (w_hs & io.axi.w.last_o)
+    val r_done = (r_hs & io.axi.r.last_i)
     val trans_done = Mux(w_trans,b_hs,r_done)
 
     //--------------------State Machine-----------------------------------------------------------------//
