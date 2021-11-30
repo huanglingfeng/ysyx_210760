@@ -164,6 +164,6 @@ class AXI_RW extends Module{
             }
         }
     }
-
+    io.data_read_o := data_read_o
 
 }
