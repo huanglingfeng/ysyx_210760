@@ -8,7 +8,9 @@ class InstFetch extends Module {
     val ds_allowin = Input(Bool())
     val fs_to_ds_valid = Output(Bool())
 
-    val imem = new RomIO
+    // val imem = new RomIO
+    val isram = new SRAM_BUS
+
     val if_to_id = new IF_TO_ID_BUS
     val id_to_if = Flipped(new ID_TO_IF_BUS)
   })
@@ -16,7 +18,7 @@ class InstFetch extends Module {
   //------------流水线控制逻辑------------------------------//
   val to_fs_valid = ~(Module.reset).asBool()
 
-  val fs_ready_go = true.B
+  val fs_ready_go = io.isram.data_ok
 
   val fs_allowin = Wire(Bool())
   val fs_valid = RegEnable(to_fs_valid,true.B,fs_allowin)
@@ -36,13 +38,20 @@ class InstFetch extends Module {
   val nextpc = Mux(jump, io.id_to_if.pc_target, pc + 4.U)
   when(ce){pc := nextpc}
 
-  io.imem.en := true.B
-  io.imem.addr := pc.asUInt()
+  // io.imem.en := true.B
+  // io.imem.addr := pc.asUInt()
+  io.isram.req := ce
+  io.isram.wr := false.B
+  io.isram.size := SIZE_D
+  io.isram.addr := pc
+  io.isram.wstrb := 0.U
+  io.isram.wdata := 0.U
 
   io.if_to_id.pc := Mux(pc_en, pc, 0.U)
   // io.if_to_id.inst := Mux(pc_en, io.imem.rdata(31, 0), 0.U)
 
-  val imem_data = io.imem.rdata(31, 0)
+  // val imem_data = io.imem.rdata(31, 0)
+  val isram_data = io.isram.rdata(31,0)
   io.if_to_id.is_nop := (pc_en && jump) || !fs_to_ds_valid
 
   io.if_to_id.inst := Mux(!fs_to_ds_valid,NOP,
@@ -50,7 +59,7 @@ class InstFetch extends Module {
     Seq(
       !pc_en -> 0.U,
       (pc_en && jump) -> NOP,
-      (pc_en && !jump) -> imem_data
+      (pc_en && !jump) -> isram_data
     )
   ))
 
