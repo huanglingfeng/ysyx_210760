@@ -10,7 +10,6 @@ class SRAM_BUS extends Bundle{
     val wstrb = Output(UInt(8.W))
     val wdata = Output(UInt(64.W))
 
-    val addr_ok = Input(Bool())
     val data_ok = Input(Bool())
     val rdata = Input(UInt(64.W))
 }

@@ -6,29 +6,25 @@ import Consts._
 
 class Core extends Module {
   val io = IO(new Bundle {
-    val imem = new RomIO
-    val dmem = new RamIO
+    val isram = new SRAM_BUS
+    val dsram = new SRAM_BUS
   })
 
   val fetch = Module(new InstFetch)
-  fetch.io.imem <> io.imem
+  fetch.io.isram <> io.isram
   
   val dr = Module(new DR)
   val decode = Module(new Decode)
 
-  // fetch.io.if_to_id <> decode.io.if_to_id
   decode.io.id_to_if <> fetch.io.id_to_if
   val er = Module(new ER)
   val ex = Module(new Execution)
-  // decode.io.id_to_ex <> ex.io.id_to_ex
   val lr = Module(new LR)
   val lsu = Module(new LSU)
-  // ex.io.ex_to_lsu <> lsu.io.ex_to_lsu
-  lsu.io.dmem <> io.dmem
+  lsu.io.dsram <> io.dsram
 
   val wr = Module(new WR)
   val wb = Module(new WB)
-  // lsu.io.lsu_to_wb <> wb.io.lsu_to_wb
 
   val rf = Module(new RegFile)
   /*------------idu <> rf---------------------*/

@@ -24,8 +24,12 @@ class LSU extends Module {
   })
   
   //------------流水线控制逻辑------------------------------//
+  val pending = RegInit(false.B)
+  when(io.dsram.data_ok){
+    pending := false.B
+  }
   val ls_valid = io.ls_valid
-  val ls_ready_go = io.dram.data_ok || (!(load || save))
+  val ls_ready_go = (~pending && io.ws_allowin) || (!(load || save))
   val ls_allowin = Wire(Bool())
   val ls_to_ws_valid = Wire(Bool())
 
@@ -143,7 +147,15 @@ class LSU extends Module {
   // io.dmem.wdata := sdata
   // io.dmem.wmask := wmask
   // val mdata = io.dmem.rdata
-  io.dsram.req := Mux(ls_ready_go,(load || save) && (!is_clint),false.B)
+  val req = RegInit(false.B)
+  when((load || save) && (!is_clint) && !pending){
+    req := true.B
+  }
+  when(req){
+    req := false.B
+    pending := true.B
+  }
+  io.dsram.req := req
   io.dsram.wr := save
   io.dsram.size := Mux1H(Seq(
     !(load || save) -> 0.U,
@@ -155,8 +167,8 @@ class LSU extends Module {
   io.dsram.addr := addr_real
   io.dsram.wstrb := wstrb
   io.dsram.wdata := sdata
-  
-  val mdata = io.dsram.rdata
+
+  val mdata = RegEnable(io.dsram.rdata,io.dsram.data_ok)
 
   val rdata = Mux1H(
     Seq(

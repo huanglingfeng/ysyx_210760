@@ -66,9 +66,6 @@ class SimTop extends Module {
   u_axi_rw.io.axi.r.id_i := io.memAXI_0.r.bits_id
   u_axi_rw.io.axi.r.user_i := io.memAXI_0.r.bits_user
 
-  // val mem = Module(new Ram2r1w)
-  // mem.io.imem <> core.io.imem
-  // mem.io.dmem <> core.io.dmem
 
   io.uart.out.valid := false.B
   io.uart.out.ch := 0.U
