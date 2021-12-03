@@ -22,14 +22,17 @@ class LSU extends Module {
     val flush = Input(Bool())
     
   })
+  val load = Wire(Bool())
+  val save = Wire(Bool())
+  val is_clint = Wire(Bool())
   
   //------------流水线控制逻辑------------------------------//
-  val pending = RegInit(false.B)
-  when(io.dsram.data_ok){
-    pending := false.B
-  }
   val ls_valid = io.ls_valid
-  val ls_ready_go = (~pending && io.ws_allowin) || (!(load || save))
+  val rw_valid = (load || save) && !is_clint
+  io.dsram.rw_valid := rw_valid
+  val hs_done = io.dsram.rw_ready && rw_valid
+
+  val ls_ready_go = hs_done || !rw_valid
   val ls_allowin = Wire(Bool())
   val ls_to_ws_valid = Wire(Bool())
 
@@ -50,8 +53,8 @@ class LSU extends Module {
   val imm = io.ex_to_lsu.imm
   val lsuop = io.ex_to_lsu.lsuop
   val rv64op = io.ex_to_lsu.rv64op
-  val load = Mux(ls_valid && (inst =/= NOP),io.ex_to_lsu.load,false.B)
-  val save = Mux(ls_valid && (inst =/= NOP),io.ex_to_lsu.save,false.B)
+  load := Mux(ls_valid && (inst =/= NOP),io.ex_to_lsu.load,false.B)
+  save := Mux(ls_valid && (inst =/= NOP),io.ex_to_lsu.save,false.B)
 
   val i_lb = lsuop(0)
   val i_lh = lsuop(1)
@@ -137,7 +140,7 @@ class LSU extends Module {
 
   val is_mtime = (addr_real === "h0200_bff8".U(64.W))
   val is_mtimecmp = (addr_real === "h0200_4000".U(64.W))
-  val is_clint = is_mtime || is_mtimecmp  //在0x200_0000~-0x200_ffff的其他地址依然会访问ram
+  is_clint := is_mtime || is_mtimecmp  //在0x200_0000 ~ 0x200_ffff的其他地址依然会访问ram
   val clint_wdata = src2
   val clint_rdata = io.lsu_to_csr.rdata
 
@@ -147,15 +150,7 @@ class LSU extends Module {
   // io.dmem.wdata := sdata
   // io.dmem.wmask := wmask
   // val mdata = io.dmem.rdata
-  val req = RegInit(false.B)
-  when((load || save) && (!is_clint) && !pending){
-    req := true.B
-  }
-  when(req){
-    req := false.B
-    pending := true.B
-  }
-  io.dsram.req := req
+
   io.dsram.wr := save
   io.dsram.size := Mux1H(Seq(
     !(load || save) -> 0.U,
@@ -168,7 +163,7 @@ class LSU extends Module {
   io.dsram.wstrb := wstrb
   io.dsram.wdata := sdata
 
-  val mdata = RegEnable(io.dsram.rdata,io.dsram.data_ok)
+  val mdata = io.dsram.rdata
 
   val rdata = Mux1H(
     Seq(

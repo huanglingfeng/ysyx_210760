@@ -17,13 +17,11 @@ class InstFetch extends Module {
   val jump = io.id_to_if.jump
 
   //------------流水线控制逻辑------------------------------//
-  val pending = RegInit(false.B)
   val to_fs_valid = ~(Module.reset).asBool()
+  val rw_valid = to_fs_valid
+  val hs_done = io.isram.rw_ready && rw_valid
 
-  when(io.isram.data_ok){
-    pending := false.B
-  }
-  val fs_ready_go = (~pending && io.ds_allwoin) || jump
+  val fs_ready_go = hs_done
 
   val fs_allowin = Wire(Bool())
   val fs_valid = RegEnable(to_fs_valid,true.B,fs_allowin)
@@ -36,36 +34,31 @@ class InstFetch extends Module {
   //-------------------------------------------------------//
   val pc_en = RegInit(false.B)
   pc_en := true.B
-  val ce = to_fs_valid && fs_allowin
 
   val pc = RegInit("h0000_0000_7FFF_FFFC".U(64.W))
+  val pc_out = RegInit("h0000_0000_8000_0000".U(64.W))
 
   val nextpc = Mux(jump, io.id_to_if.pc_target, pc + 4.U)
   
-  val req = RegInit(false.B)
-  when(ce){
-    pc := nextpc
-    req := true.B
+  when(hs_done){
+    pc := pc_out
+    pc_out := next_pc
   }
-  when(req){
-    req := false.B
-    pending := true.B
-  }
-
   // io.imem.en := true.B
   // io.imem.addr := pc.asUInt()
-  io.isram.req := req
   io.isram.wr := false.B
   io.isram.size := SIZE_D
-  io.isram.addr := pc
+  io.isram.addr := pc_out
   io.isram.wstrb := 0.U
   io.isram.wdata := 0.U
+  
+  io.isram.rw_valid := rw_valid
 
   io.if_to_id.pc := Mux(pc_en, pc, 0.U)
   // io.if_to_id.inst := Mux(pc_en, io.imem.rdata(31, 0), 0.U)
 
   // val imem_data = io.imem.rdata(31, 0)
-  val isram_data = RegEnable(io.isram.rdata(31,0),io.isram.data_ok)
+  val isram_data = RegEnable(io.isram.rdata(31,0),hs_done)
 
   io.if_to_id.is_nop := (pc_en && jump) || !fs_to_ds_valid
 
