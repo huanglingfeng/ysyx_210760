@@ -15,6 +15,23 @@ class SimTop extends Module {
   val core = Module(new Core)
 
   val u_axi_rw = new AXI_RW
+
+  val s_a_brid = new S_A_BRIDGE
+
+  core.io.iram <> s_a_brid.io.iram
+  core.io.dram <> s_a_brid.io.dram
+  //--------cpu <> u_axi_rw-------------------------//
+  u_axi_rw.io.rw_valid_i := s_a_brid.io.rw_valid
+  s_a_brid.io.rw_ready := u_axi_rw.io.rw_ready
+  u_axi_rw.io.rw_req_i := s_a_brid.io.rw_req
+  s_a_brid.io.data_read := u_axi_rw.io.data_read_o
+  u_axi_rw.io.data_write_i := s_a_brid.io.data_write
+  u_axi_rw.io.rw_addr_i := s_a_brid.io.rw_addr
+  u_axi_rw.io.rw_size_i := s_a_brid.io.rw_size
+  s_a_brid.io.rw_resp := u_axi_rw.io.rw_resp_o
+  u_axi_rw.io.w_strb := s_a_brid.io.w_strb
+  u_axi_rw.io.axi_id := s_a_brid.io.id
+  
   //--------write address--------------------------//
   u_axi_rw.io.axi.ready_i := io.memAXI_0.aw.ready
   io.memAXI_0.aw.valid := u_axi_rw.io.axi.valid_o

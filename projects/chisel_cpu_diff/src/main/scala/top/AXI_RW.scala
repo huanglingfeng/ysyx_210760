@@ -12,6 +12,8 @@ class AXI_RW extends Module{
         val rw_addr_i = Input(UInt(AXI_DATA_WIDTH.W))
         val rw_size_i = Input(UInt(2.W))
         val rw_resp_o = Output(UInt(2.W))
+        val w_strb = Input(UInt(8.W))
+        val axi_id = Input(UInt(AXI_ID_WIDTH.W))
 
         val axi = new AXI_BUS
     })
@@ -109,7 +111,7 @@ class AXI_RW extends Module{
     val mask_l = mask(AXI_DATA_WIDTH-1,0)
     val mask_h = mask(MASK_WIDTH-1,AXI_DATA_WIDTH)
 
-    val axi_id = 0.U(AXI_ID_WIDTH.W)
+    val axi_id = io.axi_id
     val axi_user = 0.U(AXI_USER_WIDTH.W)
 
     val rw_ready = RegInit(false.B)
@@ -130,7 +132,23 @@ class AXI_RW extends Module{
     io.rw_resp_o := rw_resp
 
     // ------------------Write Transaction------------------
+    
+    //Write address channel signals
+    io.axi.aw.valid_o := w_state_addr
+    io.axi.aw.addr_o  := axi_addr
+    io.axi.aw.prot_o  := 0.U
+    io.axi.aw.id_o    := axi_id
+    io.axi.aw.user_o  := axi_user
+    io.axi.aw.len_o   := axi_len
+    io.axi.aw.size_o  := axi_size
+    io.axi.aw.burst_o := 1.U
+    io.axi.aw.lock_o  := 0.U
+    io.axi.aw.cache_o := 0.U
+    io.axi.aw.qos_o   := 0.U
 
+    //Write data channel signals
+    io.axi.w.valid_o  := w_state_write
+    io.axi.w.data_o   := ?
 
     // ------------------Read Transaction------------------
 
@@ -140,6 +158,7 @@ class AXI_RW extends Module{
     io.axi.ar.prot_o  := 0.U
     io.axi.ar.id_o    := axi_id
     io.axi.ar.user_o  := axi_user
+    io.axi.ar.len_o   := axi_len
     io.axi.ar.size_o  := axi_size
     io.axi.ar.burst_o := 1.U
     io.axi.ar.lock_o  := 0.U
@@ -149,8 +168,10 @@ class AXI_RW extends Module{
     // Read data channel signals
     io.axi.r.ready_o := r_state_read
 
-    val axi_r_data_l = (io.axi.r.data_i & mask_l) >> aligned_offset_l
-    val axi_r_data_h = (io.axi.r.data_i & mask_h) << aligned_offset_h
+    val axi_r_data_l = Wire(UInt(RW_DATA_WIDTH.W))
+    axi_r_data_l := (io.axi.r.data_i & mask_l) >> aligned_offset_l
+    val axi_r_data_h = Wire(UInt(RW_DATA_WIDTH.W))
+    axi_r_data_h := (io.axi.r.data_i & mask_h) << aligned_offset_h
     
     val data_read_o = RegInit(0.U(RW_DATA_WIDTH.W))
 
