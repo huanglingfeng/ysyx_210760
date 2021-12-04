@@ -148,7 +148,12 @@ class AXI_RW extends Module{
 
     //Write data channel signals
     io.axi.w.valid_o  := w_state_write
-    io.axi.w.data_o   := ?
+    io.axi.w.data_o   := io.data_write_i
+    io.axi.w.strb_o   := io.w_strb
+    io.axi.w.last_o   := 1.U
+
+    //Write response channel signals
+    io.axi.b.ready_o  := w_state_resp
 
     // ------------------Read Transaction------------------
 
