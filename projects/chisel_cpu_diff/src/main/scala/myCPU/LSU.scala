@@ -45,7 +45,7 @@ class LSU extends Module {
   //-------------------------------------------------------//
 
   val pc = io.ex_to_lsu.pc
-  val inst = Mux(io.flush || !ls_to_ws_valid,NOP,io.ex_to_lsu.inst)
+  val inst = Mux(io.flush,NOP,io.ex_to_lsu.inst)
 
   val alu_res = io.ex_to_lsu.alu_res
   val src1 = io.ex_to_lsu.src1
@@ -241,7 +241,7 @@ class LSU extends Module {
   io.lsu_to_csr.wdata := clint_wdata
 
   io.lsu_to_wb.pc := pc
-  io.lsu_to_wb.inst := inst
+  io.lsu_to_wb.inst := Mux(io.flush || !ls_to_ws_valid,NOP,inst)
 
   io.lsu_to_wb.is_csr := is_csr
   io.lsu_to_wb.csrop := io.ex_to_lsu.csrop

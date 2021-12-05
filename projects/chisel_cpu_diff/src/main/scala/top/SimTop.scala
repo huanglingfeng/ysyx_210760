@@ -14,15 +14,15 @@ class SimTop extends Module {
 
   val core = Module(new Core)
 
-  val u_axi_rw = new AXI_RW
+  val u_axi_rw = Module(new AXI_RW)
 
-  val s_a_brid = new S_A_BRIDGE
+  val s_a_brid = Module(new S_A_BRIDGE)
 
-  core.io.iram <> s_a_brid.io.iram
-  core.io.dram <> s_a_brid.io.dram
+  core.io.isram <> s_a_brid.io.iram
+  core.io.dsram <> s_a_brid.io.dram
   //--------cpu <> u_axi_rw-------------------------//
   u_axi_rw.io.rw_valid_i := s_a_brid.io.rw_valid
-  s_a_brid.io.rw_ready := u_axi_rw.io.rw_ready
+  s_a_brid.io.rw_ready := u_axi_rw.io.rw_ready_o
   u_axi_rw.io.rw_req_i := s_a_brid.io.rw_req
   s_a_brid.io.data_read := u_axi_rw.io.data_read_o
   u_axi_rw.io.data_write_i := s_a_brid.io.data_write
@@ -33,8 +33,8 @@ class SimTop extends Module {
   u_axi_rw.io.axi_id := s_a_brid.io.id
   
   //--------write address--------------------------//
-  u_axi_rw.io.axi.ready_i := io.memAXI_0.aw.ready
-  io.memAXI_0.aw.valid := u_axi_rw.io.axi.valid_o
+  u_axi_rw.io.axi.aw.ready_i := io.memAXI_0.aw.ready
+  io.memAXI_0.aw.valid := u_axi_rw.io.axi.aw.valid_o
   io.memAXI_0.aw.bits_addr := u_axi_rw.io.axi.aw.addr_o
   io.memAXI_0.aw.bits_prot := u_axi_rw.io.axi.aw.prot_o
   io.memAXI_0.aw.bits_id := u_axi_rw.io.axi.aw.id_o
@@ -76,7 +76,7 @@ class SimTop extends Module {
 
   //----------------read data-------------------------//
   io.memAXI_0.r.ready := u_axi_rw.io.axi.r.ready_o
-  u_axi_rw.io.axi.r.valid_i := io.memAXI_0.r.bits_valid
+  u_axi_rw.io.axi.r.valid_i := io.memAXI_0.r.valid
   u_axi_rw.io.axi.r.resp_i := io.memAXI_0.r.bits_resp
   u_axi_rw.io.axi.r.data_i := io.memAXI_0.r.bits_data
   u_axi_rw.io.axi.r.last_i := io.memAXI_0.r.bits_last

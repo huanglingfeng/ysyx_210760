@@ -1,6 +1,7 @@
 import chisel3._
 import chisel3.util._
 import Consts._
+import scala.math._
 
 class AXI_RW extends Module{
     val io = IO(new Bundle{
@@ -24,7 +25,7 @@ class AXI_RW extends Module{
     val r_valid = (io.rw_valid_i & r_trans)
 
     //handshake
-    val aw_hs = (io.axi.aw.read_i & io.axi.aw.valid_o)
+    val aw_hs = (io.axi.aw.ready_i & io.axi.aw.valid_o)
     val w_hs  = (io.axi.w.ready_i & io.axi.w.valid_o)
     val b_hs  = (io.axi.b.ready_o & io.axi.b.valid_i)
     val ar_hs = (io.axi.ar.ready_i & io.axi.ar.valid_o)
@@ -35,8 +36,14 @@ class AXI_RW extends Module{
     val trans_done = Mux(w_trans,b_hs,r_done)
 
     //--------------------State Machine-----------------------------------------------------------------//
-    val (W_STATE_IDLE,W_STATE_ADDR,W_STATE_WRITE,W_STATE_RESP) = ("b00".U(2.W),"b01".U(2.W),"b10".U(2.W),"b11".U(2.W))
-    val (R_STATE_IDLE,R_STATE_ADDR,R_STATE_READ) = ("b00".U(2.W),"b01".U(2.W),"b10".U(2.W))
+    val W_STATE_IDLE  = "b00".U(2.W)
+    val W_STATE_ADDR  = "b01".U(2.W)
+    val W_STATE_WRITE = "b10".U(2.W)
+    val W_STATE_RESP  = "b11".U(2.W)
+  
+    val R_STATE_IDLE  = "b00".U(2.W)
+    val R_STATE_ADDR  = "b01".U(2.W)
+    val R_STATE_READ  = "b10".U(2.W)
 
     val w_state = RegInit(W_STATE_IDLE)
     val r_state = RegInit(R_STATE_IDLE)
@@ -63,43 +70,44 @@ class AXI_RW extends Module{
 
     //--------------Number of transmission---------------------//
     val axi_len = WireInit(0.U(8.W))
-    val len_reset = ((Module.reset) | (w_trans & w_state_idle) | (r_trans & r_state_idle))
-    withReset(len_reset){
-        val len_incr_en = ((len =/= axi_len) & (w_hs | r_hs))
-        val len=RegInit(0.U(8.W))
-        when(len_incr_en){
-            len := len + 1.U
-        }
+    val len_reset = ((Module.reset).asBool() | (w_trans & w_state_idle) | (r_trans & r_state_idle))
+    val len=RegInit(0.U(8.W))
+    val len_incr_en = ((len =/= axi_len) & (w_hs | r_hs))
+    when(len_reset){
+        len := 0.U
+    }.elsewhen(len_incr_en){
+        len := len + 1.U
     }
     
     // ------------------Process Data--------------------------//
-    val ALIGNED_WIDTH = Log2(AXI_DATA_WIDTH / 8)
-    val OFFSET_WIDTH  = Log2(AXI_DATA_WIDTH)
-    val AXI_SIZE      = Log2(AXI_DATA_WIDTH / 8)
+    val ALIGNED_WIDTH = (log(AXI_DATA_WIDTH / 8)).toInt
+    val OFFSET_WIDTH  = (log(AXI_DATA_WIDTH)).toInt
+    val AXI_SIZE      = (log(AXI_DATA_WIDTH / 8)).toInt
     val MASK_WIDTH    = AXI_DATA_WIDTH * 2
     val TRANS_LEN     = RW_DATA_WIDTH / AXI_DATA_WIDTH
+    val BLOCK_TRANS   = Mux((TRANS_LEN > 1).asBool(), true.B,false.B)
 
-    val aligned       = (BLOCK_TRANS || (rw_addr_i(ALIGNED_WIDTH-1,0) === 0.U))
-    val size_b        = (rw_size_i === SIZE_B)
-    val size_h        = (rw_size_i === SIZE_H)
-    val size_w        = (rw_size_i === SIZE_W)
-    val size_d        = (rw_size_i === SIZE_D)
+    val aligned       = (BLOCK_TRANS || (io.rw_addr_i(ALIGNED_WIDTH-1,0) === 0.U))
+    val size_b        = (io.rw_size_i === SIZE_B)
+    val size_h        = (io.rw_size_i === SIZE_H)
+    val size_w        = (io.rw_size_i === SIZE_W)
+    val size_d        = (io.rw_size_i === SIZE_D)
     val addr_op1 = WireInit(0.U(4.W))
-    addr_op1 := Cat(Fill(4-ALIGNED_WIDTH,0.U),rw_addr_i(ALIGNED_WIDTH,0))
+    addr_op1 := Cat(Fill(4-ALIGNED_WIDTH,0.U),io.rw_addr_i(ALIGNED_WIDTH,0))
     val addr_op2 = WireInit(0.U(4.W))
     addr_op2 := Mux1H(Seq(
-        size_b -> "b0".U(4.W)
-        size_h -> "b1".U(4.W)
-        size_w -> "b11".U(4.W)
+        size_b -> "b0".U(4.W),
+        size_h -> "b1".U(4.W),
+        size_w -> "b11".U(4.W),
         size_d -> "b111".U(4.W)
     ))
     val addr_end = addr_op1 + addr_op2
-    val overstep = (addr_end(3,ALIGNED_WIDTH) =\= 0.U)
-    val axi_len = Mux(aligned,(TRANS_LEN - 1).U(8.W),Cat(Fill(7,0.U),overstep))
+    val overstep = (addr_end(3,ALIGNED_WIDTH) =/= 0.U)
+    axi_len := Mux(aligned,(TRANS_LEN - 1).U(8.W),Cat(Fill(7,0.U),overstep))
     val axi_size = (AXI_SIZE).U(3.W)
     
-    val axi_addr = Cat(rw_addr_i(AXI_ADDR_WIDTH-1,ALIGNED_WIDTH),0.U(ALIGNED_WIDTH.W))
-    val aligned_offset_l = Cat(Fill(OFFSET_WIDTH-ALIGNED_WIDTH,0.U),rw_addr_i(ALIGNED_WIDTH-1,0)) << 3
+    val axi_addr = Cat(io.rw_addr_i(AXI_ADDR_WIDTH-1,ALIGNED_WIDTH),0.U(ALIGNED_WIDTH.W))
+    val aligned_offset_l = Cat(Fill(OFFSET_WIDTH-ALIGNED_WIDTH,0.U),io.rw_addr_i(ALIGNED_WIDTH-1,0)) << 3
     val aligned_offset_h = (AXI_DATA_WIDTH).U - aligned_offset_l
     val mask = (Mux1H(Seq(
         size_b -> "hff".U(MASK_WIDTH.W),
@@ -183,10 +191,28 @@ class AXI_RW extends Module{
     for(i <- 0 until TRANS_LEN){
         when(io.axi.r.ready_o & io.axi.r.valid_i){
             when(~aligned & overstep){
-                when(len(0)){data_read_o(AXI_DATA_WIDTH-1,0) := data_read_o(AXI_DATA_WIDTH-1,0) | axi_r_data_h}
-                    .otherwise{data_read_o(AXI_DATA_WIDTH-1,0) := axi_r_data_l}
+                when(len(0)){
+                    if(RW_DATA_WIDTH > AXI_DATA_WIDTH){
+                        data_read_o := Cat(data_read_o(RW_DATA_WIDTH-1,AXI_DATA_WIDTH),data_read_o(AXI_DATA_WIDTH-1,0) | axi_r_data_h)
+                    }
+                    else{
+                        data_read_o := data_read_o(AXI_DATA_WIDTH-1,0) | axi_r_data_h
+                    }
+                }.otherwise{
+                    if(RW_DATA_WIDTH > AXI_DATA_WIDTH){
+                        data_read_o := Cat(data_read_o(RW_DATA_WIDTH-1,AXI_DATA_WIDTH),axi_r_data_l(AXI_DATA_WIDTH-1,0))
+                    }
+                    else{
+                        data_read_o := axi_r_data_l(AXI_DATA_WIDTH-1,0)
+                    }
+                }
             }.elsewhen(len === i.U){
-                data_read_o(i*AXI_DATA_WIDTH+AXI_DATA_WIDTH-1,i*AXI_DATA_WIDTH) := axi_r_data_l
+                if(RW_DATA_WIDTH > AXI_DATA_WIDTH){
+                    data_read_o := Cat(data_read_o(RW_DATA_WIDTH-1,i*AXI_DATA_WIDTH+AXI_DATA_WIDTH),axi_r_data_l(AXI_DATA_WIDTH-1,0),data_read_o(i*AXI_DATA_WIDTH-1,0))
+                }
+                else{
+                    data_read_o := axi_r_data_l(AXI_DATA_WIDTH-1,0)
+                }
             }
         }
     }

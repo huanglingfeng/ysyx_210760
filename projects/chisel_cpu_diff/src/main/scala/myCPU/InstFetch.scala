@@ -42,7 +42,7 @@ class InstFetch extends Module {
   
   when(hs_done){
     pc := pc_out
-    pc_out := next_pc
+    pc_out := nextpc
   }
   // io.imem.en := true.B
   // io.imem.addr := pc.asUInt()

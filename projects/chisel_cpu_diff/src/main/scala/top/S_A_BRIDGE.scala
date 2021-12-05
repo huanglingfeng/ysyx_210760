@@ -18,7 +18,7 @@ class S_A_BRIDGE extends Module{
         val rw_resp = Input(UInt(2.W))
         val w_strb = Output(UInt(8.W))
 
-        val id = Output(AXI_ID_WIDTH.W)
+        val id = Output(UInt(AXI_ID_WIDTH.W))
     })
     val rw_resp = WireInit(0.U(2.W))
     when(io.dram.rw_valid){
@@ -34,6 +34,7 @@ class S_A_BRIDGE extends Module{
         io.w_strb := io.dram.wstrb
 
         io.iram.rw_ready := false.B
+        io.iram.rdata := io.data_read
     }.otherwise{
         io.id := 0.U
         io.rw_valid := io.iram.rw_valid
@@ -47,6 +48,7 @@ class S_A_BRIDGE extends Module{
         io.w_strb := 0.U
 
         io.dram.rw_ready := false.B
+        io.dram.rdata := io.data_read
     }
 
 }
