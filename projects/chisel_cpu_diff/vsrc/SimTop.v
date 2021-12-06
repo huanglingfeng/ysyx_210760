@@ -30,7 +30,9 @@ module InstFetch(
   reg  pc_en; // @[InstFetch.scala 39:22]
   reg [63:0] pc; // @[InstFetch.scala 42:19]
   reg [63:0] pc_out; // @[InstFetch.scala 43:23]
-  wire [63:0] _nextpc_T_1 = pc_out + 64'h4; // @[InstFetch.scala 45:56]
+  wire [63:0] _nextpc_out_T_1 = io_id_to_if_pc_target + 64'h4; // @[InstFetch.scala 45:52]
+  wire [63:0] _nextpc_out_T_3 = pc_out + 64'h4; // @[InstFetch.scala 45:66]
+  wire [63:0] _nextpc_T_1 = pc + 64'h4; // @[InstFetch.scala 46:53]
   reg [31:0] isram_data; // @[Reg.scala 15:16]
   wire  _io_if_to_id_is_nop_T = pc_en & io_id_to_if_jump; // @[InstFetch.scala 67:32]
   wire  _io_if_to_id_is_nop_T_1 = ~fs_to_ds_valid; // @[InstFetch.scala 67:44]
@@ -41,7 +43,7 @@ module InstFetch(
   wire [63:0] _io_if_to_id_inst_T_9 = _io_if_to_id_inst_T_6 | _GEN_4; // @[Mux.scala 27:72]
   wire [63:0] _io_if_to_id_inst_T_10 = _io_if_to_id_is_nop_T_1 ? 64'h13 : _io_if_to_id_inst_T_9; // @[InstFetch.scala 69:26]
   assign io_fs_to_ds_valid = fs_valid & fs_ready_go; // @[InstFetch.scala 33:30]
-  assign io_isram_addr = pc_out; // @[InstFetch.scala 55:17]
+  assign io_isram_addr = io_id_to_if_jump ? io_id_to_if_pc_target : pc_out; // @[InstFetch.scala 55:23]
   assign io_isram_rw_valid = ~reset; // @[InstFetch.scala 22:21]
   assign io_if_to_id_is_nop = pc_en & io_id_to_if_jump | ~fs_to_ds_valid; // @[InstFetch.scala 67:41]
   assign io_if_to_id_pc = pc_en ? pc : 64'h0; // @[InstFetch.scala 61:24]
@@ -57,15 +59,19 @@ module InstFetch(
     if (reset) begin // @[InstFetch.scala 42:19]
       pc <= 64'h7ffffffc; // @[InstFetch.scala 42:19]
     end else if (fs_ready_go) begin // @[InstFetch.scala 47:16]
-      pc <= pc_out; // @[InstFetch.scala 48:8]
+      if (io_id_to_if_jump) begin // @[InstFetch.scala 46:19]
+        pc <= io_id_to_if_pc_target;
+      end else begin
+        pc <= _nextpc_T_1;
+      end
     end
     if (reset) begin // @[InstFetch.scala 43:23]
       pc_out <= 64'h80000000; // @[InstFetch.scala 43:23]
     end else if (fs_ready_go) begin // @[InstFetch.scala 47:16]
-      if (io_id_to_if_jump) begin // @[InstFetch.scala 45:19]
-        pc_out <= io_id_to_if_pc_target;
+      if (io_id_to_if_jump) begin // @[InstFetch.scala 45:23]
+        pc_out <= _nextpc_out_T_1;
       end else begin
-        pc_out <= _nextpc_T_1;
+        pc_out <= _nextpc_out_T_3;
       end
     end
     if (fs_ready_go) begin // @[Reg.scala 16:19]

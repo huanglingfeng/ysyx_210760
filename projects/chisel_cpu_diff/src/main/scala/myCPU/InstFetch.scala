@@ -42,17 +42,17 @@ class InstFetch extends Module {
   val pc = RegInit("h0000_0000_7FFF_FFFC".U(64.W))
   val pc_out = RegInit("h0000_0000_8000_0000".U(64.W))
 
-  val nextpc = Mux(jump, io.id_to_if.pc_target, pc_out + 4.U)
-  
+  val nextpc_out = Mux(jump, io.id_to_if.pc_target + 4.U, pc_out + 4.U)
+  val nextpc = Mux(jump, io.id_to_if.pc_target , pc + 4.U)
   when(hs_done){
-    pc := pc_out
-    pc_out := nextpc
+    pc := nextpc
+    pc_out := nextpc_out
   }
   // io.imem.en := true.B
   // io.imem.addr := pc.asUInt()
   io.isram.wr := false.B
   io.isram.size := SIZE_D
-  io.isram.addr := pc_out
+  io.isram.addr := Mux(jump, io.id_to_if.pc_target,pc_out)
   io.isram.wstrb := 0.U
   io.isram.wdata := 0.U
   
