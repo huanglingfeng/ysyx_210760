@@ -27,6 +27,8 @@ class Decode extends Module {
 
     val intr_flush = Output(Bool()) //向后传递的流水线冲刷信号
 
+    val br_stall = Input(Bool())
+
   })
 
   //------------流水线控制逻辑------------------------------//
@@ -178,7 +180,7 @@ class Decode extends Module {
 
     val e_load = (io.fwd_ex.load && (eq1_e || eq2_e))
 
-    ds_ready_go := (!((io.fwd_ex.is_csr && (eq1_e || eq2_e)) || (io.fwd_lsu.is_csr && (eq1_l || eq2_l)) || e_load)) || csr_jump
+    ds_ready_go := ((!((io.fwd_ex.is_csr && (eq1_e || eq2_e)) || (io.fwd_lsu.is_csr && (eq1_l || eq2_l)) || e_load)) || csr_jump) && ~io.br_stall
 
     val rs1_data = Mux1H(
       Seq(

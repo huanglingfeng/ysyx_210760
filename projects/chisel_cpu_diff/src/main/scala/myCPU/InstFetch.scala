@@ -13,6 +13,8 @@ class InstFetch extends Module {
 
     val if_to_id = new IF_TO_ID_BUS
     val id_to_if = Flipped(new ID_TO_IF_BUS)
+
+    val br_stall = Output(Bool())
   })
   val jump = io.id_to_if.jump
 
@@ -32,6 +34,8 @@ class InstFetch extends Module {
   io.fs_to_ds_valid := fs_to_ds_valid
 
   //-------------------------------------------------------//
+  io.br_stall := jump && ~fs_ready_go
+
   val pc_en = RegInit(false.B)
   pc_en := true.B
 

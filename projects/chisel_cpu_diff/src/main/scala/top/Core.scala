@@ -15,8 +15,8 @@ class Core extends Module {
   
   val dr = Module(new DR)
   val decode = Module(new Decode)
-
   decode.io.id_to_if <> fetch.io.id_to_if
+  decode.io.br_stall := fetch.io.br_stall
   val er = Module(new ER)
   val ex = Module(new Execution)
   val lr = Module(new LR)
