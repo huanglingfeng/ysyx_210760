@@ -80,9 +80,9 @@ class AXI_RW extends Module{
     }
     
     // ------------------Process Data--------------------------//
-    val ALIGNED_WIDTH = (log(AXI_DATA_WIDTH / 8)).toInt
-    val OFFSET_WIDTH  = (log(AXI_DATA_WIDTH)).toInt
-    val AXI_SIZE      = (log(AXI_DATA_WIDTH / 8)).toInt
+    val ALIGNED_WIDTH = (log(AXI_DATA_WIDTH / 8) / log(2)).toInt
+    val OFFSET_WIDTH  = (log(AXI_DATA_WIDTH) / log(2)).toInt
+    val AXI_SIZE      = (log(AXI_DATA_WIDTH / 8) / log(2)).toInt
     val MASK_WIDTH    = AXI_DATA_WIDTH * 2
     val TRANS_LEN     = RW_DATA_WIDTH / AXI_DATA_WIDTH
     val BLOCK_TRANS   = Mux((TRANS_LEN > 1).asBool(), true.B,false.B)
