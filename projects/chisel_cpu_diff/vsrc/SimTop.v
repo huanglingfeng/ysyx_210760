@@ -29,7 +29,7 @@ module InstFetch(
   reg  pc_en; // @[InstFetch.scala 35:22]
   reg [63:0] pc; // @[InstFetch.scala 38:19]
   reg [63:0] pc_out; // @[InstFetch.scala 39:23]
-  wire [63:0] _nextpc_T_1 = pc + 64'h4; // @[InstFetch.scala 41:52]
+  wire [63:0] _nextpc_T_1 = pc_out + 64'h4; // @[InstFetch.scala 41:56]
   reg [31:0] isram_data; // @[Reg.scala 15:16]
   wire  _io_if_to_id_is_nop_T = pc_en & io_id_to_if_jump; // @[InstFetch.scala 63:32]
   wire  _io_if_to_id_is_nop_T_1 = ~fs_to_ds_valid; // @[InstFetch.scala 63:44]
