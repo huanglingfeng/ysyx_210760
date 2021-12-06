@@ -4482,9 +4482,9 @@ module AXI_RW(
   input         io_rw_valid_i,
   output        io_rw_ready_o,
   input         io_rw_req_i,
-  output [64:0] io_data_read_o,
-  input  [64:0] io_data_write_i,
-  input  [64:0] io_rw_addr_i,
+  output [63:0] io_data_read_o,
+  input  [63:0] io_data_write_i,
+  input  [63:0] io_rw_addr_i,
   input  [1:0]  io_rw_size_i,
   input  [7:0]  io_w_strb,
   input  [3:0]  io_axi_id,
@@ -4594,13 +4594,13 @@ module AXI_RW(
   wire [63:0] axi_r_data_h = _axi_r_data_h_T_1[63:0]; // @[AXI_RW.scala 186:28 AXI_RW.scala 187:18]
   wire [63:0] _data_read_o_T_1 = data_read_o | axi_r_data_h; // @[AXI_RW.scala 199:72]
   assign io_rw_ready_o = rw_ready; // @[AXI_RW.scala 132:19]
-  assign io_data_read_o = {{1'd0}, data_read_o}; // @[AXI_RW.scala 219:20]
+  assign io_data_read_o = data_read_o; // @[AXI_RW.scala 219:20]
   assign io_axi_aw_valid_o = w_state == 2'h1; // @[AXI_RW.scala 50:103]
   assign io_axi_aw_addr_o = {axi_addr_hi,2'h0}; // @[Cat.scala 30:58]
   assign io_axi_aw_id_o = io_axi_id; // @[AXI_RW.scala 148:23]
   assign io_axi_aw_len_o = aligned ? 8'h0 : _axi_len_T; // @[AXI_RW.scala 106:19]
   assign io_axi_w_valid_o = w_state == 2'h2; // @[AXI_RW.scala 50:130]
-  assign io_axi_w_data_o = io_data_write_i[63:0]; // @[AXI_RW.scala 159:23]
+  assign io_axi_w_data_o = io_data_write_i; // @[AXI_RW.scala 159:23]
   assign io_axi_w_strb_o = io_w_strb; // @[AXI_RW.scala 160:23]
   assign io_axi_w_last_o = 1'h1; // @[AXI_RW.scala 161:23]
   assign io_axi_b_ready_o = w_state == 2'h3; // @[AXI_RW.scala 50:157]
@@ -4824,9 +4824,9 @@ module SimTop(
   wire  u_axi_rw_io_rw_valid_i; // @[SimTop.scala 17:24]
   wire  u_axi_rw_io_rw_ready_o; // @[SimTop.scala 17:24]
   wire  u_axi_rw_io_rw_req_i; // @[SimTop.scala 17:24]
-  wire [64:0] u_axi_rw_io_data_read_o; // @[SimTop.scala 17:24]
-  wire [64:0] u_axi_rw_io_data_write_i; // @[SimTop.scala 17:24]
-  wire [64:0] u_axi_rw_io_rw_addr_i; // @[SimTop.scala 17:24]
+  wire [63:0] u_axi_rw_io_data_read_o; // @[SimTop.scala 17:24]
+  wire [63:0] u_axi_rw_io_data_write_i; // @[SimTop.scala 17:24]
+  wire [63:0] u_axi_rw_io_rw_addr_i; // @[SimTop.scala 17:24]
   wire [1:0] u_axi_rw_io_rw_size_i; // @[SimTop.scala 17:24]
   wire [7:0] u_axi_rw_io_w_strb; // @[SimTop.scala 17:24]
   wire [3:0] u_axi_rw_io_axi_id; // @[SimTop.scala 17:24]
@@ -4986,8 +4986,8 @@ module SimTop(
   assign u_axi_rw_reset = reset;
   assign u_axi_rw_io_rw_valid_i = s_a_brid_io_rw_valid; // @[SimTop.scala 24:26]
   assign u_axi_rw_io_rw_req_i = s_a_brid_io_rw_req; // @[SimTop.scala 26:24]
-  assign u_axi_rw_io_data_write_i = {{1'd0}, s_a_brid_io_data_write}; // @[SimTop.scala 28:28]
-  assign u_axi_rw_io_rw_addr_i = {{1'd0}, s_a_brid_io_rw_addr}; // @[SimTop.scala 29:25]
+  assign u_axi_rw_io_data_write_i = s_a_brid_io_data_write; // @[SimTop.scala 28:28]
+  assign u_axi_rw_io_rw_addr_i = s_a_brid_io_rw_addr; // @[SimTop.scala 29:25]
   assign u_axi_rw_io_rw_size_i = s_a_brid_io_rw_size; // @[SimTop.scala 30:25]
   assign u_axi_rw_io_w_strb = s_a_brid_io_w_strb; // @[SimTop.scala 32:22]
   assign u_axi_rw_io_axi_id = s_a_brid_io_id; // @[SimTop.scala 33:22]
@@ -5007,5 +5007,5 @@ module SimTop(
   assign s_a_brid_io_dram_wdata = core_io_dsram_wdata; // @[SimTop.scala 22:17]
   assign s_a_brid_io_dram_rw_valid = core_io_dsram_rw_valid; // @[SimTop.scala 22:17]
   assign s_a_brid_io_rw_ready = u_axi_rw_io_rw_ready_o; // @[SimTop.scala 25:24]
-  assign s_a_brid_io_data_read = u_axi_rw_io_data_read_o[63:0]; // @[SimTop.scala 27:25]
+  assign s_a_brid_io_data_read = u_axi_rw_io_data_read_o; // @[SimTop.scala 27:25]
 endmodule
