@@ -1,0 +1,22 @@
+
+compile_chisel() {
+    if [[ -f $PROJECT_PATH/build.sc ]]; then
+        # create soft link ($PROJECT_PATH/difftest -> $LIBRARIES_HOME/difftest)
+        if [[ ! -L $PROJECT_PATH/$DIFFTEST_FOLDER ]]; then
+            eval "ln -s \"`realpath --relative-to="$PROJECT_PATH" "$LIBRARIES_HOME"`/$DIFFTEST_FOLDER\" \"$PROJECT_PATH/$DIFFTEST_FOLDER\" 1>/dev/null 2>&1"
+        fi
+
+        cd $PROJECT_PATH
+        mkdir vsrc 1>/dev/null 2>&1
+        mill -i oscpu.runMain TopMain -td vsrc
+        if [ $? -ne 0 ]; then
+            echo "Failed to compile chisel!!!"
+            exit 1
+        fi
+        sed -i s/io_memAXI_0_r_bits_data\,/io_memAXI_0_r_bits_data[3:0]\,/g vsrc/SimTop.v
+        sed -i s/io_memAXI_0_w_bits_data\,/io_memAXI_0_w_bits_data[3:0]\,/g vsrc/SimTop.v
+        sed -i s/io_memAXI_0_r_bits_data\;/io_memAXI_0_r_bits_data[0]\;/g vsrc/SimTop.v
+        sed -i s/io_memAXI_0_w_bits_data\ \=/io_memAXI_0_w_bits_data[0]\ \=/g vsrc/SimTop.v
+        cd $OSCPU_PATH
+    fi
+}

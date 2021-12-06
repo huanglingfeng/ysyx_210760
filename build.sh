@@ -90,6 +90,10 @@ compile_chisel() {
             echo "Failed to compile chisel!!!"
             exit 1
         fi
+        sed -i s/io_memAXI_0_r_bits_data\,/io_memAXI_0_r_bits_data[3:0]\,/g vsrc/SimTop.v
+        sed -i s/io_memAXI_0_w_bits_data\,/io_memAXI_0_w_bits_data[3:0]\,/g vsrc/SimTop.v
+        sed -i s/io_memAXI_0_r_bits_data\;/io_memAXI_0_r_bits_data[0]\;/g vsrc/SimTop.v
+        sed -i s/io_memAXI_0_w_bits_data\ \=/io_memAXI_0_w_bits_data[0]\ \=/g vsrc/SimTop.v
         cd $OSCPU_PATH
     fi
 }
