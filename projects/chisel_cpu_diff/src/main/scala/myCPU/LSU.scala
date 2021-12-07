@@ -28,11 +28,11 @@ class LSU extends Module {
   
   //------------流水线控制逻辑------------------------------//
   val ls_valid = io.ls_valid
-  val rw_valid = (load || save) && !is_clint
-  io.dsram.rw_valid := rw_valid
-  val hs_done = io.dsram.rw_ready && rw_valid
+  val addr_valid = (load || save) && !is_clint
+  io.dsram.addr_valid := addr_valid
+  io.dsram.addr_can_send := true.B
 
-  val ls_ready_go = hs_done || !rw_valid
+  val ls_ready_go = io.dsram.data_ok || !addr_valid
   val ls_allowin = Wire(Bool())
   val ls_to_ws_valid = Wire(Bool())
 
@@ -42,6 +42,7 @@ class LSU extends Module {
   io.ls_allowin := ls_allowin
   io.ls_to_ws_valid := ls_to_ws_valid
 
+  io.dsram.using := ls_to_ws_valid && io.ws_allowin
   //-------------------------------------------------------//
 
   val pc = io.ex_to_lsu.pc

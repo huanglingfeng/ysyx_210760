@@ -202,7 +202,6 @@ class Decode extends Module {
       )
     )
     
-    
     io.id_to_ex.out1 := Mux1H(Seq(
       (id_out1 === 0.U) -> 0.U,
 
