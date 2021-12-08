@@ -55,15 +55,15 @@ class LSU extends Module {
 
   //-------------------------------------------------------//
 
-  when(memory_fetch){
-    addr_can_send := true.B
-    addr_valid := true.B
-  }
   when(addr_hs){
     addr_can_send := false.B
   }
   when(addr_valid && io.dsram.using){
     addr_valid := false.B
+  }
+  when(memory_fetch){
+    addr_can_send := true.B
+    addr_valid := true.B
   }
 
   val pc = io.ex_to_lsu.pc

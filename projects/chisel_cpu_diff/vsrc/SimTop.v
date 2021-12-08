@@ -1775,7 +1775,8 @@ module LSU(
   wire  ls_ready_go = io_dsram_data_ok | ~memory_fetch; // @[LSU.scala 42:38]
   wire  _ls_allowin_T = ~io_ls_valid; // @[LSU.scala 46:17]
   wire  ls_to_ws_valid = io_ls_valid & ls_ready_go; // @[LSU.scala 47:30]
-  wire  _GEN_1 = memory_fetch | addr_valid; // @[LSU.scala 58:21 LSU.scala 60:16 LSU.scala 32:27]
+  wire  _GEN_1 = addr_valid & io_dsram_using ? 1'h0 : addr_valid; // @[LSU.scala 61:37 LSU.scala 62:16 LSU.scala 32:27]
+  wire  _GEN_3 = memory_fetch | _GEN_1; // @[LSU.scala 64:21 LSU.scala 66:16]
   wire  i_lb = io_ex_to_lsu_lsuop[0]; // @[LSU.scala 81:19]
   wire  i_lh = io_ex_to_lsu_lsuop[1]; // @[LSU.scala 82:19]
   wire  i_lw = io_ex_to_lsu_lsuop[2]; // @[LSU.scala 83:19]
@@ -2007,10 +2008,8 @@ module LSU(
   always @(posedge clock) begin
     if (reset) begin // @[LSU.scala 32:27]
       addr_valid <= 1'h0; // @[LSU.scala 32:27]
-    end else if (addr_valid & io_dsram_using) begin // @[LSU.scala 65:37]
-      addr_valid <= 1'h0; // @[LSU.scala 66:16]
     end else begin
-      addr_valid <= _GEN_1;
+      addr_valid <= _GEN_3;
     end
   end
 // Register and memory initialization
