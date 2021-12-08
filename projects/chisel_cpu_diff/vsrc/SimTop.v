@@ -14,7 +14,8 @@ module InstFetch(
   output [63:0] io_if_to_id_pc,
   output [31:0] io_if_to_id_inst,
   input  [63:0] io_id_to_if_pc_target,
-  input         io_id_to_if_jump
+  input         io_id_to_if_jump,
+  output        io_br_stall
 );
 `ifdef RANDOMIZE_REG_INIT
   reg [31:0] _RAND_0;
@@ -56,6 +57,7 @@ module InstFetch(
   assign io_if_to_id_is_nop = pc_en & pc_is_wrong | ~fs_to_ds_valid; // @[InstFetch.scala 79:48]
   assign io_if_to_id_pc = pc_en ? pc : 64'h0; // @[InstFetch.scala 72:24]
   assign io_if_to_id_inst = _io_if_to_id_inst_T_10[31:0]; // @[InstFetch.scala 81:20]
+  assign io_br_stall = io_id_to_if_jump & ~io_isram_data_ok; // @[InstFetch.scala 45:23]
   always @(posedge clock) begin
     if (reset) begin // @[InstFetch.scala 22:27]
       addr_valid <= 1'h0; // @[InstFetch.scala 22:27]
@@ -287,7 +289,8 @@ module Decode(
   input         io_fwd_wb_rf_w,
   input  [4:0]  io_fwd_wb_dst,
   input  [63:0] io_fwd_wb_wb_res,
-  output        io_intr_flush
+  output        io_intr_flush,
+  input         io_br_stall
 );
   wire  is_putch = 32'h7b == io_if_to_id_inst; // @[Decode.scala 149:23]
   wire [4:0] rs1 = io_if_to_id_inst[19:15]; // @[Decode.scala 53:20]
@@ -302,7 +305,7 @@ module Decode(
   wire  eq2_l = io_fwd_lsu_dst == rs2 & _eq1_l_T_1 & io_fwd_lsu_rf_w; // @[Decode.scala 178:74]
   wire  e_load = io_fwd_ex_load & _ds_ready_go_T; // @[Decode.scala 181:34]
   wire  ds_ready_go = (~(io_fwd_ex_is_csr & (eq1_e | eq2_e) | io_fwd_lsu_is_csr & (eq1_l | eq2_l) | e_load) |
-    io_csr_to_id_csr_jump) & ~(io_fwd_lsu_br_stall & (eq1_l | eq2_l)); // @[Decode.scala 183:131]
+    io_csr_to_id_csr_jump) & ~(io_br_stall | io_fwd_lsu_br_stall & (eq1_l | eq2_l)); // @[Decode.scala 183:131]
   wire  ds_to_es_valid = io_ds_valid & ds_ready_go; // @[Decode.scala 41:30]
   wire [4:0] rd = io_if_to_id_inst[11:7]; // @[Decode.scala 51:20]
   wire [52:0] imm_i_hi = io_if_to_id_inst[31] ? 53'h1fffffffffffff : 53'h0; // @[Bitwise.scala 72:12]
@@ -3386,6 +3389,7 @@ module Core(
   wire [31:0] fetch_io_if_to_id_inst; // @[Core.scala 13:21]
   wire [63:0] fetch_io_id_to_if_pc_target; // @[Core.scala 13:21]
   wire  fetch_io_id_to_if_jump; // @[Core.scala 13:21]
+  wire  fetch_io_br_stall; // @[Core.scala 13:21]
   wire  dr_clock; // @[Core.scala 16:18]
   wire  dr_reset; // @[Core.scala 16:18]
   wire  dr_io_fs_to_ds_valid; // @[Core.scala 16:18]
@@ -3446,6 +3450,7 @@ module Core(
   wire [4:0] decode_io_fwd_wb_dst; // @[Core.scala 17:22]
   wire [63:0] decode_io_fwd_wb_wb_res; // @[Core.scala 17:22]
   wire  decode_io_intr_flush; // @[Core.scala 17:22]
+  wire  decode_io_br_stall; // @[Core.scala 17:22]
   wire  er_clock; // @[Core.scala 20:18]
   wire  er_reset; // @[Core.scala 20:18]
   wire  er_io_ds_to_es_valid; // @[Core.scala 20:18]
@@ -3809,7 +3814,8 @@ module Core(
     .io_if_to_id_pc(fetch_io_if_to_id_pc),
     .io_if_to_id_inst(fetch_io_if_to_id_inst),
     .io_id_to_if_pc_target(fetch_io_id_to_if_pc_target),
-    .io_id_to_if_jump(fetch_io_id_to_if_jump)
+    .io_id_to_if_jump(fetch_io_id_to_if_jump),
+    .io_br_stall(fetch_io_br_stall)
   );
   DR dr ( // @[Core.scala 16:18]
     .clock(dr_clock),
@@ -3873,7 +3879,8 @@ module Core(
     .io_fwd_wb_rf_w(decode_io_fwd_wb_rf_w),
     .io_fwd_wb_dst(decode_io_fwd_wb_dst),
     .io_fwd_wb_wb_res(decode_io_fwd_wb_wb_res),
-    .io_intr_flush(decode_io_intr_flush)
+    .io_intr_flush(decode_io_intr_flush),
+    .io_br_stall(decode_io_br_stall)
   );
   ER er ( // @[Core.scala 20:18]
     .clock(er_clock),
@@ -4270,6 +4277,7 @@ module Core(
   assign decode_io_fwd_wb_rf_w = wb_io_wb_fwd_rf_w; // @[Core.scala 85:21]
   assign decode_io_fwd_wb_dst = wb_io_wb_fwd_dst; // @[Core.scala 85:21]
   assign decode_io_fwd_wb_wb_res = wb_io_wb_fwd_wb_res; // @[Core.scala 85:21]
+  assign decode_io_br_stall = fetch_io_br_stall; // @[Core.scala 19:22]
   assign er_clock = clock;
   assign er_reset = reset;
   assign er_io_ds_to_es_valid = decode_io_ds_to_es_valid; // @[Core.scala 68:24]
