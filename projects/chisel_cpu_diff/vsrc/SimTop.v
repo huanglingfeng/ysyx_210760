@@ -305,7 +305,7 @@ module Decode(
   wire  eq2_l = io_fwd_lsu_dst == rs2 & _eq1_l_T_1 & io_fwd_lsu_rf_w; // @[Decode.scala 178:74]
   wire  e_load = io_fwd_ex_load & _ds_ready_go_T; // @[Decode.scala 181:34]
   wire  ds_ready_go = (~(io_fwd_ex_is_csr & (eq1_e | eq2_e) | io_fwd_lsu_is_csr & (eq1_l | eq2_l) | e_load) |
-    io_csr_to_id_csr_jump) & ~(io_br_stall | io_fwd_lsu_br_stall); // @[Decode.scala 183:131]
+    io_csr_to_id_csr_jump) & ~(io_br_stall | io_fwd_lsu_br_stall & (eq1_l | eq2_l)); // @[Decode.scala 183:131]
   wire  ds_to_es_valid = io_ds_valid & ds_ready_go; // @[Decode.scala 41:30]
   wire [4:0] rd = io_if_to_id_inst[11:7]; // @[Decode.scala 51:20]
   wire [52:0] imm_i_hi = io_if_to_id_inst[31] ? 53'h1fffffffffffff : 53'h0; // @[Bitwise.scala 72:12]
