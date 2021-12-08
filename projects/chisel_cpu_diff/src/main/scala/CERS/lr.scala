@@ -12,11 +12,15 @@ class LR extends Module {
     val ex_to_lr = Flipped(new EX_TO_LSU_BUS)
     val lr_to_lsu = (new EX_TO_LSU_BUS)
 
-    val axi_end = Input(Bool())
+    val addr_valid = Input(Bool())
   })
   
   val judg = io.es_to_ls_valid && io.ls_allowin
-  io.ls_valid := RegEnable(io.es_to_ls_valid,true.B, io.ls_allowin)
+  val ls_valid = RegEnable(io.es_to_ls_valid,true.B, io.ls_allowin)
+  io.ls_valid := ls_valid
+  when(!io.addr_valid && !io.ls_allowin){
+    ls_valid := false.B
+  }
   // RegEnable(io.ex_to_lr,0.U, judg) <> io.lr_to_lsu
   io.lr_to_lsu.is_nop := RegEnable(io.ex_to_lr.is_nop, false.B ,io.ls_allowin)
   

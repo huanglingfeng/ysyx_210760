@@ -23,6 +23,8 @@ class Core extends Module {
   val lsu = Module(new LSU)
   lsu.io.dsram <> io.dsram
 
+  lr.io.addr_valid := lsu.io.addr_valid
+
   val wr = Module(new WR)
   val wb = Module(new WB)
 
