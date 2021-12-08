@@ -50,16 +50,16 @@ class InstFetch extends Module {
   val pc = RegInit("h0000_0000_7FFF_FFFC".U(64.W))
 
   val nextpc = Mux(jump, io.id_to_if.pc_target , pc + 4.U)
-  when (pc_can_change){
-    pc := nextpc
-    addr_can_send := true.B
-    addr_valid := true.B
-  }
   when(addr_hs){
     addr_can_send := false.B
   }
   when(addr_valid && io.isram.using){
     addr_valid := false.B
+  }
+  when (pc_can_change){
+    pc := nextpc
+    addr_can_send := true.B
+    addr_valid := true.B
   }
   io.isram.wr := false.B
   io.isram.size := SIZE_D

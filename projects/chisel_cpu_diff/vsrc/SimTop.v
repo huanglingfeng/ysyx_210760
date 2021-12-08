@@ -35,8 +35,10 @@ module InstFetch(
   reg  pc_en; // @[InstFetch.scala 47:22]
   reg [63:0] pc; // @[InstFetch.scala 50:19]
   wire [63:0] _nextpc_T_1 = pc + 64'h4; // @[InstFetch.scala 52:53]
-  wire  _GEN_3 = pc_can_change | addr_can_send; // @[InstFetch.scala 53:23 InstFetch.scala 55:19 InstFetch.scala 38:30]
-  wire  _GEN_4 = pc_can_change | addr_valid; // @[InstFetch.scala 53:23 InstFetch.scala 56:16 InstFetch.scala 22:27]
+  wire  _GEN_2 = addr_hs ? 1'h0 : addr_can_send; // @[InstFetch.scala 53:16 InstFetch.scala 54:19 InstFetch.scala 38:30]
+  wire  _GEN_3 = addr_valid & io_isram_using ? 1'h0 : addr_valid; // @[InstFetch.scala 56:37 InstFetch.scala 57:16 InstFetch.scala 22:27]
+  wire  _GEN_5 = pc_can_change | _GEN_2; // @[InstFetch.scala 59:23 InstFetch.scala 61:19]
+  wire  _GEN_6 = pc_can_change | _GEN_3; // @[InstFetch.scala 59:23 InstFetch.scala 62:16]
   wire  pc_is_wrong = pc != io_id_to_if_pc_target & io_id_to_if_jump; // @[InstFetch.scala 74:52]
   wire [31:0] isram_data = io_isram_data_ok ? io_isram_rdata[31:0] : 32'h0; // @[InstFetch.scala 77:23]
   wire  _io_if_to_id_is_nop_T = pc_en & pc_is_wrong; // @[InstFetch.scala 79:32]
@@ -59,10 +61,8 @@ module InstFetch(
   always @(posedge clock) begin
     if (reset) begin // @[InstFetch.scala 22:27]
       addr_valid <= 1'h0; // @[InstFetch.scala 22:27]
-    end else if (addr_valid & io_isram_using) begin // @[InstFetch.scala 61:37]
-      addr_valid <= 1'h0; // @[InstFetch.scala 62:16]
     end else begin
-      addr_valid <= _GEN_4;
+      addr_valid <= _GEN_6;
     end
     if (reset) begin // @[Reg.scala 27:20]
       fs_valid <= 1'h0; // @[Reg.scala 27:20]
@@ -73,10 +73,8 @@ module InstFetch(
     end
     if (reset) begin // @[InstFetch.scala 38:30]
       addr_can_send <= 1'h0; // @[InstFetch.scala 38:30]
-    end else if (addr_hs) begin // @[InstFetch.scala 58:16]
-      addr_can_send <= 1'h0; // @[InstFetch.scala 59:19]
     end else begin
-      addr_can_send <= _GEN_3;
+      addr_can_send <= _GEN_5;
     end
     if (reset) begin // @[InstFetch.scala 47:22]
       pc_en <= 1'h0; // @[InstFetch.scala 47:22]
@@ -85,7 +83,7 @@ module InstFetch(
     end
     if (reset) begin // @[InstFetch.scala 50:19]
       pc <= 64'h7ffffffc; // @[InstFetch.scala 50:19]
-    end else if (pc_can_change) begin // @[InstFetch.scala 53:23]
+    end else if (pc_can_change) begin // @[InstFetch.scala 59:23]
       if (io_id_to_if_jump) begin // @[InstFetch.scala 52:19]
         pc <= io_id_to_if_pc_target;
       end else begin
