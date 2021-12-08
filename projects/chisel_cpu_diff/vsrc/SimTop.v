@@ -4513,7 +4513,7 @@ module Core(
   assign dt_cs_mideleg = 64'h0; // @[Core.scala 155:20]
   assign dt_cs_medeleg = 64'h0; // @[Core.scala 156:20]
   always @(posedge clock) begin
-    dt_ic_io_valid_REG <= wb_io_is_nop | 32'h73 == _dt_ic_io_valid_T; // @[Core.scala 99:43]
+    dt_ic_io_valid_REG <= wb_io_is_nop | 32'h73 == _dt_ic_io_valid_T | decode_io_csr_stall; // @[Core.scala 99:67]
     dt_ic_io_pc_REG <= wb_io_pc; // @[Core.scala 100:25]
     dt_ic_io_instr_REG <= wb_io_inst; // @[Core.scala 101:28]
     dt_ic_io_skip_REG <= lsu_io_lsu_to_csr_is_clint; // @[Core.scala 102:67]
