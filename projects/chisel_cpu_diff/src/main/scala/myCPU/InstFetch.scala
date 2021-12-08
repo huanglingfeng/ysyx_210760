@@ -71,19 +71,18 @@ class InstFetch extends Module {
 
   io.if_to_id.pc := Mux(pc_en, pc, 0.U)
   // io.if_to_id.inst := Mux(pc_en, io.imem.rdata(31, 0), 0.U)
-  val pc_is_wrong = (pc =/= io.id_to_if.pc_target) && jump
 
   // val imem_data = io.imem.rdata(31, 0)
   val isram_data = Mux(io.isram.data_ok,io.isram.rdata(31,0),0.U)
 
-  io.if_to_id.is_nop := (pc_en && pc_is_wrong) || !fs_to_ds_valid
+  io.if_to_id.is_nop := (pc_en && jump) || !fs_to_ds_valid
 
   io.if_to_id.inst := Mux(!fs_to_ds_valid,NOP,
   Mux1H(
     Seq(
       !pc_en -> 0.U,
-      (pc_en && pc_is_wrong) -> NOP,
-      (pc_en && !pc_is_wrong) -> isram_data
+      (pc_en && jump) -> NOP,
+      (pc_en && !jump) -> isram_data
     )
   ))
 
