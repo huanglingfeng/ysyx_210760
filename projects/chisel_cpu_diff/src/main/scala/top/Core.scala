@@ -16,7 +16,7 @@ class Core extends Module {
   val dr = Module(new DR)
   val decode = Module(new Decode)
   decode.io.id_to_if <> fetch.io.id_to_if
-  decode.io.br_stall := fetch.io.br_stall
+  decode.io.ds_stall := fetch.io.ds_stall
   val er = Module(new ER)
   val ex = Module(new Execution)
   val lr = Module(new LR)
@@ -44,6 +44,9 @@ class Core extends Module {
   csr.io.csr_to_id <> decode.io.csr_to_id 
   lsu.io.lsu_to_csr <> csr.io.csr_to_lsu
   wb.io.wb_to_csr <> csr.io.wb_to_csr
+
+  wb.io.csr_stall := decode.io.csr_stall
+  csr.io.csr_stall := decode.io.csr_stall
 
   /*-----------流水线总线连接---------------*/
   fetch.io.if_to_id <> dr.io.if_to_dr

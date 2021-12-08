@@ -21,6 +21,8 @@ class WB extends Module {
     val is_nop = Output(Bool())
 
     val flush = Input(Bool())
+
+    val csr_stall = Input(Bool())
   })
   val pc = io.lsu_to_wb.pc
   val inst = Mux(io.flush,NOP,io.lsu_to_wb.inst)
@@ -28,7 +30,7 @@ class WB extends Module {
 
   //------------流水线控制逻辑------------------------------//
   val ws_valid = io.ws_valid
-  val wb_ready_go = true.B
+  val wb_ready_go = !io.csr_stall
   val ws_allowin = Wire(Bool())
 
   ws_allowin := !ws_valid || wb_ready_go

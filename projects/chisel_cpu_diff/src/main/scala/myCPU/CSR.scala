@@ -24,7 +24,10 @@ class CSR extends Module {
 
     val clkintr_flush = Output(Bool())
 
+    val csr_stall = Input(Bool())
+
   })
+  val csr_stall = io.csr_stall
   val is_nop = io.wb_to_csr.is_nop
 
   val csrop = io.wb_to_csr.csrop
@@ -76,11 +79,11 @@ class CSR extends Module {
   val wdata = io.csr_to_lsu.wdata
 
   val mtime = RegInit(0.U(64.W))
-  when(true.B) {
+  when(!csr_stall) {
     mtime := mtime + 1.U
   }
   val mtimecmp = RegInit(UInt(64.W),"hf8ff".U)
-  // when(mtime >= mtimecmp){
+  // when(mtime >= mtimecmp && !csr_stall){
   //   mip := Cat(mip(63,8),1.U,mip(6,0)) 
   //   mtime := 0.U
   // }
@@ -138,8 +141,8 @@ class CSR extends Module {
       (csrop === CSR_ECALL) -> "hb".U(32.W)
     )
   )
-  io.intrNO := intrNO
-  io.cause := cause
+  io.intrNO := Mux(csr_stall,0.U,intrNO)
+  io.cause := Mux(csr_stall,0.U,cause)
 
   val csr_target = WireInit(0.U(64.W))
   val is_csrop = is_rw || is_rs || is_rc
@@ -189,6 +192,7 @@ class CSR extends Module {
     }
   }
 
+when(!csr_stall){
   when(is_trap_begin) {
     when(csrop === CSR_ECALL){
       mcause := Cat(false.B,"d11".U(63.W))
@@ -240,6 +244,7 @@ class CSR extends Module {
     }
     csr_target := mepc
   }
+}
 
   io.wb_to_csr.csr_res := csr_res
   io.csr_to_id.csr_target := csr_target

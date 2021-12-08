@@ -15,7 +15,7 @@ class LSU_TO_ID_BUS extends Bundle{
     val dst = Output(UInt(5.W))
     val lsu_res = Output(UInt(64.W))
     val is_csr = Output(Bool())
-    val br_stall = Output(Bool())
+    val ds_stall = Output(Bool())
 }
 
 class WB_TO_ID_BUS extends Bundle{

@@ -27,7 +27,9 @@ class Decode extends Module {
 
     val intr_flush = Output(Bool()) //向后传递的流水线冲刷信号
 
-    val br_stall = Input(Bool())
+    val ds_stall = Input(Bool())
+    
+    val csr_stall = Output(Bool())
 
   })
 
@@ -158,6 +160,7 @@ class Decode extends Module {
 
     val csr_jump = io.csr_to_id.csr_jump
     val csr_target = io.csr_to_id.csr_target
+    io.csr_stall := io.ds_stall && csr_jump
 
     val imm = Mux1H(Seq(
       (id_imm === 0.U) -> 0.U,
@@ -180,7 +183,7 @@ class Decode extends Module {
 
     val e_load = (io.fwd_ex.load && (eq1_e || eq2_e))
 
-    ds_ready_go := ((!((io.fwd_ex.is_csr && (eq1_e || eq2_e)) || (io.fwd_lsu.is_csr && (eq1_l || eq2_l)) || e_load)) || csr_jump) && ~(io.br_stall || (io.fwd_lsu.br_stall && (eq1_l || eq2_l)))
+    ds_ready_go := ((!((io.fwd_ex.is_csr && (eq1_e || eq2_e)) || (io.fwd_lsu.is_csr && (eq1_l || eq2_l)) || e_load)) || csr_jump) && ~(io.ds_stall || (io.fwd_lsu.ds_stall && (eq1_l || eq2_l)))
 
     val rs1_data = Mux1H(
       Seq(

@@ -14,7 +14,7 @@ class InstFetch extends Module {
     val if_to_id = new IF_TO_ID_BUS
     val id_to_if = Flipped(new ID_TO_IF_BUS)
 
-    val br_stall = Output(Bool())
+    val ds_stall = Output(Bool())
   })
   val jump = io.id_to_if.jump
 
@@ -42,7 +42,7 @@ class InstFetch extends Module {
   val addr_hs = io.isram.addr_ok && addr_can_send
   io.isram.using := fs_to_ds_valid && io.ds_allowin
   //-------------------------------------------------------//
-  io.br_stall := jump && ~fs_ready_go
+  io.ds_stall := jump && ~fs_ready_go
 
   val pc_en = RegInit(false.B)
   pc_en := true.B
