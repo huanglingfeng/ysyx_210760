@@ -180,7 +180,7 @@ class LSU extends Module {
     (i_lw || i_lwu || i_sw) -> 2.U,
     (i_ld || i_sd)          -> 3.U
   ))
-  io.dsram.addr := addr_real
+  io.dsram.addr := Cat(addr_real(63,3),0.U(3.W))
   io.dsram.wstrb := wstrb
   io.dsram.wdata := sdata
 
