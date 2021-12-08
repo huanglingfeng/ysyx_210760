@@ -24,4 +24,4 @@ axi后缀
 -m "EMU_TRACE=1 WITH_DRAMSIM3=1"
 --dump-wave -b 0
 ./build.sh -e chisel_cpu_diff -d -s -a "-i non-output/riscv-tests/ld-riscv-tests.bin" -m "EMU_TRACE=1 WITH_DRAMSIM3=1" -b
-./build.sh -e chisel_cpu_diff -b -r "non-output/riscv-tests" -m "WITH_DRAMSIM3=1"
+./build.sh -e chisel_cpu_diff -b -r "non-output/cpu-tests non-output/riscv-tests" -m "WITH_DRAMSIM3=1"
