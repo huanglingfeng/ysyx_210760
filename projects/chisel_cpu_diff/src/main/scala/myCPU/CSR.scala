@@ -82,7 +82,7 @@ class CSR extends Module {
   when(!csr_stall) {
     mtime := mtime + 1.U
   }
-  val mtimecmp = RegInit(UInt(64.W),"hf60f8ff".U)
+  val mtimecmp = RegInit(UInt(64.W),"h60f8ff".U)
   when(mtime >= mtimecmp && !csr_stall){
     mip := Cat(mip(63,8),1.U,mip(6,0)) 
     mtime := 0.U
