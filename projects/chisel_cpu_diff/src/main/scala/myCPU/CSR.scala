@@ -233,9 +233,9 @@ when(!csr_stall){
                                
   }.elsewhen(is_trap_end) {
     when(csrop === CSR_MRET){
-      mstatus_i := Cat(   mstatus(62,13),"b00".U(2.W),mstatus(10,8),1.U,mstatus(6,4),mstatus(7),mstatus(2,0))
+      mstatus_i := Cat(   mstatus(62,13),"b11".U(2.W),mstatus(10,8),1.U,mstatus(6,4),mstatus(7),mstatus(2,0))
 
-      mstatus_o_i := Cat(   mstatus(62,13),"b00".U(2.W),mstatus(10,8),1.U,mstatus(6,4),mstatus(7),mstatus(2,0))
+      mstatus_o_i := Cat(   mstatus(62,13),"b11".U(2.W),mstatus(10,8),1.U,mstatus(6,4),mstatus(7),mstatus(2,0))
       mSD_o := (mstatus_o_i(16,15) === "b11".U || mstatus_o_i(14,13) === "b11".U)
       mstatus_o := Cat(mSD_o,mstatus_o_i)
       sstatus_o := Cat(mSD_o,0.U(46.W),mstatus_o(16,15),mstatus_o(14,13),0.U(13.W))

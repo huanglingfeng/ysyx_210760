@@ -3027,7 +3027,7 @@ module CSR(
   wire [62:0] _GEN_137 = _is_trap_begin_T ? _lo_T_11 : _GEN_123; // @[CSR.scala 197:30 CSR.scala 204:19]
   wire [62:0] _GEN_147 = clk_int ? _lo_T_11 : _GEN_137; // @[CSR.scala 211:18 CSR.scala 221:19]
   wire  lo_lo_hi_lo_1 = mstatus[7]; // @[CSR.scala 238:95]
-  wire [62:0] _lo_T_13 = {lo_hi_hi_hi_3,2'h0,lo_hi_lo_hi_3,1'h1,lo_lo_hi_hi_3,lo_lo_hi_lo_1,lo_lo_lo_3}; // @[Cat.scala 30:58]
+  wire [62:0] _lo_T_13 = {lo_hi_hi_hi_3,2'h3,lo_hi_lo_hi_3,1'h1,lo_lo_hi_hi_3,lo_lo_hi_lo_1,lo_lo_lo_3}; // @[Cat.scala 30:58]
   wire [62:0] _GEN_155 = is_trap_end ? _lo_T_13 : _GEN_123; // @[CSR.scala 235:29 CSR.scala 238:19]
   wire [62:0] _GEN_160 = is_trap_end ? _GEN_155 : _GEN_123; // @[CSR.scala 234:27]
   wire [62:0] _GEN_169 = is_trap_begin ? _GEN_147 : _GEN_160; // @[CSR.scala 196:23]

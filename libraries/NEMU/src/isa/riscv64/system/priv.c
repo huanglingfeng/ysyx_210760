@@ -170,7 +170,7 @@ static word_t priv_instr(uint32_t op, const rtlreg_t *src) {
       mstatus->spie = (ISDEF(CONFIG_DIFFTEST_REF_QEMU) ? 0 // this is bug of QEMU
           : 1);
       cpu.mode = mstatus->spp;
-      mstatus->spp = MODE_M;
+      mstatus->spp = MODE_U;
       return sepc->val;
     case 0x302: // mret
       mstatus->mie = mstatus->mpie;
