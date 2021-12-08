@@ -62,7 +62,7 @@ class LSU extends Module {
   when(addr_valid && io.dsram.using){
     addr_valid := false.B
   }
-  when(memory_fetch){
+  when(memory_fetch && !addr_valid){
     addr_can_send := true.B
     addr_valid := true.B
     addr_valid_w := true.B
