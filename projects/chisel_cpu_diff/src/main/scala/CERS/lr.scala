@@ -11,6 +11,8 @@ class LR extends Module {
 
     val ex_to_lr = Flipped(new EX_TO_LSU_BUS)
     val lr_to_lsu = (new EX_TO_LSU_BUS)
+
+    val axi_end = Input(Bool())
   })
   
   val judg = io.es_to_ls_valid && io.ls_allowin

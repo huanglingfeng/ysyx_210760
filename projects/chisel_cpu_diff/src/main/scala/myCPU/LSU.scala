@@ -20,6 +20,8 @@ class LSU extends Module {
     val dsram = new SRAM_BUS
 
     val flush = Input(Bool())
+
+    val addr_valid = Output(Bool())
     
   })
   val load = Wire(Bool())
@@ -27,12 +29,13 @@ class LSU extends Module {
   val is_clint = Wire(Bool())
   
   //------------流水线控制逻辑------------------------------//
+  val addr_valid = RegInit(false.B)
   val ls_valid = io.ls_valid
-  val addr_valid = (load || save) && !is_clint
+  val memory_fetch = (load || save) && !is_clint
   io.dsram.addr_valid := addr_valid
   io.dsram.addr_can_send := true.B
 
-  val ls_ready_go = io.dsram.data_ok || !addr_valid
+  val ls_ready_go = io.dsram.data_ok || !memory_fetch
   val ls_allowin = Wire(Bool())
   val ls_to_ws_valid = Wire(Bool())
 
@@ -43,6 +46,8 @@ class LSU extends Module {
   io.ls_to_ws_valid := ls_to_ws_valid
 
   io.dsram.using := ls_to_ws_valid && io.ws_allowin
+  
+  io.addr_valid := addr_valid
   //-------------------------------------------------------//
 
   val pc = io.ex_to_lsu.pc

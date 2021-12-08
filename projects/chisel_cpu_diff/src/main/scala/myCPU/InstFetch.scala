@@ -20,12 +20,16 @@ class InstFetch extends Module {
 
   //------------流水线控制逻辑------------------------------//
   val addr_valid = RegInit(false.B)
-  val to_fs_valid = ~(Module.reset).asBool() && !addr_valid
+  val to_fs_valid = ~(Module.reset).asBool() 
 
   val fs_ready_go = io.isram.data_ok
 
   val fs_allowin = Wire(Bool())
   val fs_valid = RegEnable(to_fs_valid ,false.B,fs_allowin)
+  when(!addr_valid && !fs_allowin)
+  {
+    fs_valid := false.B
+  }
   val fs_to_ds_valid = Wire(Bool())
 
   fs_allowin := !fs_valid || (fs_ready_go && io.ds_allowin)
@@ -48,7 +52,6 @@ class InstFetch extends Module {
 
   val nextpc = Mux(jump, io.id_to_if.pc_target , pc + 4.U)
   when(addr_hs){
-    addr_valid := true.B
     addr_can_send := false.B
   }
   when(addr_valid && io.isram.using){
@@ -57,13 +60,14 @@ class InstFetch extends Module {
   when (pc_can_change){
     pc := nextpc
     addr_can_send := true.B
+    addr_valid := true.B
   }
   io.isram.wr := false.B
   io.isram.size := SIZE_D
   io.isram.addr := pc
   io.isram.wstrb := 0.U
   io.isram.wdata := 0.U
-  
+
   io.isram.addr_valid := addr_valid
 
   io.if_to_id.pc := Mux(pc_en, pc, 0.U)
