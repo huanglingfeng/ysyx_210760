@@ -180,7 +180,7 @@ class Decode extends Module {
 
     val e_load = (io.fwd_ex.load && (eq1_e || eq2_e))
 
-    ds_ready_go := ((!((io.fwd_ex.is_csr && (eq1_e || eq2_e)) || (io.fwd_lsu.is_csr && (eq1_l || eq2_l)) || e_load)) || csr_jump) && ~io.br_stall
+    ds_ready_go := ((!((io.fwd_ex.is_csr && (eq1_e || eq2_e)) || (io.fwd_lsu.is_csr && (eq1_l || eq2_l)) || e_load)) || csr_jump) && ~(io.br_stall || io.fwd_lsu.br_stall)
 
     val rs1_data = Mux1H(
       Seq(

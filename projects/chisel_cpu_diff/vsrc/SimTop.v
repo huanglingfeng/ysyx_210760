@@ -285,6 +285,7 @@ module Decode(
   input  [4:0]  io_fwd_lsu_dst,
   input  [63:0] io_fwd_lsu_lsu_res,
   input         io_fwd_lsu_is_csr,
+  input         io_fwd_lsu_br_stall,
   input         io_fwd_wb_rf_w,
   input  [4:0]  io_fwd_wb_dst,
   input  [63:0] io_fwd_wb_wb_res,
@@ -304,7 +305,7 @@ module Decode(
   wire  eq2_l = io_fwd_lsu_dst == rs2 & _eq1_l_T_1 & io_fwd_lsu_rf_w; // @[Decode.scala 178:74]
   wire  e_load = io_fwd_ex_load & _ds_ready_go_T; // @[Decode.scala 181:34]
   wire  ds_ready_go = (~(io_fwd_ex_is_csr & (eq1_e | eq2_e) | io_fwd_lsu_is_csr & (eq1_l | eq2_l) | e_load) |
-    io_csr_to_id_csr_jump) & ~io_br_stall; // @[Decode.scala 183:131]
+    io_csr_to_id_csr_jump) & ~(io_br_stall | io_fwd_lsu_br_stall); // @[Decode.scala 183:131]
   wire  ds_to_es_valid = io_ds_valid & ds_ready_go; // @[Decode.scala 41:30]
   wire [4:0] rd = io_if_to_id_inst[11:7]; // @[Decode.scala 51:20]
   wire [52:0] imm_i_hi = io_if_to_id_inst[31] ? 53'h1fffffffffffff : 53'h0; // @[Bitwise.scala 72:12]
@@ -1743,6 +1744,7 @@ module LSU(
   output [4:0]  io_lsu_fwd_dst,
   output [63:0] io_lsu_fwd_lsu_res,
   output        io_lsu_fwd_is_csr,
+  output        io_lsu_fwd_br_stall,
   output        io_dsram_wr,
   output [1:0]  io_dsram_size,
   output [63:0] io_dsram_addr,
@@ -1969,31 +1971,32 @@ module LSU(
   wire [63:0] _lsu_res_T_4 = load ? load_res : 64'h0; // @[Mux.scala 27:72]
   wire [63:0] lsu_res = _lsu_res_T_2 | _lsu_res_T_4; // @[Mux.scala 27:72]
   wire  rf_w = save ? 1'h0 : io_ex_to_lsu_rf_w; // @[LSU.scala 247:17]
-  wire  _io_lsu_to_wb_inst_T_1 = io_flush | ~ls_to_ws_valid; // @[LSU.scala 265:37]
-  wire [63:0] _io_lsu_to_wb_inst_T_2 = io_flush | ~ls_to_ws_valid ? 64'h13 : inst; // @[LSU.scala 265:27]
+  wire  _io_lsu_to_wb_inst_T_1 = io_flush | ~ls_to_ws_valid; // @[LSU.scala 266:37]
+  wire [63:0] _io_lsu_to_wb_inst_T_2 = io_flush | ~ls_to_ws_valid ? 64'h13 : inst; // @[LSU.scala 266:27]
   assign io_ls_allowin = ~io_ls_valid | ls_ready_go; // @[LSU.scala 46:27]
   assign io_ls_to_ws_valid = io_ls_valid & ls_ready_go; // @[LSU.scala 47:30]
-  assign io_lsu_to_wb_is_nop = _io_lsu_to_wb_inst_T_1 | io_ex_to_lsu_is_nop; // @[LSU.scala 273:29]
+  assign io_lsu_to_wb_is_nop = _io_lsu_to_wb_inst_T_1 | io_ex_to_lsu_is_nop; // @[LSU.scala 274:29]
   assign io_lsu_to_wb_lsu_res = is_clint ? io_lsu_to_csr_rdata : lsu_res; // @[LSU.scala 242:26]
   assign io_lsu_to_wb_dest = save ? 5'h0 : io_ex_to_lsu_dest; // @[LSU.scala 245:17]
   assign io_lsu_to_wb_rf_w = save ? 1'h0 : io_ex_to_lsu_rf_w; // @[LSU.scala 247:17]
-  assign io_lsu_to_wb_pc = io_ex_to_lsu_pc; // @[LSU.scala 264:19]
-  assign io_lsu_to_wb_inst = _io_lsu_to_wb_inst_T_2[31:0]; // @[LSU.scala 265:21]
-  assign io_lsu_to_wb_is_csr = io_ex_to_lsu_is_csr; // @[LSU.scala 267:23]
-  assign io_lsu_to_wb_csrop = io_ex_to_lsu_csrop; // @[LSU.scala 268:22]
-  assign io_lsu_to_wb_csr_addr = io_ex_to_lsu_csr_addr; // @[LSU.scala 269:25]
-  assign io_lsu_to_wb_csr_src = io_ex_to_lsu_csr_src; // @[LSU.scala 270:24]
-  assign io_lsu_to_wb_is_zero = io_ex_to_lsu_is_zero; // @[LSU.scala 271:24]
+  assign io_lsu_to_wb_pc = io_ex_to_lsu_pc; // @[LSU.scala 265:19]
+  assign io_lsu_to_wb_inst = _io_lsu_to_wb_inst_T_2[31:0]; // @[LSU.scala 266:21]
+  assign io_lsu_to_wb_is_csr = io_ex_to_lsu_is_csr; // @[LSU.scala 268:23]
+  assign io_lsu_to_wb_csrop = io_ex_to_lsu_csrop; // @[LSU.scala 269:22]
+  assign io_lsu_to_wb_csr_addr = io_ex_to_lsu_csr_addr; // @[LSU.scala 270:25]
+  assign io_lsu_to_wb_csr_src = io_ex_to_lsu_csr_src; // @[LSU.scala 271:24]
+  assign io_lsu_to_wb_is_zero = io_ex_to_lsu_is_zero; // @[LSU.scala 272:24]
   assign io_lsu_to_csr_is_clint = is_mtime | is_mtimecmp; // @[LSU.scala 164:24]
   assign io_lsu_to_csr_is_mtime = addr_real == 64'h200bff8; // @[LSU.scala 162:29]
   assign io_lsu_to_csr_is_mtimecmp = addr_real == 64'h2004000; // @[LSU.scala 163:32]
   assign io_lsu_to_csr_load = io_ls_valid & inst != 64'h13 & io_ex_to_lsu_load; // @[LSU.scala 77:14]
   assign io_lsu_to_csr_save = _load_T_1 & io_ex_to_lsu_save; // @[LSU.scala 78:14]
-  assign io_lsu_to_csr_wdata = io_ex_to_lsu_src2; // @[LSU.scala 262:23]
+  assign io_lsu_to_csr_wdata = io_ex_to_lsu_src2; // @[LSU.scala 263:23]
   assign io_lsu_fwd_rf_w = _ls_allowin_T ? 1'h0 : rf_w; // @[LSU.scala 251:25]
   assign io_lsu_fwd_dst = save ? 5'h0 : io_ex_to_lsu_dest; // @[LSU.scala 245:17]
   assign io_lsu_fwd_lsu_res = is_clint ? io_lsu_to_csr_rdata : lsu_res; // @[LSU.scala 242:26]
   assign io_lsu_fwd_is_csr = _ls_allowin_T ? 1'h0 : io_ex_to_lsu_is_csr; // @[LSU.scala 254:27]
+  assign io_lsu_fwd_br_stall = ~ls_ready_go; // @[LSU.scala 255:26]
   assign io_dsram_wr = _load_T_1 & io_ex_to_lsu_save; // @[LSU.scala 78:14]
   assign io_dsram_size = _io_dsram_size_T_16 | _io_dsram_size_T_13; // @[Mux.scala 27:72]
   assign io_dsram_addr = _memory_fetch_T ? _addr_real_T_2 : 64'h80000000; // @[LSU.scala 93:22]
@@ -3451,6 +3454,7 @@ module Core(
   wire [4:0] decode_io_fwd_lsu_dst; // @[Core.scala 17:22]
   wire [63:0] decode_io_fwd_lsu_lsu_res; // @[Core.scala 17:22]
   wire  decode_io_fwd_lsu_is_csr; // @[Core.scala 17:22]
+  wire  decode_io_fwd_lsu_br_stall; // @[Core.scala 17:22]
   wire  decode_io_fwd_wb_rf_w; // @[Core.scala 17:22]
   wire [4:0] decode_io_fwd_wb_dst; // @[Core.scala 17:22]
   wire [63:0] decode_io_fwd_wb_wb_res; // @[Core.scala 17:22]
@@ -3629,6 +3633,7 @@ module Core(
   wire [4:0] lsu_io_lsu_fwd_dst; // @[Core.scala 23:19]
   wire [63:0] lsu_io_lsu_fwd_lsu_res; // @[Core.scala 23:19]
   wire  lsu_io_lsu_fwd_is_csr; // @[Core.scala 23:19]
+  wire  lsu_io_lsu_fwd_br_stall; // @[Core.scala 23:19]
   wire  lsu_io_dsram_wr; // @[Core.scala 23:19]
   wire [1:0] lsu_io_dsram_size; // @[Core.scala 23:19]
   wire [63:0] lsu_io_dsram_addr; // @[Core.scala 23:19]
@@ -3880,6 +3885,7 @@ module Core(
     .io_fwd_lsu_dst(decode_io_fwd_lsu_dst),
     .io_fwd_lsu_lsu_res(decode_io_fwd_lsu_lsu_res),
     .io_fwd_lsu_is_csr(decode_io_fwd_lsu_is_csr),
+    .io_fwd_lsu_br_stall(decode_io_fwd_lsu_br_stall),
     .io_fwd_wb_rf_w(decode_io_fwd_wb_rf_w),
     .io_fwd_wb_dst(decode_io_fwd_wb_dst),
     .io_fwd_wb_wb_res(decode_io_fwd_wb_wb_res),
@@ -4066,6 +4072,7 @@ module Core(
     .io_lsu_fwd_dst(lsu_io_lsu_fwd_dst),
     .io_lsu_fwd_lsu_res(lsu_io_lsu_fwd_lsu_res),
     .io_lsu_fwd_is_csr(lsu_io_lsu_fwd_is_csr),
+    .io_lsu_fwd_br_stall(lsu_io_lsu_fwd_br_stall),
     .io_dsram_wr(lsu_io_dsram_wr),
     .io_dsram_size(lsu_io_dsram_size),
     .io_dsram_addr(lsu_io_dsram_addr),
@@ -4278,6 +4285,7 @@ module Core(
   assign decode_io_fwd_lsu_dst = lsu_io_lsu_fwd_dst; // @[Core.scala 84:21]
   assign decode_io_fwd_lsu_lsu_res = lsu_io_lsu_fwd_lsu_res; // @[Core.scala 84:21]
   assign decode_io_fwd_lsu_is_csr = lsu_io_lsu_fwd_is_csr; // @[Core.scala 84:21]
+  assign decode_io_fwd_lsu_br_stall = lsu_io_lsu_fwd_br_stall; // @[Core.scala 84:21]
   assign decode_io_fwd_wb_rf_w = wb_io_wb_fwd_rf_w; // @[Core.scala 85:21]
   assign decode_io_fwd_wb_dst = wb_io_wb_fwd_dst; // @[Core.scala 85:21]
   assign decode_io_fwd_wb_wb_res = wb_io_wb_fwd_wb_res; // @[Core.scala 85:21]

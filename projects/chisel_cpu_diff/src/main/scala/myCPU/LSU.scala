@@ -252,6 +252,7 @@ class LSU extends Module {
   io.lsu_fwd.dst := dest
   io.lsu_fwd.lsu_res := lsu_res_final
   io.lsu_fwd.is_csr := Mux(!ls_valid,false.B,is_csr)
+  io.lsu_fwd.br_stall := ~ls_ready_go
 
   //--------------lsu <> clint----------------------------//
   io.lsu_to_csr.is_clint := is_clint
