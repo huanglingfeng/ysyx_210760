@@ -28,7 +28,7 @@ class Decode extends Module {
     val intr_flush = Output(Bool()) //向后传递的流水线冲刷信号
 
     val ds_stall = Input(Bool())
-    
+
     val csr_stall = Output(Bool())
 
   })
@@ -276,14 +276,14 @@ class Decode extends Module {
     val bltu = bruop(6)
     val bgeu = bruop(7)
 
-    val jump = ((is_jal || is_jalr || csr_jump) || (
+    val jump = csr_jump || (((is_jal || is_jalr) || (
         (bne &&  (rs1_data =/= rs2_data)) ||
         (beq &&  (rs1_data === rs2_data)) ||
         (blt &&  (rs1_data.asSInt() < rs2_data.asSInt())) ||
         (bltu && (rs1_data.asUInt() < rs2_data.asUInt())) ||
         (bge &&  (rs1_data.asSInt() >= rs2_data.asSInt())) ||
         (bgeu && (rs1_data.asUInt() >= rs2_data.asUInt()))
-    )) && ds_valid
+    )) && ds_valid)
     val pc_target = Mux(csr_jump,csr_target,
       Mux1H(Seq(
       is_jal -> jal_target,
