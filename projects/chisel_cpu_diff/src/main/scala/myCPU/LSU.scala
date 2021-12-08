@@ -173,13 +173,14 @@ class LSU extends Module {
   // val mdata = io.dmem.rdata
 
   io.dsram.wr := save
-  io.dsram.size := Mux1H(Seq(
-    !(load || save) -> 0.U,
-    (i_lb || i_lbu || i_sb) -> 0.U,
-    (i_lh || i_lhu || i_sh) -> 1.U,
-    (i_lw || i_lwu || i_sw) -> 2.U,
-    (i_ld || i_sd)          -> 3.U
-  ))
+  // io.dsram.size := Mux1H(Seq(
+  //   !(load || save) -> 0.U,
+  //   (i_lb || i_lbu || i_sb) -> 0.U,
+  //   (i_lh || i_lhu || i_sh) -> 1.U,
+  //   (i_lw || i_lwu || i_sw) -> 2.U,
+  //   (i_ld || i_sd)          -> 3.U
+  // ))
+  io.dsram.size := 3.U
   io.dsram.addr := Cat(addr_real(63,3),0.U(3.W))
   io.dsram.wstrb := wstrb
   io.dsram.wdata := sdata
