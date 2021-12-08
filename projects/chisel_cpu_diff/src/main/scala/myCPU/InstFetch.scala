@@ -42,7 +42,7 @@ class InstFetch extends Module {
   val addr_hs = io.isram.addr_ok && addr_can_send
   io.isram.using := fs_to_ds_valid && io.ds_allowin
   //-------------------------------------------------------//
-  io.br_stall := jump && ~fs_ready_go
+  io.br_stall := false.B//jump && ~fs_ready_go
 
   val pc_en = RegInit(false.B)
   pc_en := true.B
