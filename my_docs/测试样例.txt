@@ -27,3 +27,4 @@ axi后缀
 ./build.sh -e chisel_cpu_diff -b -r "non-output/cpu-tests non-output/riscv-tests" -m "WITH_DRAMSIM3=1"
 
 ./build.sh -e chisel_cpu_diff -d -b -s -a "-i custom-output/rt-thread/rtthread.bin" -m "EMU_TRACE=1 WITH_DRAMSIM3=1"
+./build.sh -e chisel_cpu_diff -d -b -s -a "-i custom-output/time-test/amtest-time-test.bin" -m "EMU_TRACE=1 WITH_DRAMSIM3=1"
