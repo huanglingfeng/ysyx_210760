@@ -79,8 +79,13 @@ class CSR extends Module {
   val wdata = io.csr_to_lsu.wdata
 
   val mtime = RegInit(0.U(64.W))
-  when(!csr_stall) {
+  val mtime_64 = RegInit(0.U(64.W))
+
+  when(mtime_64 === "d63".U) {
     mtime := mtime + 1.U
+    mtime_64 := 0.U
+  }.otherwise{
+    mtime_64 := mtime_64 + 1.U
   }
   val mtimecmp = RegInit(UInt(64.W),"h2ff000".U)
   when(mtime >= mtimecmp && !csr_stall){
