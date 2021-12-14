@@ -63,7 +63,7 @@ class InstFetch extends Module {
   }
   io.isram.wr := false.B
   io.isram.size := SIZE_D
-  io.isram.addr := pc
+  io.isram.addr := pc(31,0)
   io.isram.wstrb := 0.U
   io.isram.wdata := 0.U
 
@@ -74,6 +74,7 @@ class InstFetch extends Module {
 
   // val imem_data = io.imem.rdata(31, 0)
   val isram_data = Mux(io.isram.data_ok,io.isram.rdata(31,0),0.U)
+  val r_isramdata = RegNext(io.isram.rdata)
 
   io.if_to_id.is_nop := (pc_en && jump) || !fs_to_ds_valid
 

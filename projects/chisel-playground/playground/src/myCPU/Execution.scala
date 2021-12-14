@@ -106,10 +106,9 @@ class Execution extends Module {
   val sub_res_64 = src1_64 - src2_64
 
 
-  val sll_res_64 = src1_64.asUInt() << src2_64(5, 0)
-  val sll_res_32 = src1_32.asUInt() << src2_32(4, 0)
+  val sll_res_64 = (src1_64.asUInt() << src2_64(5, 0))(63,0)
+  val sll_res_32 = (src1_32.asUInt() << src2_32(4, 0))(31,0)
  
-
   val srl_res_64 = src1_64.asUInt() >> src2_64(5, 0)
   val srl_res_32 = src1_32.asUInt() >> src2_32(4, 0)
 

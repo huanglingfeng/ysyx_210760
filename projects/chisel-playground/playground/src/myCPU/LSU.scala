@@ -74,6 +74,7 @@ class LSU extends Module {
   val imm = io.ex_to_lsu.imm
   val lsuop = io.ex_to_lsu.lsuop
   val rv64op = io.ex_to_lsu.rv64op
+  val r_rv64op = RegNext(rv64op)
   load := Mux(ls_valid && (inst =/= NOP),io.ex_to_lsu.load,false.B)
   save := Mux(ls_valid && (inst =/= NOP),io.ex_to_lsu.save,false.B)
 
@@ -92,8 +93,8 @@ class LSU extends Module {
 
   val addr_real = Mux(
     (load || save),
-    src1 + imm,
-    "h0000_0000_8000_0000".U(64.W)
+    (src1 + imm)(31,0),
+    "h0000_0000_8000_0000".U(32.W)
   ) //这个加法器应该能转移到exu
 
   val sel_b=addr_real(0)
@@ -159,8 +160,8 @@ class LSU extends Module {
     )
   )
 
-  val is_mtime = (addr_real === "h0200_bff8".U(64.W))
-  val is_mtimecmp = (addr_real === "h0200_4000".U(64.W))
+  val is_mtime = (addr_real === "h0200_bff8".U(32.W))
+  val is_mtimecmp = (addr_real === "h0200_4000".U(32.W))
   is_clint := is_mtime || is_mtimecmp  //在0x200_0000 ~ 0x200_ffff的其他地址依然会访问ram
   val clint_wdata = src2
   val clint_rdata = io.lsu_to_csr.rdata
@@ -181,7 +182,7 @@ class LSU extends Module {
   //   (i_ld || i_sd)          -> 3.U
   // ))
   io.dsram.size := 3.U
-  io.dsram.addr := Cat(addr_real(63,3),0.U(3.W))
+  io.dsram.addr := Cat(addr_real(31,3),0.U(3.W))
   io.dsram.wstrb := wstrb
   io.dsram.wdata := sdata
 

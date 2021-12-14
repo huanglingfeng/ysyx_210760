@@ -13,7 +13,7 @@ class S_A_BRIDGE extends Module {
     val rw_req = Output(Bool())
     val data_read = Input(UInt(RW_DATA_WIDTH.W))
     val data_write = Output(UInt(RW_DATA_WIDTH.W))
-    val rw_addr = Output(UInt(AXI_DATA_WIDTH.W))
+    val rw_addr = Output(UInt(RW_ADDR_WIDTH.W))
     val rw_size = Output(UInt(2.W))
     val rw_resp = Input(UInt(2.W))
     val w_strb = Output(UInt(8.W))

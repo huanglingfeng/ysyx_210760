@@ -41,7 +41,7 @@ class AXI_BUS extends Bundle{
     val aw = new Bundle{
         val ready_i = Input(Bool())
         val valid_o = Output(Bool())
-        val addr_o = Output(UInt(64.W))
+        val addr_o = Output(UInt(32.W))
         val prot_o = Output(UInt(3.W))
         val id_o = Output(UInt(AXI_ID_WIDTH.W))
         val user_o = Output(UInt(AXI_USER_WIDTH.W))
@@ -69,7 +69,7 @@ class AXI_BUS extends Bundle{
     val ar = new Bundle{
         val ready_i = Input(Bool())
         val valid_o = Output(Bool())
-        val addr_o = Output(UInt(64.W))
+        val addr_o = Output(UInt(32.W))
         val prot_o = Output(UInt(3.W))
         val id_o = Output(UInt(AXI_ID_WIDTH.W))
         val user_o = Output(UInt(AXI_USER_WIDTH.W))

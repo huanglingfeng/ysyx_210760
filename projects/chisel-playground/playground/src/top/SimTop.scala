@@ -32,7 +32,7 @@ class SimTop extends Module {
   //--------write address--------------------------//
   u_axi_rw.io.axi.aw.ready_i := io.master.awready
   io.master.awvalid := u_axi_rw.io.axi.aw.valid_o
-  io.master.awaddr := u_axi_rw.io.axi.aw.addr_o(31,0)
+  io.master.awaddr := u_axi_rw.io.axi.aw.addr_o
   io.master.awid := u_axi_rw.io.axi.aw.id_o
   io.master.awlen := u_axi_rw.io.axi.aw.len_o  
   io.master.awsize := u_axi_rw.io.axi.aw.size_o
@@ -54,7 +54,7 @@ class SimTop extends Module {
   //-------------read address-----------------------//
   u_axi_rw.io.axi.ar.ready_i := io.master.arready
   io.master.arvalid := u_axi_rw.io.axi.ar.valid_o
-  io.master.araddr := u_axi_rw.io.axi.ar.addr_o(31,0)
+  io.master.araddr := u_axi_rw.io.axi.ar.addr_o
   io.master.arid := u_axi_rw.io.axi.ar.id_o
   io.master.arlen := u_axi_rw.io.axi.ar.len_o
   io.master.arsize := u_axi_rw.io.axi.ar.size_o

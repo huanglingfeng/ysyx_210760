@@ -5,7 +5,7 @@ object Consts {
 //----------------------Decode consts---------------------//
   val Y = true.B
   val N = false.B
-  val NOP = "b000000000000_00000_000_00000_0010011".U(64.W) //伪指令,addi x0,x0,0
+  val NOP = "b0010011".U(32.W) //伪指令,addi x0,x0,0
 
   val SEL_ID_OUT1_WIDTH = 2
   val OUT1_X = "b00".U(SEL_ID_OUT1_WIDTH.W)
@@ -107,7 +107,7 @@ object Consts {
   val MSCRATCH_N = "h340".U(12.W)
 
 //-----------------axi consts---------------------------//
-  val AXI_ADDR_WIDTH = 64
+  val AXI_ADDR_WIDTH = 32
   val AXI_DATA_WIDTH = 64
   val AXI_ID_WIDTH = 4
   val AXI_USER_WIDTH = 1
@@ -120,7 +120,7 @@ object Consts {
   val REQ_READ  = "b0".U(1.W)
   val REQ_WRITE = "b1".U(1.W)
 
+  val RW_ADDR_WIDTH = 32
   val RW_DATA_WIDTH = 64
-  val RW_ADDR_WIDTH = 64
 
 }

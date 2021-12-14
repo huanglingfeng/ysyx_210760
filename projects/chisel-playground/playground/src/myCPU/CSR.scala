@@ -233,9 +233,8 @@ when(!csr_stall){
     when(mtvec(1, 0) === 0.U) {
       csr_target := mtvec
     }.elsewhen(mtvec(1, 0) === 1.U) {
-      csr_target := (Cat(mtvec(63, 2), 0.U(2.W)) + Cat(0.U, mcause(62, 0)) << 2)
+      csr_target := (Cat(mtvec(63, 2), 0.U(2.W)) + (Cat(0.U, mcause(62, 0)) << 2)(63,0))
     }
-                               
   }.elsewhen(is_trap_end) {
     when(csrop === CSR_MRET){
       mstatus_i := Cat(   mstatus(62,13),"b11".U(2.W),mstatus(10,8),1.U,mstatus(6,4),mstatus(7),mstatus(2,0))

@@ -10,7 +10,7 @@ class AXI_RW extends Module{
         val rw_req_i = Input(Bool())
         val data_read_o = Output(UInt((RW_DATA_WIDTH).W))
         val data_write_i = Input(UInt((RW_DATA_WIDTH).W))
-        val rw_addr_i = Input(UInt((AXI_DATA_WIDTH).W))
+        val rw_addr_i = Input(UInt((RW_ADDR_WIDTH).W))
         val rw_size_i = Input(UInt(2.W))
         val rw_resp_o = Output(UInt(2.W))
         val w_strb = Input(UInt(8.W))
@@ -93,7 +93,7 @@ class AXI_RW extends Module{
     val size_w        = (io.rw_size_i === SIZE_W)
     val size_d        = (io.rw_size_i === SIZE_D)
     val addr_op1 = WireInit(0.U(4.W))
-    addr_op1 := Cat(Fill(4-ALIGNED_WIDTH,0.U),io.rw_addr_i(ALIGNED_WIDTH,0))
+    addr_op1 := io.rw_addr_i(ALIGNED_WIDTH,0)
     val addr_op2 = WireInit(0.U(4.W))
     addr_op2 := Mux1H(Seq(
         size_b -> "b0".U(4.W),
@@ -102,6 +102,7 @@ class AXI_RW extends Module{
         size_d -> "b111".U(4.W)
     ))
     val addr_end = addr_op1 + addr_op2
+    val r_addr_end = RegNext(addr_end)
     val overstep = (addr_end(3,ALIGNED_WIDTH) =/= 0.U)
     axi_len := Mux(aligned,(TRANS_LEN - 1).U(8.W),Cat(Fill(7,0.U),overstep))
     val axi_size = (AXI_SIZE).U(3.W)
@@ -114,7 +115,7 @@ class AXI_RW extends Module{
         size_h -> "hffff".U(MASK_WIDTH.W),
         size_w -> "hffff_ffff".U(MASK_WIDTH.W),
         size_d -> "hffff_ffff_ffff_ffff".U(MASK_WIDTH.W)
-    ))) << aligned_offset_l
+    ))).asUInt() << aligned_offset_l
 
     val mask_l = mask(AXI_DATA_WIDTH-1,0)
     val mask_h = mask(MASK_WIDTH-1,AXI_DATA_WIDTH)

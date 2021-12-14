@@ -146,6 +146,7 @@ class Decode extends Module {
 
     ))
     val (inst_valid: Bool) :: id_out1 :: id_out2 :: id_imm :: optype :: aluop :: bruop :: lsuop :: rv64op :: csrop :: Nil = ctr_signals
+    val r_rv64op = RegNext(rv64op)
 
     val is_putch = Wire(Bool())
     is_putch := (inst === PUTCH)
