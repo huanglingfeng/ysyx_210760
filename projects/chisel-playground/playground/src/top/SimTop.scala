@@ -42,7 +42,7 @@ class SimTop extends Module {
   io.master.wvalid := u_axi_rw.io.axi.w.valid_o
   io.master.wdata := u_axi_rw.io.axi.w.data_o
   io.master.wstrb := u_axi_rw.io.axi.w.strb_o
-  io.master.wlast := u_axi_rw.io.axi.w.last_o
+  io.master.wlast := 1.U
 
   //-------------write response--------------------//
   io.master.bready := u_axi_rw.io.axi.b.ready_o

@@ -31,7 +31,7 @@ class AXI_RW extends Module{
     val ar_hs = (io.axi.ar.ready_i & io.axi.ar.valid_o)
     val r_hs  = (io.axi.r.ready_o & io.axi.r.valid_i)
 
-    val w_done = (w_hs & io.axi.w.last_o)
+    val w_done = w_hs
     val r_done = (r_hs & io.axi.r.last_i)
     val trans_done = Mux(w_trans,b_hs,r_done)
 
@@ -102,7 +102,6 @@ class AXI_RW extends Module{
         size_d -> "b111".U(4.W)
     ))
     val addr_end = addr_op1 + addr_op2
-    val r_addr_end = RegNext(addr_end)
     val overstep = (addr_end(3,ALIGNED_WIDTH) =/= 0.U)
     axi_len := Mux(aligned,(TRANS_LEN - 1).U(8.W),Cat(Fill(7,0.U),overstep))
     val axi_size = (AXI_SIZE).U(3.W)
@@ -159,7 +158,6 @@ class AXI_RW extends Module{
     io.axi.w.valid_o  := w_state_write
     io.axi.w.data_o   := io.data_write_i
     io.axi.w.strb_o   := io.w_strb
-    io.axi.w.last_o   := 1.U
 
     //Write response channel signals
     io.axi.b.ready_o  := w_state_resp

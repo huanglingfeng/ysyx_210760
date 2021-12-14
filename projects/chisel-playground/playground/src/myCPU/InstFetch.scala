@@ -47,7 +47,7 @@ class InstFetch extends Module {
   val pc_en = RegInit(false.B)
   pc_en := true.B
 
-  val pc = RegInit("h0000_0000_7FFF_FFFC".U(64.W))
+  val pc = RegInit("h0000_0000_2FFF_FFFC".U(64.W))
 
   val nextpc = Mux(jump, io.id_to_if.pc_target , pc + 4.U)
   when(addr_hs){
@@ -74,7 +74,6 @@ class InstFetch extends Module {
 
   // val imem_data = io.imem.rdata(31, 0)
   val isram_data = Mux(io.isram.data_ok,io.isram.rdata(31,0),0.U)
-  val r_isramdata = RegNext(io.isram.rdata)
 
   io.if_to_id.is_nop := (pc_en && jump) || !fs_to_ds_valid
 

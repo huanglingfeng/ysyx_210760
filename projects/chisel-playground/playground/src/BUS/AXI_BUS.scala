@@ -57,7 +57,6 @@ class AXI_BUS extends Bundle{
         val valid_o = Output(Bool())
         val data_o = Output(UInt(64.W))
         val strb_o = Output(UInt(8.W))
-        val last_o = Output(Bool())
     }
     val b = new Bundle{
         val ready_o = Output(Bool())

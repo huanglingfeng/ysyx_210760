@@ -74,7 +74,6 @@ class LSU extends Module {
   val imm = io.ex_to_lsu.imm
   val lsuop = io.ex_to_lsu.lsuop
   val rv64op = io.ex_to_lsu.rv64op
-  val r_rv64op = RegNext(rv64op)
   load := Mux(ls_valid && (inst =/= NOP),io.ex_to_lsu.load,false.B)
   save := Mux(ls_valid && (inst =/= NOP),io.ex_to_lsu.save,false.B)
 
@@ -87,9 +86,9 @@ class LSU extends Module {
   val i_sh = lsuop(6)
   val i_sw = lsuop(7)
 
-  val i_lwu = rv64op(9)
-  val i_ld = rv64op(10)
-  val i_sd = rv64op(11)
+  val i_lwu = (rv64op === RV64_LWU)
+  val i_ld  = (rv64op === RV64_LD)
+  val i_sd  = (rv64op === RV64_SD)
 
   val addr_real = Mux(
     (load || save),
@@ -101,30 +100,6 @@ class LSU extends Module {
   val sel_h=addr_real(1)
   val sel_w=addr_real(2)
 
-  // val wmask = Mux1H(
-  //   Seq(
-  //     (save === false.B) -> 0.U(64.W),
-  //     i_sd -> "hFFFF_FFFF_FFFF_FFFF".U(64.W),
-      
-  //     (i_sw && !sel_w) -> "h0000_0000_FFFF_FFFF".U(64.W),
-  //     (i_sw &&  sel_w) -> "hFFFF_FFFF_0000_0000".U(64.W),
-
-  //     (i_sh && (!sel_w && !sel_h)) -> "h0000_0000_0000_FFFF".U(64.W),
-  //     (i_sh && (!sel_w &&  sel_h)) -> "h0000_0000_FFFF_0000".U(64.W),
-  //     (i_sh && ( sel_w && !sel_h)) -> "h0000_FFFF_0000_0000".U(64.W),
-  //     (i_sh && ( sel_w &&  sel_h)) -> "hFFFF_0000_0000_0000".U(64.W),
-
-  //     (i_sb && (!sel_w && !sel_h && !sel_b)) -> "h0000_0000_0000_00FF".U(64.W),
-  //     (i_sb && (!sel_w && !sel_h &&  sel_b)) -> "h0000_0000_0000_FF00".U(64.W),
-  //     (i_sb && (!sel_w &&  sel_h && !sel_b)) -> "h0000_0000_00FF_0000".U(64.W),
-  //     (i_sb && (!sel_w &&  sel_h &&  sel_b)) -> "h0000_0000_FF00_0000".U(64.W),
-  //     (i_sb && ( sel_w && !sel_h && !sel_b)) -> "h0000_00FF_0000_0000".U(64.W),
-  //     (i_sb && ( sel_w && !sel_h &&  sel_b)) -> "h0000_FF00_0000_0000".U(64.W),
-  //     (i_sb && ( sel_w &&  sel_h && !sel_b)) -> "h00FF_0000_0000_0000".U(64.W),
-  //     (i_sb && ( sel_w &&  sel_h &&  sel_b)) -> "hFF00_0000_0000_0000".U(64.W)
-
-  //   )
-  // )
 
   val wstrb = Mux1H(
     Seq(
@@ -166,21 +141,7 @@ class LSU extends Module {
   val clint_wdata = src2
   val clint_rdata = io.lsu_to_csr.rdata
 
-  // io.dmem.en := (load || save) && (!is_clint)
-  // io.dmem.addr := Cat(addr_real(63,3),0.U(3.W))
-  // io.dmem.wen := save
-  // io.dmem.wdata := sdata
-  // io.dmem.wmask := wmask
-  // val mdata = io.dmem.rdata
-
   io.dsram.wr := save
-  // io.dsram.size := Mux1H(Seq(
-  //   !(load || save) -> 0.U,
-  //   (i_lb || i_lbu || i_sb) -> 0.U,
-  //   (i_lh || i_lhu || i_sh) -> 1.U,
-  //   (i_lw || i_lwu || i_sw) -> 2.U,
-  //   (i_ld || i_sd)          -> 3.U
-  // ))
   io.dsram.size := 3.U
   io.dsram.addr := Cat(addr_real(31,3),0.U(3.W))
   io.dsram.wstrb := wstrb

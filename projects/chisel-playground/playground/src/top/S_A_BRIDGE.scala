@@ -37,7 +37,7 @@ class S_A_BRIDGE extends Module {
   val STATE_DATA_USE = "b11".U(2.W)
 
   val state = RegInit(0.U(2.W))
-  val axi_addr = RegInit("h8000_0000".U(64.W))
+  val axi_addr = RegInit("h3000_0000".U(64.W))
 
   val is_addr_receive = (state === STATE_ADDR_RECEIVE)
   val is_addr_send = (state === STATE_ADDR_SEND)

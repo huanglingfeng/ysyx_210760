@@ -18,7 +18,7 @@ class DR extends Module {
   // RegEnable(io.if_to_dr,0.U, judg) <> io.dr_to_id
   io.dr_to_id.is_nop := RegEnable(io.if_to_dr.is_nop,true.B,io.ds_allowin)
 
-  io.dr_to_id.pc := RegEnable(io.if_to_dr.pc,"h8000_0000".U(64.W),io.ds_allowin)
+  io.dr_to_id.pc := RegEnable(io.if_to_dr.pc,"h3000_0000".U(64.W),io.ds_allowin)
   io.dr_to_id.inst := RegEnable(io.if_to_dr.inst,NOP,io.ds_allowin)
   
 

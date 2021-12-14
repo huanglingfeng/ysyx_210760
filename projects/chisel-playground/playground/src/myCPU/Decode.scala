@@ -146,7 +146,6 @@ class Decode extends Module {
 
     ))
     val (inst_valid: Bool) :: id_out1 :: id_out2 :: id_imm :: optype :: aluop :: bruop :: lsuop :: rv64op :: csrop :: Nil = ctr_signals
-    val r_rv64op = RegNext(rv64op)
 
     val is_putch = Wire(Bool())
     is_putch := (inst === PUTCH)
@@ -290,7 +289,7 @@ class Decode extends Module {
       is_jal -> jal_target,
       is_jalr -> jalr_target,
       is_br -> br_target,
-      (is_br && !jump) -> "h8000_0000".U(64.W) 
+      (is_br && !jump) -> "h3000_0000".U(64.W) 
     )))
 
     io.id_to_ex.imm := imm
