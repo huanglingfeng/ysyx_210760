@@ -1,6 +1,5 @@
 import chisel3._
 import chisel3.util.experimental._
-import difftest._
 import Instructions._
 import Consts._
 
@@ -90,7 +89,7 @@ class Core extends Module {
   ex.io.flush := decode.io.intr_flush
   lsu.io.flush := decode.io.intr_flush
   wb.io.flush := csr.io.clkintr_flush
-  // /* ----- Difftest ------------------------------ */
+  /* ----- Difftest ------------------------------ */
 
   // val dt_ic = Module(new DifftestInstrCommit)
   // dt_ic.io.clock := clock
