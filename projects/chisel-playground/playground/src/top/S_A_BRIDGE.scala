@@ -49,7 +49,7 @@ class S_A_BRIDGE extends Module {
       is(STATE_ADDR_RECEIVE) {
         when(Mux(is_dram_w, dram_avalid, iram_avalid) && Mux(is_dram_w, io.dram.addr_ok, io.iram.addr_ok)) {state := STATE_ADDR_SEND}
       }
-      is(STATE_ADDR_SEND) { when(axi_hs) { state := STATE_DATA_WAIT } }
+      is(STATE_ADDR_SEND) { when(axi_hs) { state := Mux(is_dram && io.dram.wr,STATE_DATA_USE,STATE_DATA_WAIT) } }
       is(STATE_DATA_WAIT) { when(axi_dataok) { state := STATE_DATA_USE } }
       is(STATE_DATA_USE) {
         when(Mux(is_dram, dram_hs, iram_hs)) { state := STATE_ADDR_RECEIVE }
