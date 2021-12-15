@@ -104,12 +104,28 @@ class S_A_BRIDGE extends Module {
       io.w_strb := 0.U
     }
   }.elsewhen(is_addr_send) {
-    when(is_dram) {
+    when(is_dram && io.dram.wr) {
+      io.id := 1.U
+      io.rw_valid := io.dram.addr_valid && !axi_dataok
+      io.dram.addr_ok := false.B
+      io.dram.data_ok := false.B
+      io.rw_req := 1.U
+      io.dram.rdata := io.data_read
+      io.data_write := io.dram.wdata
+      io.rw_addr := axi_addr
+      io.rw_size := io.dram.size
+      rw_resp := io.rw_resp
+      io.w_strb := io.dram.wstrb
+
+      io.iram.addr_ok := false.B
+      io.iram.data_ok := false.B
+      io.iram.rdata := 0.U
+    }.elsewhen(is_dram){
       io.id := 1.U
       io.rw_valid := io.dram.addr_valid
       io.dram.addr_ok := false.B
       io.dram.data_ok := false.B
-      io.rw_req := io.dram.wr
+      io.rw_req := 0.U
       io.dram.rdata := io.data_read
       io.data_write := io.dram.wdata
       io.rw_addr := axi_addr
