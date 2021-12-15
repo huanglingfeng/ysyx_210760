@@ -98,7 +98,7 @@ class LSU extends Module {
   val sel_b=addr_real(0)
   val sel_h=addr_real(1)
   val sel_w=addr_real(2)
-  val wstrb = Mux(save,"b11111111".U(8.W),0.U)
+  // val wstrb = Mux(save,"b11111111".U(8.W),0.U)
   // val wstrb = Mux1H(
   //   Seq(
   //     (save === false.B) -> 0.U(8.W),
@@ -117,29 +117,29 @@ class LSU extends Module {
     )
   )
 
-  // val wstrb = Mux1H(
-  //   Seq(
-  //     (save === false.B) -> 0.U(8.W),
-  //     i_sd -> "b11111111".U(8.W),
+  val wstrb = Mux1H(
+    Seq(
+      (save === false.B) -> 0.U(8.W),
+      i_sd -> "b11111111".U(8.W),
       
-  //     (i_sw && !sel_w) -> "b00001111".U(8.W),
-  //     (i_sw &&  sel_w) -> "b11110000".U(8.W),
+      (i_sw && !sel_w) -> "b00001111".U(8.W),
+      (i_sw &&  sel_w) -> "b11110000".U(8.W),
 
-  //     (i_sh && (!sel_w && !sel_h)) -> "b00000011".U(8.W),
-  //     (i_sh && (!sel_w &&  sel_h)) -> "b00001100".U(8.W),
-  //     (i_sh && ( sel_w && !sel_h)) -> "b00110000".U(8.W),
-  //     (i_sh && ( sel_w &&  sel_h)) -> "b11000000".U(8.W),
+      (i_sh && (!sel_w && !sel_h)) -> "b00000011".U(8.W),
+      (i_sh && (!sel_w &&  sel_h)) -> "b00001100".U(8.W),
+      (i_sh && ( sel_w && !sel_h)) -> "b00110000".U(8.W),
+      (i_sh && ( sel_w &&  sel_h)) -> "b11000000".U(8.W),
 
-  //     (i_sb && (!sel_w && !sel_h && !sel_b)) -> "b00000001".U(8.W),
-  //     (i_sb && (!sel_w && !sel_h &&  sel_b)) -> "b00000010".U(8.W),
-  //     (i_sb && (!sel_w &&  sel_h && !sel_b)) -> "b00000100".U(8.W),
-  //     (i_sb && (!sel_w &&  sel_h &&  sel_b)) -> "b00001000".U(8.W),
-  //     (i_sb && ( sel_w && !sel_h && !sel_b)) -> "b00010000".U(8.W),
-  //     (i_sb && ( sel_w && !sel_h &&  sel_b)) -> "b00100000".U(8.W),
-  //     (i_sb && ( sel_w &&  sel_h && !sel_b)) -> "b01000000".U(8.W),
-  //     (i_sb && ( sel_w &&  sel_h &&  sel_b)) -> "b10000000".U(8.W)
-  //   )
-  // )
+      (i_sb && (!sel_w && !sel_h && !sel_b)) -> "b00000001".U(8.W),
+      (i_sb && (!sel_w && !sel_h &&  sel_b)) -> "b00000010".U(8.W),
+      (i_sb && (!sel_w &&  sel_h && !sel_b)) -> "b00000100".U(8.W),
+      (i_sb && (!sel_w &&  sel_h &&  sel_b)) -> "b00001000".U(8.W),
+      (i_sb && ( sel_w && !sel_h && !sel_b)) -> "b00010000".U(8.W),
+      (i_sb && ( sel_w && !sel_h &&  sel_b)) -> "b00100000".U(8.W),
+      (i_sb && ( sel_w &&  sel_h && !sel_b)) -> "b01000000".U(8.W),
+      (i_sb && ( sel_w &&  sel_h &&  sel_b)) -> "b10000000".U(8.W)
+    )
+  )
 
   val sdata = Mux1H(
     Seq(
