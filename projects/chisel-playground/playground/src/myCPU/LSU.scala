@@ -16,7 +16,6 @@ class LSU extends Module {
 
     val lsu_fwd = new LSU_TO_ID_BUS
 
-    // val dmem = new RamIO
     val dsram = new SRAM_BUS
 
     val flush = Input(Bool())
@@ -100,30 +99,41 @@ class LSU extends Module {
   val sel_h=addr_real(1)
   val sel_w=addr_real(2)
 
+  val wstrb = Mux(save,"b11111111".U(8.W),0.U)
 
-  val wstrb = Mux1H(
+  val dram_size = Mux1H(
     Seq(
-      (save === false.B) -> 0.U(8.W),
-      i_sd -> "b11111111".U(8.W),
-      
-      (i_sw && !sel_w) -> "b00001111".U(8.W),
-      (i_sw &&  sel_w) -> "b11110000".U(8.W),
-
-      (i_sh && (!sel_w && !sel_h)) -> "b00000011".U(8.W),
-      (i_sh && (!sel_w &&  sel_h)) -> "b00001100".U(8.W),
-      (i_sh && ( sel_w && !sel_h)) -> "b00110000".U(8.W),
-      (i_sh && ( sel_w &&  sel_h)) -> "b11000000".U(8.W),
-
-      (i_sb && (!sel_w && !sel_h && !sel_b)) -> "b00000001".U(8.W),
-      (i_sb && (!sel_w && !sel_h &&  sel_b)) -> "b00000010".U(8.W),
-      (i_sb && (!sel_w &&  sel_h && !sel_b)) -> "b00000100".U(8.W),
-      (i_sb && (!sel_w &&  sel_h &&  sel_b)) -> "b00001000".U(8.W),
-      (i_sb && ( sel_w && !sel_h && !sel_b)) -> "b00010000".U(8.W),
-      (i_sb && ( sel_w && !sel_h &&  sel_b)) -> "b00100000".U(8.W),
-      (i_sb && ( sel_w &&  sel_h && !sel_b)) -> "b01000000".U(8.W),
-      (i_sb && ( sel_w &&  sel_h &&  sel_b)) -> "b10000000".U(8.W)
+      !(memory_fetch) -> 0.U,
+      (i_lb || i_sb || i_lbu) -> SIZE_B,
+      (i_lh || i_sh || i_lhu) -> SIZE_H,
+      (i_lw || i_sw || i_lwu) -> SIZE_W,
+      (i_ld || i_sd)          -> SIZE_D
     )
   )
+
+  // val wstrb = Mux1H(
+  //   Seq(
+  //     (save === false.B) -> 0.U(8.W),
+  //     i_sd -> "b11111111".U(8.W),
+      
+  //     (i_sw && !sel_w) -> "b00001111".U(8.W),
+  //     (i_sw &&  sel_w) -> "b11110000".U(8.W),
+
+  //     (i_sh && (!sel_w && !sel_h)) -> "b00000011".U(8.W),
+  //     (i_sh && (!sel_w &&  sel_h)) -> "b00001100".U(8.W),
+  //     (i_sh && ( sel_w && !sel_h)) -> "b00110000".U(8.W),
+  //     (i_sh && ( sel_w &&  sel_h)) -> "b11000000".U(8.W),
+
+  //     (i_sb && (!sel_w && !sel_h && !sel_b)) -> "b00000001".U(8.W),
+  //     (i_sb && (!sel_w && !sel_h &&  sel_b)) -> "b00000010".U(8.W),
+  //     (i_sb && (!sel_w &&  sel_h && !sel_b)) -> "b00000100".U(8.W),
+  //     (i_sb && (!sel_w &&  sel_h &&  sel_b)) -> "b00001000".U(8.W),
+  //     (i_sb && ( sel_w && !sel_h && !sel_b)) -> "b00010000".U(8.W),
+  //     (i_sb && ( sel_w && !sel_h &&  sel_b)) -> "b00100000".U(8.W),
+  //     (i_sb && ( sel_w &&  sel_h && !sel_b)) -> "b01000000".U(8.W),
+  //     (i_sb && ( sel_w &&  sel_h &&  sel_b)) -> "b10000000".U(8.W)
+  //   )
+  // )
 
   val sdata = Mux1H(
     Seq(
@@ -142,8 +152,8 @@ class LSU extends Module {
   val clint_rdata = io.lsu_to_csr.rdata
 
   io.dsram.wr := save
-  io.dsram.size := 3.U
-  io.dsram.addr := Cat(addr_real(31,3),0.U(3.W))
+  io.dsram.size := dram_size
+  io.dsram.addr := addr_real
   io.dsram.wstrb := wstrb
   io.dsram.wdata := sdata
 
@@ -153,25 +163,34 @@ class LSU extends Module {
     Seq(
       (load === false.B) -> 0.U(64.W),
       i_ld -> mdata,
-      
-      ((i_lw || i_lwu) && !sel_w) -> Cat(0.U(32.W),mdata(31, 0)),
-      ((i_lw || i_lwu) &&  sel_w) -> Cat(0.U(32.W),mdata(63,32)),
-
-      ((i_lh || i_lhu) && (!sel_w && !sel_h)) -> Cat(0.U(48.W),mdata(15, 0)),
-      ((i_lh || i_lhu) && (!sel_w &&  sel_h)) -> Cat(0.U(48.W),mdata(31,16)),
-      ((i_lh || i_lhu) && ( sel_w && !sel_h)) -> Cat(0.U(48.W),mdata(47,32)),
-      ((i_lh || i_lhu) && ( sel_w &&  sel_h)) -> Cat(0.U(48.W),mdata(63,48)),
-
-      ((i_lb|| i_lbu) && (!sel_w && !sel_h && !sel_b)) -> Cat(0.U(56.W),mdata( 7, 0)),
-      ((i_lb|| i_lbu) && (!sel_w && !sel_h &&  sel_b)) -> Cat(0.U(56.W),mdata(15, 8)),
-      ((i_lb|| i_lbu) && (!sel_w &&  sel_h && !sel_b)) -> Cat(0.U(56.W),mdata(23,16)),
-      ((i_lb|| i_lbu) && (!sel_w &&  sel_h &&  sel_b)) -> Cat(0.U(56.W),mdata(31,24)),
-      ((i_lb|| i_lbu) && ( sel_w && !sel_h && !sel_b)) -> Cat(0.U(56.W),mdata(39,32)),
-      ((i_lb|| i_lbu) && ( sel_w && !sel_h &&  sel_b)) -> Cat(0.U(56.W),mdata(47,40)),
-      ((i_lb|| i_lbu) && ( sel_w &&  sel_h && !sel_b)) -> Cat(0.U(56.W),mdata(55,48)),
-      ((i_lb|| i_lbu) && ( sel_w &&  sel_h &&  sel_b)) -> Cat(0.U(56.W),mdata(63,56))
+      (i_lw || i_lwu) -> Cat(0.U(32.W),mdata(31, 0)),
+      (i_lh || i_lhu) -> Cat(0.U(48.W),mdata(15, 0)),
+      (i_lb || i_lbu) -> Cat(0.U(56.W),mdata( 7, 0))
     )
   )
+  // val rdata = Mux1H(
+  //   Seq(
+  //     (load === false.B) -> 0.U(64.W),
+  //     i_ld -> mdata,
+      
+  //     ((i_lw || i_lwu) && !sel_w) -> Cat(0.U(32.W),mdata(31, 0)),
+  //     ((i_lw || i_lwu) &&  sel_w) -> Cat(0.U(32.W),mdata(63,32)),
+
+  //     ((i_lh || i_lhu) && (!sel_w && !sel_h)) -> Cat(0.U(48.W),mdata(15, 0)),
+  //     ((i_lh || i_lhu) && (!sel_w &&  sel_h)) -> Cat(0.U(48.W),mdata(31,16)),
+  //     ((i_lh || i_lhu) && ( sel_w && !sel_h)) -> Cat(0.U(48.W),mdata(47,32)),
+  //     ((i_lh || i_lhu) && ( sel_w &&  sel_h)) -> Cat(0.U(48.W),mdata(63,48)),
+
+  //     ((i_lb|| i_lbu) && (!sel_w && !sel_h && !sel_b)) -> Cat(0.U(56.W),mdata( 7, 0)),
+  //     ((i_lb|| i_lbu) && (!sel_w && !sel_h &&  sel_b)) -> Cat(0.U(56.W),mdata(15, 8)),
+  //     ((i_lb|| i_lbu) && (!sel_w &&  sel_h && !sel_b)) -> Cat(0.U(56.W),mdata(23,16)),
+  //     ((i_lb|| i_lbu) && (!sel_w &&  sel_h &&  sel_b)) -> Cat(0.U(56.W),mdata(31,24)),
+  //     ((i_lb|| i_lbu) && ( sel_w && !sel_h && !sel_b)) -> Cat(0.U(56.W),mdata(39,32)),
+  //     ((i_lb|| i_lbu) && ( sel_w && !sel_h &&  sel_b)) -> Cat(0.U(56.W),mdata(47,40)),
+  //     ((i_lb|| i_lbu) && ( sel_w &&  sel_h && !sel_b)) -> Cat(0.U(56.W),mdata(55,48)),
+  //     ((i_lb|| i_lbu) && ( sel_w &&  sel_h &&  sel_b)) -> Cat(0.U(56.W),mdata(63,56))
+  //   )
+  // )
 
   val ld_res = rdata
   val lw_res = Cat(Fill(32, rdata(31)), rdata(31, 0))

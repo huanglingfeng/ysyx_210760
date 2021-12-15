@@ -8,7 +8,6 @@ class InstFetch extends Module {
     val ds_allowin = Input(Bool())
     val fs_to_ds_valid = Output(Bool())
 
-    // val imem = new RomIO
     val isram = new SRAM_BUS
 
     val if_to_id = new IF_TO_ID_BUS
@@ -62,7 +61,7 @@ class InstFetch extends Module {
     addr_valid := true.B
   }
   io.isram.wr := false.B
-  io.isram.size := SIZE_D
+  io.isram.size := SIZE_W
   io.isram.addr := pc(31,0)
   io.isram.wstrb := 0.U
   io.isram.wdata := 0.U
