@@ -99,8 +99,14 @@ class LSU extends Module {
   val sel_h=addr_real(1)
   val sel_w=addr_real(2)
 
-  val wstrb = Mux(save,"b11111111".U(8.W),0.U)
-
+  val wstrb = Mux1H(
+    Seq(
+      (save === false.B) -> 0.U(8.W),
+      i_sd -> "b11111111".U(8.W),
+      i_sw -> "b00001111".U(8.W),
+      i_sh -> "b00000011".U(8.W),
+      i_sb -> "b00000001".U(8.W)
+  ))
   val dram_size = Mux1H(
     Seq(
       !(memory_fetch) -> 0.U,
