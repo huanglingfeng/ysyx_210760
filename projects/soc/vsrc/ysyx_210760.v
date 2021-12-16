@@ -2795,10 +2795,10 @@ module ysyx_210760_CSR(
   reg [63:0] mie; // @[CSR.scala 55:20]
   reg [63:0] mip; // @[CSR.scala 56:20]
   reg [63:0] mtime; // @[CSR.scala 81:22]
-  reg [63:0] mtime_64; // @[CSR.scala 82:25]
+  reg [63:0] mtime_delay; // @[CSR.scala 82:28]
   wire [63:0] _mtime_T_1 = mtime + 64'h1; // @[CSR.scala 85:20]
-  wire [63:0] _mtime_64_T_1 = mtime_64 + 64'h1; // @[CSR.scala 88:26]
-  wire [63:0] _GEN_1 = mtime_64 == 64'h3f ? _mtime_T_1 : mtime; // @[CSR.scala 84:30 CSR.scala 85:11 CSR.scala 81:22]
+  wire [63:0] _mtime_delay_T_1 = mtime_delay + 64'h1; // @[CSR.scala 88:32]
+  wire [63:0] _GEN_1 = mtime_delay == 64'hff ? _mtime_T_1 : mtime; // @[CSR.scala 84:34 CSR.scala 85:11 CSR.scala 81:22]
   reg [63:0] mtimecmp; // @[CSR.scala 90:25]
   wire  _T_2 = ~io_csr_stall; // @[CSR.scala 91:29]
   wire [55:0] mip_hi_hi = mip[63:8]; // @[CSR.scala 92:19]
@@ -3031,12 +3031,12 @@ module ysyx_210760_CSR(
     end else begin
       mtime <= _GEN_4;
     end
-    if (reset) begin // @[CSR.scala 82:25]
-      mtime_64 <= 64'h0; // @[CSR.scala 82:25]
-    end else if (mtime_64 == 64'h3f) begin // @[CSR.scala 84:30]
-      mtime_64 <= 64'h0; // @[CSR.scala 86:14]
+    if (reset) begin // @[CSR.scala 82:28]
+      mtime_delay <= 64'h0; // @[CSR.scala 82:28]
+    end else if (mtime_delay == 64'hff) begin // @[CSR.scala 84:34]
+      mtime_delay <= 64'h0; // @[CSR.scala 86:17]
     end else begin
-      mtime_64 <= _mtime_64_T_1; // @[CSR.scala 88:14]
+      mtime_delay <= _mtime_delay_T_1; // @[CSR.scala 88:17]
     end
     if (reset) begin // @[CSR.scala 90:25]
       mtimecmp <= 64'h2ff000; // @[CSR.scala 90:25]
@@ -3101,7 +3101,7 @@ initial begin
   _RAND_7 = {2{`RANDOM}};
   mtime = _RAND_7[63:0];
   _RAND_8 = {2{`RANDOM}};
-  mtime_64 = _RAND_8[63:0];
+  mtime_delay = _RAND_8[63:0];
   _RAND_9 = {2{`RANDOM}};
   mtimecmp = _RAND_9[63:0];
 `endif // RANDOMIZE_REG_INIT
