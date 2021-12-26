@@ -35,5 +35,5 @@ soc
 memtest-flash.bin
 rtthread-flash.bin
 loader/hello-loader.bin
-loader/memtest-loader.bin
-loader/rtthread-loader.bin
+memtest-loader.bin
+rtthread-loader.bin
