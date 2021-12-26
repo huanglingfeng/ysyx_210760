@@ -34,6 +34,6 @@ soc
 ./build.sh -e soc -b -s -y -v '--timescale "1ns/1ns" -Wno-fatal --trace' -a "-i ysyxSoC/flash/hello-flash.bin"
 memtest-flash.bin
 rtthread-flash.bin
-hello-loader.bin
-memtest-loader.bin
-rtthread-loader.bin
+loader/hello-loader.bin
+loader/memtest-loader.bin
+loader/rtthread-loader.bin
