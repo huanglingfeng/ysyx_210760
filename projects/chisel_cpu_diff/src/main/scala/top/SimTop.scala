@@ -5,9 +5,11 @@ import Consts._
 
 class SimTop extends Module {
   val io = IO(new Bundle {
-    val interrupt = Input(Bool())
-    val master = new AXI_BUS_TOP
-    val slave  = Flipped(new AXI_BUS_TOP)
+    val logCtrl = new LogCtrlIO
+    val perfInfo = new PerfInfoIO
+    val uart = new UARTIO
+
+    val memAXI_0 = new AXI_BUS_TOP
   })
 
   val core = Module(new Core)
@@ -29,55 +31,61 @@ class SimTop extends Module {
   s_a_brid.io.rw_resp := u_axi_rw.io.rw_resp_o
   u_axi_rw.io.w_strb := s_a_brid.io.w_strb
   u_axi_rw.io.axi_id := s_a_brid.io.id
+  
   //--------write address--------------------------//
-  u_axi_rw.io.axi.aw.ready_i := io.master.awready
-  io.master.awvalid := u_axi_rw.io.axi.aw.valid_o
-  io.master.awaddr := u_axi_rw.io.axi.aw.addr_o(31,0)
-  io.master.awid := u_axi_rw.io.axi.aw.id_o
-  io.master.awlen := u_axi_rw.io.axi.aw.len_o  
-  io.master.awsize := u_axi_rw.io.axi.aw.size_o
-  io.master.awburst := u_axi_rw.io.axi.aw.burst_o
+  u_axi_rw.io.axi.aw.ready_i := io.memAXI_0.aw.ready
+  io.memAXI_0.aw.valid := u_axi_rw.io.axi.aw.valid_o
+  io.memAXI_0.aw.bits_addr := u_axi_rw.io.axi.aw.addr_o
+  io.memAXI_0.aw.bits_prot := u_axi_rw.io.axi.aw.prot_o
+  io.memAXI_0.aw.bits_id := u_axi_rw.io.axi.aw.id_o
+  io.memAXI_0.aw.bits_user := u_axi_rw.io.axi.aw.user_o
+  io.memAXI_0.aw.bits_len := u_axi_rw.io.axi.aw.len_o  
+  io.memAXI_0.aw.bits_size := u_axi_rw.io.axi.aw.size_o
+  io.memAXI_0.aw.bits_burst := u_axi_rw.io.axi.aw.burst_o
+  io.memAXI_0.aw.bits_lock := u_axi_rw.io.axi.aw.lock_o
+  io.memAXI_0.aw.bits_cache := u_axi_rw.io.axi.aw.cache_o
+  io.memAXI_0.aw.bits_qos := u_axi_rw.io.axi.aw.qos_o
+
   //-------------write data-----------------------//
-  u_axi_rw.io.axi.w.ready_i := io.master.wready
-  io.master.wvalid := u_axi_rw.io.axi.w.valid_o
-  io.master.wdata := u_axi_rw.io.axi.w.data_o
-  io.master.wstrb := u_axi_rw.io.axi.w.strb_o
-  io.master.wlast := u_axi_rw.io.axi.w.last_o
+  u_axi_rw.io.axi.w.ready_i := io.memAXI_0.w.ready
+  io.memAXI_0.w.valid := u_axi_rw.io.axi.w.valid_o
+  io.memAXI_0.w.bits_data := u_axi_rw.io.axi.w.data_o
+  io.memAXI_0.w.bits_strb := u_axi_rw.io.axi.w.strb_o
+  io.memAXI_0.w.bits_last := u_axi_rw.io.axi.w.last_o
 
   //-------------write response--------------------//
-  io.master.bready := u_axi_rw.io.axi.b.ready_o
-  u_axi_rw.io.axi.b.valid_i := io.master.bvalid
-  u_axi_rw.io.axi.b.resp_i := io.master.bresp
-  u_axi_rw.io.axi.b.id_i := io.master.bid
-  u_axi_rw.io.axi.b.user_i := 0.U
+  io.memAXI_0.b.ready := u_axi_rw.io.axi.b.ready_o
+  u_axi_rw.io.axi.b.valid_i := io.memAXI_0.b.valid
+  u_axi_rw.io.axi.b.resp_i := io.memAXI_0.b.bits_resp
+  u_axi_rw.io.axi.b.id_i := io.memAXI_0.b.bits_id
+  u_axi_rw.io.axi.b.user_i := io.memAXI_0.b.bits_user
 
   //-------------read address-----------------------//
-  u_axi_rw.io.axi.ar.ready_i := io.master.arready
-  io.master.arvalid := u_axi_rw.io.axi.ar.valid_o
-  io.master.araddr := u_axi_rw.io.axi.ar.addr_o(31,0)
-  io.master.arid := u_axi_rw.io.axi.ar.id_o
-  io.master.arlen := u_axi_rw.io.axi.ar.len_o
-  io.master.arsize := u_axi_rw.io.axi.ar.size_o
-  io.master.arburst := u_axi_rw.io.axi.ar.burst_o
-  //----------------read data-------------------------//
-  io.master.rready := u_axi_rw.io.axi.r.ready_o
-  u_axi_rw.io.axi.r.valid_i := io.master.rvalid
-  u_axi_rw.io.axi.r.resp_i := io.master.rresp
-  u_axi_rw.io.axi.r.data_i := io.master.rdata
-  u_axi_rw.io.axi.r.last_i := io.master.rlast
-  u_axi_rw.io.axi.r.id_i := io.master.rid
-  u_axi_rw.io.axi.r.user_i := 0.U
+  u_axi_rw.io.axi.ar.ready_i := io.memAXI_0.ar.ready
+  io.memAXI_0.ar.valid := u_axi_rw.io.axi.ar.valid_o
+  io.memAXI_0.ar.bits_addr := u_axi_rw.io.axi.ar.addr_o
+  io.memAXI_0.ar.bits_prot := u_axi_rw.io.axi.ar.prot_o
+  io.memAXI_0.ar.bits_id := u_axi_rw.io.axi.ar.id_o
+  io.memAXI_0.ar.bits_user := u_axi_rw.io.axi.ar.user_o
+  io.memAXI_0.ar.bits_len := u_axi_rw.io.axi.ar.len_o
+  io.memAXI_0.ar.bits_size := u_axi_rw.io.axi.ar.size_o
+  io.memAXI_0.ar.bits_burst := u_axi_rw.io.axi.ar.burst_o
+  io.memAXI_0.ar.bits_lock := u_axi_rw.io.axi.ar.lock_o
+  io.memAXI_0.ar.bits_cache := u_axi_rw.io.axi.ar.cache_o
+  io.memAXI_0.ar.bits_qos := u_axi_rw.io.axi.ar.qos_o
 
-  //------------axi slave 悬空----------------------//
-  io.slave.awready := 0.U
-  io.slave.wready  := 0.U
-  io.slave.bvalid  := 0.U
-  io.slave.bresp   := 0.U
-  io.slave.bid     := 0.U
-  io.slave.arready := 0.U
-  io.slave.rvalid  := 0.U
-  io.slave.rresp   := 0.U
-  io.slave.rdata   := 0.U
-  io.slave.rlast   := 0.U
-  io.slave.rid     := 0.U
+  //----------------read data-------------------------//
+  io.memAXI_0.r.ready := u_axi_rw.io.axi.r.ready_o
+  u_axi_rw.io.axi.r.valid_i := io.memAXI_0.r.valid
+  u_axi_rw.io.axi.r.resp_i := io.memAXI_0.r.bits_resp
+  u_axi_rw.io.axi.r.data_i := io.memAXI_0.r.bits_data
+  u_axi_rw.io.axi.r.last_i := io.memAXI_0.r.bits_last
+  u_axi_rw.io.axi.r.id_i := io.memAXI_0.r.bits_id
+  u_axi_rw.io.axi.r.user_i := io.memAXI_0.r.bits_user
+
+
+  io.uart.out.valid := false.B
+  io.uart.out.ch := 0.U
+  io.uart.in.valid := false.B
+
 }

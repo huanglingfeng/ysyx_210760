@@ -3,39 +3,57 @@ import chisel3.util._
 import Consts._
 
 class AXI_BUS_TOP extends Bundle{
-        val awready = Input(Bool())
-        val awvalid = Output(Bool())
-        val awaddr = Output(UInt(32.W))
-        val awid = Output(UInt(AXI_ID_WIDTH.W))
-        val awlen = Output(UInt(8.W))
-        val awsize = Output(UInt(3.W))
-        val awburst = Output(UInt(2.W))
-
-        val wready = Input(Bool())
-        val wvalid = Output(Bool())
-        val wdata = Output(UInt(64.W))
-        val wstrb = Output(UInt(8.W))
-        val wlast = Output(Bool())
-
-        val bready = Output(Bool())
-        val bvalid = Input(Bool())
-        val bresp = Input(UInt(2.W))
-        val bid = Input(UInt(AXI_ID_WIDTH.W))
-    
-        val arready = Input(Bool())
-        val arvalid = Output(Bool())
-        val araddr = Output(UInt(32.W))
-        val arid = Output(UInt(AXI_ID_WIDTH.W))
-        val arlen = Output(UInt(8.W))
-        val arsize = Output(UInt(3.W))
-        val arburst = Output(UInt(2.W))
-
-        val rready = Output(Bool())
-        val rvalid = Input(Bool())
-        val rresp = Input(UInt(2.W))
-        val rdata = Input(UInt(64.W))
-        val rlast = Input(Bool())
-        val rid = Input(UInt(AXI_ID_WIDTH.W))
+    val aw = new Bundle{
+        val ready = Input(Bool())
+        val valid = Output(Bool())
+        val bits_addr = Output(UInt(64.W))
+        val bits_prot = Output(UInt(3.W))
+        val bits_id = Output(UInt(AXI_ID_WIDTH.W))
+        val bits_user = Output(UInt(AXI_USER_WIDTH.W))
+        val bits_len = Output(UInt(8.W))
+        val bits_size = Output(UInt(3.W))
+        val bits_burst = Output(UInt(2.W))
+        val bits_lock = Output(Bool())
+        val bits_cache = Output(UInt(4.W))
+        val bits_qos = Output(UInt(4.W))
+    }
+    val w = new Bundle{
+        val ready = Input(Bool())
+        val valid = Output(Bool())
+        val bits_data = Output(UInt(64.W))
+        val bits_strb = Output(UInt(8.W))
+        val bits_last = Output(Bool())
+    }
+    val b = new Bundle{
+        val ready = Output(Bool())
+        val valid = Input(Bool())
+        val bits_resp = Input(UInt(2.W))
+        val bits_id = Input(UInt(AXI_ID_WIDTH.W))
+        val bits_user = Input(UInt(AXI_USER_WIDTH.W))
+    }
+    val ar = new Bundle{
+        val ready = Input(Bool())
+        val valid = Output(Bool())
+        val bits_addr = Output(UInt(64.W))
+        val bits_prot = Output(UInt(3.W))
+        val bits_id = Output(UInt(AXI_ID_WIDTH.W))
+        val bits_user = Output(UInt(AXI_USER_WIDTH.W))
+        val bits_len = Output(UInt(8.W))
+        val bits_size = Output(UInt(3.W))
+        val bits_burst = Output(UInt(2.W))
+        val bits_lock = Output(Bool())
+        val bits_cache = Output(UInt(4.W))
+        val bits_qos = Output(UInt(4.W))
+    }
+    val r = new Bundle{
+        val ready = Output(Bool())
+        val valid = Input(Bool())
+        val bits_resp = Input(UInt(2.W))
+        val bits_data = Input(UInt(64.W))
+        val bits_last = Input(Bool())
+        val bits_id = Input(UInt(AXI_ID_WIDTH.W))
+        val bits_user = Input(UInt(AXI_USER_WIDTH.W))
+    }
 }
 class AXI_BUS extends Bundle{
     val aw = new Bundle{

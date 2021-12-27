@@ -1,4 +1,4 @@
-module ysyx_20210760_InstFetch(
+module InstFetch(
   input         clock,
   input         reset,
   input         io_ds_allowin,
@@ -144,7 +144,7 @@ end // initial
 `endif
 `endif // SYNTHESIS
 endmodule
-module ysyx_20210760_DR(
+module DR(
   input         clock,
   input         reset,
   input         io_fs_to_ds_valid,
@@ -239,7 +239,7 @@ end // initial
 `endif
 `endif // SYNTHESIS
 endmodule
-module ysyx_20210760_Decode(
+module Decode(
   input         clock,
   input         reset,
   input         io_es_allowin,
@@ -969,7 +969,7 @@ module ysyx_20210760_Decode(
     `endif // SYNTHESIS
   end
 endmodule
-module ysyx_20210760_ER(
+module ER(
   input         clock,
   input         reset,
   input         io_ds_to_es_valid,
@@ -1248,7 +1248,7 @@ end // initial
 `endif
 `endif // SYNTHESIS
 endmodule
-module ysyx_20210760_Execution(
+module Execution(
   input         io_ls_allowin,
   input         io_es_valid,
   output        io_es_allowin,
@@ -1421,7 +1421,7 @@ module ysyx_20210760_Execution(
   assign io_ex_fwd_is_csr = _es_allowin_T ? 1'h0 : io_id_to_ex_is_csr; // @[Execution.scala 180:26]
   assign io_ex_fwd_load = _es_allowin_T ? 1'h0 : io_id_to_ex_load; // @[Execution.scala 181:24]
 endmodule
-module ysyx_20210760_LR(
+module LR(
   input         clock,
   input         reset,
   input         io_es_to_ls_valid,
@@ -1700,7 +1700,7 @@ end // initial
 `endif
 `endif // SYNTHESIS
 endmodule
-module ysyx_20210760_LSU(
+module LSU(
   input         clock,
   input         reset,
   input         io_ws_allowin,
@@ -2052,7 +2052,7 @@ end // initial
 `endif
 `endif // SYNTHESIS
 endmodule
-module ysyx_20210760_WR(
+module WR(
   input         clock,
   input         reset,
   input         io_ls_to_ws_valid,
@@ -2247,7 +2247,7 @@ end // initial
 `endif
 `endif // SYNTHESIS
 endmodule
-module ysyx_20210760_WB(
+module WB(
   input         io_ws_valid,
   output        io_ws_allowin,
   input         io_lsu_to_wb_is_nop,
@@ -2303,7 +2303,7 @@ module ysyx_20210760_WB(
   assign io_inst = inst[31:0]; // @[WB.scala 55:11]
   assign io_is_nop = _io_is_nop_T[0]; // @[WB.scala 56:13]
 endmodule
-module ysyx_20210760_RegFile(
+module RegFile(
   input         clock,
   input         reset,
   input  [4:0]  io_rs1_addr,
@@ -2884,7 +2884,7 @@ end // initial
 `endif
 `endif // SYNTHESIS
 endmodule
-module ysyx_20210760_CSR(
+module CSR(
   input         clock,
   input         reset,
   input         io_wb_to_csr_is_nop,
@@ -3382,7 +3382,7 @@ end // initial
 `endif
 `endif // SYNTHESIS
 endmodule
-module ysyx_20210760_Core(
+module Core(
   input         clock,
   input         reset,
   output [63:0] io_isram_addr,
@@ -3854,7 +3854,7 @@ module ysyx_20210760_Core(
   reg [63:0] dt_cs_io_mcause_REG; // @[Core.scala 148:29]
   reg [63:0] dt_cs_io_mie_REG; // @[Core.scala 152:26]
   reg [63:0] dt_cs_io_mscratch_REG; // @[Core.scala 153:31]
-  ysyx_20210760_InstFetch fetch ( // @[Core.scala 13:21]
+  InstFetch fetch ( // @[Core.scala 13:21]
     .clock(fetch_clock),
     .reset(fetch_reset),
     .io_ds_allowin(fetch_io_ds_allowin),
@@ -3873,7 +3873,7 @@ module ysyx_20210760_Core(
     .io_id_to_if_jump(fetch_io_id_to_if_jump),
     .io_ds_stall(fetch_io_ds_stall)
   );
-  ysyx_20210760_DR dr ( // @[Core.scala 16:18]
+  DR dr ( // @[Core.scala 16:18]
     .clock(dr_clock),
     .reset(dr_reset),
     .io_fs_to_ds_valid(dr_io_fs_to_ds_valid),
@@ -3886,7 +3886,7 @@ module ysyx_20210760_Core(
     .io_dr_to_id_pc(dr_io_dr_to_id_pc),
     .io_dr_to_id_inst(dr_io_dr_to_id_inst)
   );
-  ysyx_20210760_Decode decode ( // @[Core.scala 17:22]
+  Decode decode ( // @[Core.scala 17:22]
     .clock(decode_clock),
     .reset(decode_reset),
     .io_es_allowin(decode_io_es_allowin),
@@ -3939,7 +3939,7 @@ module ysyx_20210760_Core(
     .io_ds_stall(decode_io_ds_stall),
     .io_csr_stall(decode_io_csr_stall)
   );
-  ysyx_20210760_ER er ( // @[Core.scala 20:18]
+  ER er ( // @[Core.scala 20:18]
     .clock(er_clock),
     .reset(er_reset),
     .io_ds_to_es_valid(er_io_ds_to_es_valid),
@@ -3982,7 +3982,7 @@ module ysyx_20210760_Core(
     .io_er_to_ex_csr_src(er_io_er_to_ex_csr_src),
     .io_er_to_ex_is_zero(er_io_er_to_ex_is_zero)
   );
-  ysyx_20210760_Execution ex ( // @[Core.scala 21:18]
+  Execution ex ( // @[Core.scala 21:18]
     .io_ls_allowin(ex_io_ls_allowin),
     .io_es_valid(ex_io_es_valid),
     .io_es_allowin(ex_io_es_allowin),
@@ -4030,7 +4030,7 @@ module ysyx_20210760_Core(
     .io_ex_fwd_load(ex_io_ex_fwd_load),
     .io_flush(ex_io_flush)
   );
-  ysyx_20210760_LR lr ( // @[Core.scala 22:18]
+  LR lr ( // @[Core.scala 22:18]
     .clock(lr_clock),
     .reset(lr_reset),
     .io_es_to_ls_valid(lr_io_es_to_ls_valid),
@@ -4073,7 +4073,7 @@ module ysyx_20210760_Core(
     .io_lr_to_lsu_csr_src(lr_io_lr_to_lsu_csr_src),
     .io_lr_to_lsu_is_zero(lr_io_lr_to_lsu_is_zero)
   );
-  ysyx_20210760_LSU lsu ( // @[Core.scala 23:19]
+  LSU lsu ( // @[Core.scala 23:19]
     .clock(lsu_clock),
     .reset(lsu_reset),
     .io_ws_allowin(lsu_io_ws_allowin),
@@ -4131,7 +4131,7 @@ module ysyx_20210760_Core(
     .io_dsram_rdata(lsu_io_dsram_rdata),
     .io_flush(lsu_io_flush)
   );
-  ysyx_20210760_WR wr ( // @[Core.scala 28:18]
+  WR wr ( // @[Core.scala 28:18]
     .clock(wr_clock),
     .reset(wr_reset),
     .io_ls_to_ws_valid(wr_io_ls_to_ws_valid),
@@ -4160,7 +4160,7 @@ module ysyx_20210760_Core(
     .io_wr_to_wb_csr_src(wr_io_wr_to_wb_csr_src),
     .io_wr_to_wb_is_zero(wr_io_wr_to_wb_is_zero)
   );
-  ysyx_20210760_WB wb ( // @[Core.scala 29:18]
+  WB wb ( // @[Core.scala 29:18]
     .io_ws_valid(wb_io_ws_valid),
     .io_ws_allowin(wb_io_ws_allowin),
     .io_lsu_to_wb_is_nop(wb_io_lsu_to_wb_is_nop),
@@ -4193,7 +4193,7 @@ module ysyx_20210760_Core(
     .io_flush(wb_io_flush),
     .io_csr_stall(wb_io_csr_stall)
   );
-  ysyx_20210760_RegFile rf ( // @[Core.scala 31:18]
+  RegFile rf ( // @[Core.scala 31:18]
     .clock(rf_clock),
     .reset(rf_reset),
     .io_rs1_addr(rf_io_rs1_addr),
@@ -4205,7 +4205,7 @@ module ysyx_20210760_Core(
     .io_rd_en(rf_io_rd_en),
     .rf_10(rf_rf_10)
   );
-  ysyx_20210760_CSR csr ( // @[Core.scala 43:19]
+  CSR csr ( // @[Core.scala 43:19]
     .clock(csr_clock),
     .reset(csr_reset),
     .io_wb_to_csr_is_nop(csr_io_wb_to_csr_is_nop),
@@ -4643,7 +4643,7 @@ end // initial
 `endif
 `endif // SYNTHESIS
 endmodule
-module ysyx_20210760_AXI_RW(
+module AXI_RW(
   input         clock,
   input         reset,
   input         io_rw_valid_i,
@@ -4883,7 +4883,7 @@ end // initial
 `endif
 `endif // SYNTHESIS
 endmodule
-module ysyx_20210760_S_A_BRIDGE(
+module S_A_BRIDGE(
   input         clock,
   input         reset,
   input  [63:0] io_iram_addr,
@@ -5075,146 +5075,137 @@ end // initial
 `endif
 `endif // SYNTHESIS
 endmodule
-module ysyx_20210760_SimTop(
+module SimTop(
   input         clock,
   input         reset,
-  input         io_interrupt,
-  input         io_master_awready,
-  output        io_master_awvalid,
-  output [31:0] io_master_awaddr,
-  output [3:0]  io_master_awid,
-  output [7:0]  io_master_awlen,
-  output [2:0]  io_master_awsize,
-  output [1:0]  io_master_awburst,
-  input         io_master_wready,
-  output        io_master_wvalid,
-  output [63:0] io_master_wdata,
-  output [7:0]  io_master_wstrb,
-  output        io_master_wlast,
-  output        io_master_bready,
-  input         io_master_bvalid,
-  input  [1:0]  io_master_bresp,
-  input  [3:0]  io_master_bid,
-  input         io_master_arready,
-  output        io_master_arvalid,
-  output [31:0] io_master_araddr,
-  output [3:0]  io_master_arid,
-  output [7:0]  io_master_arlen,
-  output [2:0]  io_master_arsize,
-  output [1:0]  io_master_arburst,
-  output        io_master_rready,
-  input         io_master_rvalid,
-  input  [1:0]  io_master_rresp,
-  input  [63:0] io_master_rdata,
-  input         io_master_rlast,
-  input  [3:0]  io_master_rid,
-  output        io_slave_awready,
-  input         io_slave_awvalid,
-  input  [31:0] io_slave_awaddr,
-  input  [3:0]  io_slave_awid,
-  input  [7:0]  io_slave_awlen,
-  input  [2:0]  io_slave_awsize,
-  input  [1:0]  io_slave_awburst,
-  output        io_slave_wready,
-  input         io_slave_wvalid,
-  input  [63:0] io_slave_wdata,
-  input  [7:0]  io_slave_wstrb,
-  input         io_slave_wlast,
-  input         io_slave_bready,
-  output        io_slave_bvalid,
-  output [1:0]  io_slave_bresp,
-  output [3:0]  io_slave_bid,
-  output        io_slave_arready,
-  input         io_slave_arvalid,
-  input  [31:0] io_slave_araddr,
-  input  [3:0]  io_slave_arid,
-  input  [7:0]  io_slave_arlen,
-  input  [2:0]  io_slave_arsize,
-  input  [1:0]  io_slave_arburst,
-  input         io_slave_rready,
-  output        io_slave_rvalid,
-  output [1:0]  io_slave_rresp,
-  output [63:0] io_slave_rdata,
-  output        io_slave_rlast,
-  output [3:0]  io_slave_rid
+  input  [63:0] io_logCtrl_log_begin,
+  input  [63:0] io_logCtrl_log_end,
+  input  [63:0] io_logCtrl_log_level,
+  input         io_perfInfo_clean,
+  input         io_perfInfo_dump,
+  output        io_uart_out_valid,
+  output [7:0]  io_uart_out_ch,
+  output        io_uart_in_valid,
+  input  [7:0]  io_uart_in_ch,
+  input         io_memAXI_0_aw_ready,
+  output        io_memAXI_0_aw_valid,
+  output [63:0] io_memAXI_0_aw_bits_addr,
+  output [2:0]  io_memAXI_0_aw_bits_prot,
+  output [3:0]  io_memAXI_0_aw_bits_id,
+  output        io_memAXI_0_aw_bits_user,
+  output [7:0]  io_memAXI_0_aw_bits_len,
+  output [2:0]  io_memAXI_0_aw_bits_size,
+  output [1:0]  io_memAXI_0_aw_bits_burst,
+  output        io_memAXI_0_aw_bits_lock,
+  output [3:0]  io_memAXI_0_aw_bits_cache,
+  output [3:0]  io_memAXI_0_aw_bits_qos,
+  input         io_memAXI_0_w_ready,
+  output        io_memAXI_0_w_valid,
+  output [63:0] io_memAXI_0_w_bits_data[3:0],
+  output [7:0]  io_memAXI_0_w_bits_strb,
+  output        io_memAXI_0_w_bits_last,
+  output        io_memAXI_0_b_ready,
+  input         io_memAXI_0_b_valid,
+  input  [1:0]  io_memAXI_0_b_bits_resp,
+  input  [3:0]  io_memAXI_0_b_bits_id,
+  input         io_memAXI_0_b_bits_user,
+  input         io_memAXI_0_ar_ready,
+  output        io_memAXI_0_ar_valid,
+  output [63:0] io_memAXI_0_ar_bits_addr,
+  output [2:0]  io_memAXI_0_ar_bits_prot,
+  output [3:0]  io_memAXI_0_ar_bits_id,
+  output        io_memAXI_0_ar_bits_user,
+  output [7:0]  io_memAXI_0_ar_bits_len,
+  output [2:0]  io_memAXI_0_ar_bits_size,
+  output [1:0]  io_memAXI_0_ar_bits_burst,
+  output        io_memAXI_0_ar_bits_lock,
+  output [3:0]  io_memAXI_0_ar_bits_cache,
+  output [3:0]  io_memAXI_0_ar_bits_qos,
+  output        io_memAXI_0_r_ready,
+  input         io_memAXI_0_r_valid,
+  input  [1:0]  io_memAXI_0_r_bits_resp,
+  input  [63:0] io_memAXI_0_r_bits_data[3:0],
+  input         io_memAXI_0_r_bits_last,
+  input  [3:0]  io_memAXI_0_r_bits_id,
+  input         io_memAXI_0_r_bits_user
 );
-  wire  core_clock; // @[SimTop.scala 13:20]
-  wire  core_reset; // @[SimTop.scala 13:20]
-  wire [63:0] core_io_isram_addr; // @[SimTop.scala 13:20]
-  wire  core_io_isram_addr_valid; // @[SimTop.scala 13:20]
-  wire  core_io_isram_addr_can_send; // @[SimTop.scala 13:20]
-  wire  core_io_isram_addr_ok; // @[SimTop.scala 13:20]
-  wire  core_io_isram_data_ok; // @[SimTop.scala 13:20]
-  wire  core_io_isram_using; // @[SimTop.scala 13:20]
-  wire [63:0] core_io_isram_rdata; // @[SimTop.scala 13:20]
-  wire  core_io_dsram_wr; // @[SimTop.scala 13:20]
-  wire [63:0] core_io_dsram_addr; // @[SimTop.scala 13:20]
-  wire [7:0] core_io_dsram_wstrb; // @[SimTop.scala 13:20]
-  wire [63:0] core_io_dsram_wdata; // @[SimTop.scala 13:20]
-  wire  core_io_dsram_addr_valid; // @[SimTop.scala 13:20]
-  wire  core_io_dsram_data_ok; // @[SimTop.scala 13:20]
-  wire  core_io_dsram_using; // @[SimTop.scala 13:20]
-  wire [63:0] core_io_dsram_rdata; // @[SimTop.scala 13:20]
-  wire  u_axi_rw_clock; // @[SimTop.scala 15:24]
-  wire  u_axi_rw_reset; // @[SimTop.scala 15:24]
-  wire  u_axi_rw_io_rw_valid_i; // @[SimTop.scala 15:24]
-  wire  u_axi_rw_io_rw_ready_o; // @[SimTop.scala 15:24]
-  wire  u_axi_rw_io_rw_req_i; // @[SimTop.scala 15:24]
-  wire [63:0] u_axi_rw_io_data_read_o; // @[SimTop.scala 15:24]
-  wire [63:0] u_axi_rw_io_data_write_i; // @[SimTop.scala 15:24]
-  wire [63:0] u_axi_rw_io_rw_addr_i; // @[SimTop.scala 15:24]
-  wire [1:0] u_axi_rw_io_rw_size_i; // @[SimTop.scala 15:24]
-  wire [7:0] u_axi_rw_io_w_strb; // @[SimTop.scala 15:24]
-  wire [3:0] u_axi_rw_io_axi_id; // @[SimTop.scala 15:24]
-  wire  u_axi_rw_io_axi_aw_ready_i; // @[SimTop.scala 15:24]
-  wire  u_axi_rw_io_axi_aw_valid_o; // @[SimTop.scala 15:24]
-  wire [63:0] u_axi_rw_io_axi_aw_addr_o; // @[SimTop.scala 15:24]
-  wire [3:0] u_axi_rw_io_axi_aw_id_o; // @[SimTop.scala 15:24]
-  wire [7:0] u_axi_rw_io_axi_aw_len_o; // @[SimTop.scala 15:24]
-  wire  u_axi_rw_io_axi_w_ready_i; // @[SimTop.scala 15:24]
-  wire  u_axi_rw_io_axi_w_valid_o; // @[SimTop.scala 15:24]
-  wire [63:0] u_axi_rw_io_axi_w_data_o; // @[SimTop.scala 15:24]
-  wire [7:0] u_axi_rw_io_axi_w_strb_o; // @[SimTop.scala 15:24]
-  wire  u_axi_rw_io_axi_w_last_o; // @[SimTop.scala 15:24]
-  wire  u_axi_rw_io_axi_b_ready_o; // @[SimTop.scala 15:24]
-  wire  u_axi_rw_io_axi_b_valid_i; // @[SimTop.scala 15:24]
-  wire  u_axi_rw_io_axi_ar_ready_i; // @[SimTop.scala 15:24]
-  wire  u_axi_rw_io_axi_ar_valid_o; // @[SimTop.scala 15:24]
-  wire [63:0] u_axi_rw_io_axi_ar_addr_o; // @[SimTop.scala 15:24]
-  wire [3:0] u_axi_rw_io_axi_ar_id_o; // @[SimTop.scala 15:24]
-  wire [7:0] u_axi_rw_io_axi_ar_len_o; // @[SimTop.scala 15:24]
-  wire  u_axi_rw_io_axi_r_ready_o; // @[SimTop.scala 15:24]
-  wire  u_axi_rw_io_axi_r_valid_i; // @[SimTop.scala 15:24]
-  wire [63:0] u_axi_rw_io_axi_r_data_i; // @[SimTop.scala 15:24]
-  wire  u_axi_rw_io_axi_r_last_i; // @[SimTop.scala 15:24]
-  wire  s_a_brid_clock; // @[SimTop.scala 17:24]
-  wire  s_a_brid_reset; // @[SimTop.scala 17:24]
-  wire [63:0] s_a_brid_io_iram_addr; // @[SimTop.scala 17:24]
-  wire  s_a_brid_io_iram_addr_valid; // @[SimTop.scala 17:24]
-  wire  s_a_brid_io_iram_addr_can_send; // @[SimTop.scala 17:24]
-  wire  s_a_brid_io_iram_addr_ok; // @[SimTop.scala 17:24]
-  wire  s_a_brid_io_iram_data_ok; // @[SimTop.scala 17:24]
-  wire  s_a_brid_io_iram_using; // @[SimTop.scala 17:24]
-  wire [63:0] s_a_brid_io_iram_rdata; // @[SimTop.scala 17:24]
-  wire  s_a_brid_io_dram_wr; // @[SimTop.scala 17:24]
-  wire [63:0] s_a_brid_io_dram_addr; // @[SimTop.scala 17:24]
-  wire [7:0] s_a_brid_io_dram_wstrb; // @[SimTop.scala 17:24]
-  wire [63:0] s_a_brid_io_dram_wdata; // @[SimTop.scala 17:24]
-  wire  s_a_brid_io_dram_addr_valid; // @[SimTop.scala 17:24]
-  wire  s_a_brid_io_dram_addr_ok; // @[SimTop.scala 17:24]
-  wire  s_a_brid_io_dram_data_ok; // @[SimTop.scala 17:24]
-  wire  s_a_brid_io_dram_using; // @[SimTop.scala 17:24]
-  wire [63:0] s_a_brid_io_dram_rdata; // @[SimTop.scala 17:24]
-  wire  s_a_brid_io_rw_valid; // @[SimTop.scala 17:24]
-  wire  s_a_brid_io_rw_ready; // @[SimTop.scala 17:24]
-  wire  s_a_brid_io_rw_req; // @[SimTop.scala 17:24]
-  wire [63:0] s_a_brid_io_data_read; // @[SimTop.scala 17:24]
-  wire [63:0] s_a_brid_io_data_write; // @[SimTop.scala 17:24]
-  wire [63:0] s_a_brid_io_rw_addr; // @[SimTop.scala 17:24]
-  wire [1:0] s_a_brid_io_rw_size; // @[SimTop.scala 17:24]
-  wire [7:0] s_a_brid_io_w_strb; // @[SimTop.scala 17:24]
-  wire [3:0] s_a_brid_io_id; // @[SimTop.scala 17:24]
-  ysyx_20210760_Core core ( // @[SimTop.scala 13:20]
+  wire  core_clock; // @[SimTop.scala 15:20]
+  wire  core_reset; // @[SimTop.scala 15:20]
+  wire [63:0] core_io_isram_addr; // @[SimTop.scala 15:20]
+  wire  core_io_isram_addr_valid; // @[SimTop.scala 15:20]
+  wire  core_io_isram_addr_can_send; // @[SimTop.scala 15:20]
+  wire  core_io_isram_addr_ok; // @[SimTop.scala 15:20]
+  wire  core_io_isram_data_ok; // @[SimTop.scala 15:20]
+  wire  core_io_isram_using; // @[SimTop.scala 15:20]
+  wire [63:0] core_io_isram_rdata; // @[SimTop.scala 15:20]
+  wire  core_io_dsram_wr; // @[SimTop.scala 15:20]
+  wire [63:0] core_io_dsram_addr; // @[SimTop.scala 15:20]
+  wire [7:0] core_io_dsram_wstrb; // @[SimTop.scala 15:20]
+  wire [63:0] core_io_dsram_wdata; // @[SimTop.scala 15:20]
+  wire  core_io_dsram_addr_valid; // @[SimTop.scala 15:20]
+  wire  core_io_dsram_data_ok; // @[SimTop.scala 15:20]
+  wire  core_io_dsram_using; // @[SimTop.scala 15:20]
+  wire [63:0] core_io_dsram_rdata; // @[SimTop.scala 15:20]
+  wire  u_axi_rw_clock; // @[SimTop.scala 17:24]
+  wire  u_axi_rw_reset; // @[SimTop.scala 17:24]
+  wire  u_axi_rw_io_rw_valid_i; // @[SimTop.scala 17:24]
+  wire  u_axi_rw_io_rw_ready_o; // @[SimTop.scala 17:24]
+  wire  u_axi_rw_io_rw_req_i; // @[SimTop.scala 17:24]
+  wire [63:0] u_axi_rw_io_data_read_o; // @[SimTop.scala 17:24]
+  wire [63:0] u_axi_rw_io_data_write_i; // @[SimTop.scala 17:24]
+  wire [63:0] u_axi_rw_io_rw_addr_i; // @[SimTop.scala 17:24]
+  wire [1:0] u_axi_rw_io_rw_size_i; // @[SimTop.scala 17:24]
+  wire [7:0] u_axi_rw_io_w_strb; // @[SimTop.scala 17:24]
+  wire [3:0] u_axi_rw_io_axi_id; // @[SimTop.scala 17:24]
+  wire  u_axi_rw_io_axi_aw_ready_i; // @[SimTop.scala 17:24]
+  wire  u_axi_rw_io_axi_aw_valid_o; // @[SimTop.scala 17:24]
+  wire [63:0] u_axi_rw_io_axi_aw_addr_o; // @[SimTop.scala 17:24]
+  wire [3:0] u_axi_rw_io_axi_aw_id_o; // @[SimTop.scala 17:24]
+  wire [7:0] u_axi_rw_io_axi_aw_len_o; // @[SimTop.scala 17:24]
+  wire  u_axi_rw_io_axi_w_ready_i; // @[SimTop.scala 17:24]
+  wire  u_axi_rw_io_axi_w_valid_o; // @[SimTop.scala 17:24]
+  wire [63:0] u_axi_rw_io_axi_w_data_o; // @[SimTop.scala 17:24]
+  wire [7:0] u_axi_rw_io_axi_w_strb_o; // @[SimTop.scala 17:24]
+  wire  u_axi_rw_io_axi_w_last_o; // @[SimTop.scala 17:24]
+  wire  u_axi_rw_io_axi_b_ready_o; // @[SimTop.scala 17:24]
+  wire  u_axi_rw_io_axi_b_valid_i; // @[SimTop.scala 17:24]
+  wire  u_axi_rw_io_axi_ar_ready_i; // @[SimTop.scala 17:24]
+  wire  u_axi_rw_io_axi_ar_valid_o; // @[SimTop.scala 17:24]
+  wire [63:0] u_axi_rw_io_axi_ar_addr_o; // @[SimTop.scala 17:24]
+  wire [3:0] u_axi_rw_io_axi_ar_id_o; // @[SimTop.scala 17:24]
+  wire [7:0] u_axi_rw_io_axi_ar_len_o; // @[SimTop.scala 17:24]
+  wire  u_axi_rw_io_axi_r_ready_o; // @[SimTop.scala 17:24]
+  wire  u_axi_rw_io_axi_r_valid_i; // @[SimTop.scala 17:24]
+  wire [63:0] u_axi_rw_io_axi_r_data_i; // @[SimTop.scala 17:24]
+  wire  u_axi_rw_io_axi_r_last_i; // @[SimTop.scala 17:24]
+  wire  s_a_brid_clock; // @[SimTop.scala 19:24]
+  wire  s_a_brid_reset; // @[SimTop.scala 19:24]
+  wire [63:0] s_a_brid_io_iram_addr; // @[SimTop.scala 19:24]
+  wire  s_a_brid_io_iram_addr_valid; // @[SimTop.scala 19:24]
+  wire  s_a_brid_io_iram_addr_can_send; // @[SimTop.scala 19:24]
+  wire  s_a_brid_io_iram_addr_ok; // @[SimTop.scala 19:24]
+  wire  s_a_brid_io_iram_data_ok; // @[SimTop.scala 19:24]
+  wire  s_a_brid_io_iram_using; // @[SimTop.scala 19:24]
+  wire [63:0] s_a_brid_io_iram_rdata; // @[SimTop.scala 19:24]
+  wire  s_a_brid_io_dram_wr; // @[SimTop.scala 19:24]
+  wire [63:0] s_a_brid_io_dram_addr; // @[SimTop.scala 19:24]
+  wire [7:0] s_a_brid_io_dram_wstrb; // @[SimTop.scala 19:24]
+  wire [63:0] s_a_brid_io_dram_wdata; // @[SimTop.scala 19:24]
+  wire  s_a_brid_io_dram_addr_valid; // @[SimTop.scala 19:24]
+  wire  s_a_brid_io_dram_addr_ok; // @[SimTop.scala 19:24]
+  wire  s_a_brid_io_dram_data_ok; // @[SimTop.scala 19:24]
+  wire  s_a_brid_io_dram_using; // @[SimTop.scala 19:24]
+  wire [63:0] s_a_brid_io_dram_rdata; // @[SimTop.scala 19:24]
+  wire  s_a_brid_io_rw_valid; // @[SimTop.scala 19:24]
+  wire  s_a_brid_io_rw_ready; // @[SimTop.scala 19:24]
+  wire  s_a_brid_io_rw_req; // @[SimTop.scala 19:24]
+  wire [63:0] s_a_brid_io_data_read; // @[SimTop.scala 19:24]
+  wire [63:0] s_a_brid_io_data_write; // @[SimTop.scala 19:24]
+  wire [63:0] s_a_brid_io_rw_addr; // @[SimTop.scala 19:24]
+  wire [1:0] s_a_brid_io_rw_size; // @[SimTop.scala 19:24]
+  wire [7:0] s_a_brid_io_w_strb; // @[SimTop.scala 19:24]
+  wire [3:0] s_a_brid_io_id; // @[SimTop.scala 19:24]
+  Core core ( // @[SimTop.scala 15:20]
     .clock(core_clock),
     .reset(core_reset),
     .io_isram_addr(core_io_isram_addr),
@@ -5233,7 +5224,7 @@ module ysyx_20210760_SimTop(
     .io_dsram_using(core_io_dsram_using),
     .io_dsram_rdata(core_io_dsram_rdata)
   );
-  ysyx_20210760_AXI_RW u_axi_rw ( // @[SimTop.scala 15:24]
+  AXI_RW u_axi_rw ( // @[SimTop.scala 17:24]
     .clock(u_axi_rw_clock),
     .reset(u_axi_rw_reset),
     .io_rw_valid_i(u_axi_rw_io_rw_valid_i),
@@ -5267,7 +5258,7 @@ module ysyx_20210760_SimTop(
     .io_axi_r_data_i(u_axi_rw_io_axi_r_data_i),
     .io_axi_r_last_i(u_axi_rw_io_axi_r_last_i)
   );
-  ysyx_20210760_S_A_BRIDGE s_a_brid ( // @[SimTop.scala 17:24]
+  S_A_BRIDGE s_a_brid ( // @[SimTop.scala 19:24]
     .clock(s_a_brid_clock),
     .reset(s_a_brid_reset),
     .io_iram_addr(s_a_brid_io_iram_addr),
@@ -5296,70 +5287,72 @@ module ysyx_20210760_SimTop(
     .io_w_strb(s_a_brid_io_w_strb),
     .io_id(s_a_brid_io_id)
   );
-  assign io_master_awvalid = u_axi_rw_io_axi_aw_valid_o; // @[SimTop.scala 34:21]
-  assign io_master_awaddr = u_axi_rw_io_axi_aw_addr_o[31:0]; // @[SimTop.scala 35:48]
-  assign io_master_awid = u_axi_rw_io_axi_aw_id_o; // @[SimTop.scala 36:18]
-  assign io_master_awlen = u_axi_rw_io_axi_aw_len_o; // @[SimTop.scala 37:19]
-  assign io_master_awsize = 3'h3; // @[SimTop.scala 38:20]
-  assign io_master_awburst = 2'h1; // @[SimTop.scala 39:21]
-  assign io_master_wvalid = u_axi_rw_io_axi_w_valid_o; // @[SimTop.scala 42:20]
-  assign io_master_wdata = u_axi_rw_io_axi_w_data_o; // @[SimTop.scala 43:19]
-  assign io_master_wstrb = u_axi_rw_io_axi_w_strb_o; // @[SimTop.scala 44:19]
-  assign io_master_wlast = 1'h1; // @[SimTop.scala 45:19]
-  assign io_master_bready = u_axi_rw_io_axi_b_ready_o; // @[SimTop.scala 48:20]
-  assign io_master_arvalid = u_axi_rw_io_axi_ar_valid_o; // @[SimTop.scala 56:21]
-  assign io_master_araddr = u_axi_rw_io_axi_ar_addr_o[31:0]; // @[SimTop.scala 57:48]
-  assign io_master_arid = u_axi_rw_io_axi_ar_id_o; // @[SimTop.scala 58:18]
-  assign io_master_arlen = u_axi_rw_io_axi_ar_len_o; // @[SimTop.scala 59:19]
-  assign io_master_arsize = 3'h3; // @[SimTop.scala 60:20]
-  assign io_master_arburst = 2'h1; // @[SimTop.scala 61:21]
-  assign io_master_rready = u_axi_rw_io_axi_r_ready_o; // @[SimTop.scala 63:20]
-  assign io_slave_awready = 1'h0; // @[SimTop.scala 72:20]
-  assign io_slave_wready = 1'h0; // @[SimTop.scala 73:20]
-  assign io_slave_bvalid = 1'h0; // @[SimTop.scala 74:20]
-  assign io_slave_bresp = 2'h0; // @[SimTop.scala 75:20]
-  assign io_slave_bid = 4'h0; // @[SimTop.scala 76:20]
-  assign io_slave_arready = 1'h0; // @[SimTop.scala 77:20]
-  assign io_slave_rvalid = 1'h0; // @[SimTop.scala 78:20]
-  assign io_slave_rresp = 2'h0; // @[SimTop.scala 79:20]
-  assign io_slave_rdata = 64'h0; // @[SimTop.scala 80:20]
-  assign io_slave_rlast = 1'h0; // @[SimTop.scala 81:20]
-  assign io_slave_rid = 4'h0; // @[SimTop.scala 82:20]
+  assign io_uart_out_valid = 1'h0; // @[SimTop.scala 87:21]
+  assign io_uart_out_ch = 8'h0; // @[SimTop.scala 88:18]
+  assign io_uart_in_valid = 1'h0; // @[SimTop.scala 89:20]
+  assign io_memAXI_0_aw_valid = u_axi_rw_io_axi_aw_valid_o; // @[SimTop.scala 37:24]
+  assign io_memAXI_0_aw_bits_addr = u_axi_rw_io_axi_aw_addr_o; // @[SimTop.scala 38:28]
+  assign io_memAXI_0_aw_bits_prot = 3'h0; // @[SimTop.scala 39:28]
+  assign io_memAXI_0_aw_bits_id = u_axi_rw_io_axi_aw_id_o; // @[SimTop.scala 40:26]
+  assign io_memAXI_0_aw_bits_user = 1'h0; // @[SimTop.scala 41:28]
+  assign io_memAXI_0_aw_bits_len = u_axi_rw_io_axi_aw_len_o; // @[SimTop.scala 42:27]
+  assign io_memAXI_0_aw_bits_size = 3'h3; // @[SimTop.scala 43:28]
+  assign io_memAXI_0_aw_bits_burst = 2'h1; // @[SimTop.scala 44:29]
+  assign io_memAXI_0_aw_bits_lock = 1'h0; // @[SimTop.scala 45:28]
+  assign io_memAXI_0_aw_bits_cache = 4'h0; // @[SimTop.scala 46:29]
+  assign io_memAXI_0_aw_bits_qos = 4'h0; // @[SimTop.scala 47:27]
+  assign io_memAXI_0_w_valid = u_axi_rw_io_axi_w_valid_o; // @[SimTop.scala 51:23]
+  assign io_memAXI_0_w_bits_data[0] = u_axi_rw_io_axi_w_data_o; // @[SimTop.scala 52:27]
+  assign io_memAXI_0_w_bits_strb = u_axi_rw_io_axi_w_strb_o; // @[SimTop.scala 53:27]
+  assign io_memAXI_0_w_bits_last = 1'h1; // @[SimTop.scala 54:27]
+  assign io_memAXI_0_b_ready = u_axi_rw_io_axi_b_ready_o; // @[SimTop.scala 57:23]
+  assign io_memAXI_0_ar_valid = u_axi_rw_io_axi_ar_valid_o; // @[SimTop.scala 65:24]
+  assign io_memAXI_0_ar_bits_addr = u_axi_rw_io_axi_ar_addr_o; // @[SimTop.scala 66:28]
+  assign io_memAXI_0_ar_bits_prot = 3'h0; // @[SimTop.scala 67:28]
+  assign io_memAXI_0_ar_bits_id = u_axi_rw_io_axi_ar_id_o; // @[SimTop.scala 68:26]
+  assign io_memAXI_0_ar_bits_user = 1'h0; // @[SimTop.scala 69:28]
+  assign io_memAXI_0_ar_bits_len = u_axi_rw_io_axi_ar_len_o; // @[SimTop.scala 70:27]
+  assign io_memAXI_0_ar_bits_size = 3'h3; // @[SimTop.scala 71:28]
+  assign io_memAXI_0_ar_bits_burst = 2'h1; // @[SimTop.scala 72:29]
+  assign io_memAXI_0_ar_bits_lock = 1'h0; // @[SimTop.scala 73:28]
+  assign io_memAXI_0_ar_bits_cache = 4'h0; // @[SimTop.scala 74:29]
+  assign io_memAXI_0_ar_bits_qos = 4'h0; // @[SimTop.scala 75:27]
+  assign io_memAXI_0_r_ready = u_axi_rw_io_axi_r_ready_o; // @[SimTop.scala 78:23]
   assign core_clock = clock;
   assign core_reset = reset;
-  assign core_io_isram_addr_ok = s_a_brid_io_iram_addr_ok; // @[SimTop.scala 19:17]
-  assign core_io_isram_data_ok = s_a_brid_io_iram_data_ok; // @[SimTop.scala 19:17]
-  assign core_io_isram_rdata = s_a_brid_io_iram_rdata; // @[SimTop.scala 19:17]
-  assign core_io_dsram_data_ok = s_a_brid_io_dram_data_ok; // @[SimTop.scala 20:17]
-  assign core_io_dsram_rdata = s_a_brid_io_dram_rdata; // @[SimTop.scala 20:17]
+  assign core_io_isram_addr_ok = s_a_brid_io_iram_addr_ok; // @[SimTop.scala 21:17]
+  assign core_io_isram_data_ok = s_a_brid_io_iram_data_ok; // @[SimTop.scala 21:17]
+  assign core_io_isram_rdata = s_a_brid_io_iram_rdata; // @[SimTop.scala 21:17]
+  assign core_io_dsram_data_ok = s_a_brid_io_dram_data_ok; // @[SimTop.scala 22:17]
+  assign core_io_dsram_rdata = s_a_brid_io_dram_rdata; // @[SimTop.scala 22:17]
   assign u_axi_rw_clock = clock;
   assign u_axi_rw_reset = reset;
-  assign u_axi_rw_io_rw_valid_i = s_a_brid_io_rw_valid; // @[SimTop.scala 22:26]
-  assign u_axi_rw_io_rw_req_i = s_a_brid_io_rw_req; // @[SimTop.scala 24:24]
-  assign u_axi_rw_io_data_write_i = s_a_brid_io_data_write; // @[SimTop.scala 26:28]
-  assign u_axi_rw_io_rw_addr_i = s_a_brid_io_rw_addr; // @[SimTop.scala 27:25]
-  assign u_axi_rw_io_rw_size_i = s_a_brid_io_rw_size; // @[SimTop.scala 28:25]
-  assign u_axi_rw_io_w_strb = s_a_brid_io_w_strb; // @[SimTop.scala 30:22]
-  assign u_axi_rw_io_axi_id = s_a_brid_io_id; // @[SimTop.scala 31:22]
-  assign u_axi_rw_io_axi_aw_ready_i = io_master_awready; // @[SimTop.scala 33:30]
-  assign u_axi_rw_io_axi_w_ready_i = io_master_wready; // @[SimTop.scala 41:29]
-  assign u_axi_rw_io_axi_b_valid_i = io_master_bvalid; // @[SimTop.scala 49:29]
-  assign u_axi_rw_io_axi_ar_ready_i = io_master_arready; // @[SimTop.scala 55:30]
-  assign u_axi_rw_io_axi_r_valid_i = io_master_rvalid; // @[SimTop.scala 64:29]
-  assign u_axi_rw_io_axi_r_data_i = io_master_rdata; // @[SimTop.scala 66:28]
-  assign u_axi_rw_io_axi_r_last_i = io_master_rlast; // @[SimTop.scala 67:28]
+  assign u_axi_rw_io_rw_valid_i = s_a_brid_io_rw_valid; // @[SimTop.scala 24:26]
+  assign u_axi_rw_io_rw_req_i = s_a_brid_io_rw_req; // @[SimTop.scala 26:24]
+  assign u_axi_rw_io_data_write_i = s_a_brid_io_data_write; // @[SimTop.scala 28:28]
+  assign u_axi_rw_io_rw_addr_i = s_a_brid_io_rw_addr; // @[SimTop.scala 29:25]
+  assign u_axi_rw_io_rw_size_i = s_a_brid_io_rw_size; // @[SimTop.scala 30:25]
+  assign u_axi_rw_io_w_strb = s_a_brid_io_w_strb; // @[SimTop.scala 32:22]
+  assign u_axi_rw_io_axi_id = s_a_brid_io_id; // @[SimTop.scala 33:22]
+  assign u_axi_rw_io_axi_aw_ready_i = io_memAXI_0_aw_ready; // @[SimTop.scala 36:30]
+  assign u_axi_rw_io_axi_w_ready_i = io_memAXI_0_w_ready; // @[SimTop.scala 50:29]
+  assign u_axi_rw_io_axi_b_valid_i = io_memAXI_0_b_valid; // @[SimTop.scala 58:29]
+  assign u_axi_rw_io_axi_ar_ready_i = io_memAXI_0_ar_ready; // @[SimTop.scala 64:30]
+  assign u_axi_rw_io_axi_r_valid_i = io_memAXI_0_r_valid; // @[SimTop.scala 79:29]
+  assign u_axi_rw_io_axi_r_data_i = io_memAXI_0_r_bits_data[0]; // @[SimTop.scala 81:28]
+  assign u_axi_rw_io_axi_r_last_i = io_memAXI_0_r_bits_last; // @[SimTop.scala 82:28]
   assign s_a_brid_clock = clock;
   assign s_a_brid_reset = reset;
-  assign s_a_brid_io_iram_addr = core_io_isram_addr; // @[SimTop.scala 19:17]
-  assign s_a_brid_io_iram_addr_valid = core_io_isram_addr_valid; // @[SimTop.scala 19:17]
-  assign s_a_brid_io_iram_addr_can_send = core_io_isram_addr_can_send; // @[SimTop.scala 19:17]
-  assign s_a_brid_io_iram_using = core_io_isram_using; // @[SimTop.scala 19:17]
-  assign s_a_brid_io_dram_wr = core_io_dsram_wr; // @[SimTop.scala 20:17]
-  assign s_a_brid_io_dram_addr = core_io_dsram_addr; // @[SimTop.scala 20:17]
-  assign s_a_brid_io_dram_wstrb = core_io_dsram_wstrb; // @[SimTop.scala 20:17]
-  assign s_a_brid_io_dram_wdata = core_io_dsram_wdata; // @[SimTop.scala 20:17]
-  assign s_a_brid_io_dram_addr_valid = core_io_dsram_addr_valid; // @[SimTop.scala 20:17]
-  assign s_a_brid_io_dram_using = core_io_dsram_using; // @[SimTop.scala 20:17]
-  assign s_a_brid_io_rw_ready = u_axi_rw_io_rw_ready_o; // @[SimTop.scala 23:24]
-  assign s_a_brid_io_data_read = u_axi_rw_io_data_read_o; // @[SimTop.scala 25:25]
+  assign s_a_brid_io_iram_addr = core_io_isram_addr; // @[SimTop.scala 21:17]
+  assign s_a_brid_io_iram_addr_valid = core_io_isram_addr_valid; // @[SimTop.scala 21:17]
+  assign s_a_brid_io_iram_addr_can_send = core_io_isram_addr_can_send; // @[SimTop.scala 21:17]
+  assign s_a_brid_io_iram_using = core_io_isram_using; // @[SimTop.scala 21:17]
+  assign s_a_brid_io_dram_wr = core_io_dsram_wr; // @[SimTop.scala 22:17]
+  assign s_a_brid_io_dram_addr = core_io_dsram_addr; // @[SimTop.scala 22:17]
+  assign s_a_brid_io_dram_wstrb = core_io_dsram_wstrb; // @[SimTop.scala 22:17]
+  assign s_a_brid_io_dram_wdata = core_io_dsram_wdata; // @[SimTop.scala 22:17]
+  assign s_a_brid_io_dram_addr_valid = core_io_dsram_addr_valid; // @[SimTop.scala 22:17]
+  assign s_a_brid_io_dram_using = core_io_dsram_using; // @[SimTop.scala 22:17]
+  assign s_a_brid_io_rw_ready = u_axi_rw_io_rw_ready_o; // @[SimTop.scala 25:24]
+  assign s_a_brid_io_data_read = u_axi_rw_io_data_read_o; // @[SimTop.scala 27:25]
 endmodule
