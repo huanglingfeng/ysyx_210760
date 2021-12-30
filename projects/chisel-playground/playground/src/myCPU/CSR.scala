@@ -81,7 +81,7 @@ class CSR extends Module {
   val mtime = RegInit(0.U(64.W))
   val mtime_delay = RegInit(0.U(64.W))
 
-  when(mtime_delay === "d255".U) {
+  when(mtime_delay === "hffff".U) {
     mtime := mtime + 1.U
     mtime_delay := 0.U
   }.otherwise{

@@ -141,16 +141,16 @@ class Decode extends Module {
 
       ECALL   -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_CSR ,  ALU_ADD ,  BRU_X    ,  LSU_X    ,  RV64_X     ,  CSR_ECALL ),
       MRET    -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_CSR ,  ALU_ADD ,  BRU_X    ,  LSU_X    ,  RV64_X     ,  CSR_MRET  ),
-      //---------------------自定义-----------------------------//
-      PUTCH   -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_ALU ,  ALU_ADD ,  BRU_X    ,  LSU_X    ,  RV64_X     ,  CSR_X   )
-
+      //---------------------其他指令-----------------------------//
+      PUTCH   -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_ALU ,  ALU_ADD ,  BRU_X    ,  LSU_X    ,  RV64_X     ,  CSR_X   ),
+      FENCE_I -> List(Y, OUT1_RS1 , OUT2_IMM, IMM_I  ,  OPTYPE_ALU ,  ALU_ADD ,  BRU_X    ,  LSU_X    ,  RV64_X     ,  CSR_X   )
     ))
     val (inst_valid: Bool) :: id_out1 :: id_out2 :: id_imm :: optype :: aluop :: bruop :: lsuop :: rv64op :: csrop :: Nil = ctr_signals
 
-    val is_putch = Wire(Bool())
-    is_putch := (inst === PUTCH)
+    val inst_like_nop = Wire(Bool())
+    inst_like_nop := (inst === PUTCH) || (inst === FENCE_I)
 
-    val rs1_addr = Mux(is_putch, "d10".U ,rs1)
+    val rs1_addr = Mux(inst_like_nop, "d10".U ,rs1)
     io.rs1_addr := rs1_addr
     val rs2_addr = rs2
     io.rs2_addr := rs2_addr
@@ -217,7 +217,7 @@ class Decode extends Module {
       id_out2(0) -> rs2_data,
       id_out2(1) ->imm
     ))
-    io.id_to_ex.dest := Mux(is_putch,0.U,rd)
+    io.id_to_ex.dest := Mux(inst_like_nop,0.U,rd)
 
     val load = Mux1H(Seq(
       (lsuop === 0.U && rv64op === 0.U) -> N,
