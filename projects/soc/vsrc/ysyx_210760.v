@@ -1,5 +1,5 @@
 module ysyx_210760_InstFetch(
-  input         clock,
+  input         clock, 
   input         reset,
   input         io_ds_allowin,
   output        io_fs_to_ds_valid,
