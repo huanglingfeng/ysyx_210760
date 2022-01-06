@@ -1,5 +1,5 @@
 module ysyx_210760_InstFetch(
-  input         clock, 
+  input         clock,
   input         reset,
   input         io_ds_allowin,
   output        io_fs_to_ds_valid,
@@ -1310,8 +1310,12 @@ module ysyx_210760_Execution(
   wire [63:0] or_res_64 = io_id_to_ex_out1 | io_id_to_ex_out2; // @[Execution.scala 100:27]
   wire [63:0] xor_res_64 = io_id_to_ex_out1 ^ io_id_to_ex_out2; // @[Execution.scala 102:28]
   wire [63:0] sub_res_64 = io_id_to_ex_out1 - io_id_to_ex_out2; // @[Execution.scala 106:28]
-  wire [63:0] sll_res_64 = io_id_to_ex_out1 << io_id_to_ex_out2[5:0]; // @[Execution.scala 109:55]
-  wire [31:0] sll_res_32 = src1_32 << lui_res_32[4:0]; // @[Execution.scala 110:55]
+  wire [126:0] _GEN_0 = {{63'd0}, io_id_to_ex_out1}; // @[Execution.scala 109:38]
+  wire [126:0] _sll_res_64_T_1 = _GEN_0 << io_id_to_ex_out2[5:0]; // @[Execution.scala 109:38]
+  wire [63:0] sll_res_64 = _sll_res_64_T_1[63:0]; // @[Execution.scala 109:55]
+  wire [62:0] _GEN_1 = {{31'd0}, src1_32}; // @[Execution.scala 110:38]
+  wire [62:0] _sll_res_32_T_1 = _GEN_1 << lui_res_32[4:0]; // @[Execution.scala 110:38]
+  wire [31:0] sll_res_32 = _sll_res_32_T_1[31:0]; // @[Execution.scala 110:55]
   wire [63:0] srl_res_64 = io_id_to_ex_out1 >> io_id_to_ex_out2[5:0]; // @[Execution.scala 112:37]
   wire [31:0] srl_res_32 = src1_32 >> lui_res_32[4:0]; // @[Execution.scala 113:37]
   wire [63:0] sra_res_64 = $signed(io_id_to_ex_out1) >>> io_id_to_ex_out2[5:0]; // @[Execution.scala 116:62]
@@ -2917,7 +2921,8 @@ module ysyx_210760_CSR(
   wire [63:0] _csr_target_T = {csr_target_hi,2'h0}; // @[Cat.scala 30:58]
   wire [62:0] csr_target_lo = mcause[62:0]; // @[CSR.scala 236:68]
   wire [63:0] _csr_target_T_1 = {1'h0,csr_target_lo}; // @[Cat.scala 30:58]
-  wire [63:0] _csr_target_T_5 = _csr_target_T + _csr_target_T_1 << 2'd2; // @[CSR.scala 236:50]
+  wire [65:0] _csr_target_T_2 = {_csr_target_T_1, 2'h0}; // @[CSR.scala 236:77]
+  wire [63:0] _csr_target_T_5 = _csr_target_T + _csr_target_T_2[63:0]; // @[CSR.scala 236:50]
   wire [63:0] _GEN_153 = mtvec[1:0] == 2'h1 ? _csr_target_T_5 : 64'h0; // @[CSR.scala 235:37 CSR.scala 236:18]
   wire [63:0] _GEN_154 = mtvec[1:0] == 2'h0 ? mtvec : _GEN_153; // @[CSR.scala 233:31 CSR.scala 234:18]
   wire [62:0] _GEN_155 = is_trap_end ? _lo_T_13 : _GEN_123; // @[CSR.scala 239:29 CSR.scala 240:17]
